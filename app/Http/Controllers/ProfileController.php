@@ -28,6 +28,8 @@ class ProfileController extends Controller
                 'role' => $request->user()->role->value,
                 'language' => $request->user()->language,
                 'notification_preferences' => $request->user()->notification_preferences ?? [],
+                'created_at' => $request->user()->created_at?->toIso8601String(),
+                'last_login_at' => $request->user()->last_login_at?->toIso8601String(),
             ],
             'recentActivity' => $request->user()->activityLogs()->latest()->take(10)->get()
         ]);

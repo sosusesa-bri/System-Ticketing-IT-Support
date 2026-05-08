@@ -46,11 +46,11 @@ class TicketAttachment extends Model
     }
 
     /**
-     * Get the full URL to this attachment.
+     * Get the full URL to this attachment via the secure route.
      */
     public function getUrlAttribute(): string
     {
-        return Storage::disk($this->disk)->url($this->path);
+        return route('attachments.show', $this->id);
     }
 
     /**

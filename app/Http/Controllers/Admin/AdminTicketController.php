@@ -135,7 +135,7 @@ class AdminTicketController extends Controller
                     'original_name' => $a->original_name,
                     'mime_type' => $a->mime_type,
                     'formatted_size' => $a->formatted_size,
-                    'url' => \Illuminate\Support\Facades\Storage::url($a->file_path),
+                    'url' => route('attachments.show', $a->id),
                 ]),
                 'assignments' => $ticket->assignments->map(fn ($a) => [
                     'id' => $a->id,

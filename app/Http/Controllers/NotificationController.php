@@ -14,20 +14,39 @@ class NotificationController extends Controller
      */
     public function index(Request $request): Response
     {
-        $notifications = $request->user()
-            ->notifications()
-            ->latest()
+        $user = $request->user();
+        $filter = $request->get('filter', 'all');
+
+        $query = $user->notifications()->latest();
+
+        if ($filter === 'unread') {
+            $query->whereNull('read_at');
+        } elseif ($filter === 'read') {
+            $query->whereNotNull('read_at');
+        }
+
+        $notifications = $query
             ->paginate(20)
             ->through(fn ($notification) => [
                 'id' => $notification->id,
                 'type' => class_basename($notification->type),
                 'data' => $notification->data,
-                'read_at' => $notification->read_at,
+                'read_at' => $notification->read_at?->toIso8601String(),
                 'created_at' => $notification->created_at->diffForHumans(),
+                'created_at_full' => $notification->created_at->format('d M Y, H:i'),
             ]);
+
+        $stats = [
+            'total' => $user->notifications()->count(),
+            'unread' => $user->unreadNotifications()->count(),
+            'read' => $user->notifications()->whereNotNull('read_at')->count(),
+            'today' => $user->notifications()->whereDate('created_at', today())->count(),
+        ];
 
         return Inertia::render('Notifications/Index', [
             'notifications' => $notifications,
+            'stats' => $stats,
+            'filter' => $filter,
         ]);
     }
 
@@ -50,5 +69,25 @@ class NotificationController extends Controller
         $request->user()->unreadNotifications->markAsRead();
 
         return back()->with('success', 'All notifications marked as read.');
+    }
+
+    /**
+     * Delete a specific notification.
+     */
+    public function destroy(Request $request, string $id): RedirectResponse
+    {
+        $request->user()->notifications()->findOrFail($id)->delete();
+
+        return back()->with('success', 'Notification deleted.');
+    }
+
+    /**
+     * Delete all read notifications.
+     */
+    public function destroyRead(Request $request): RedirectResponse
+    {
+        $request->user()->notifications()->whereNotNull('read_at')->delete();
+
+        return back()->with('success', 'Read notifications cleared.');
     }
 }

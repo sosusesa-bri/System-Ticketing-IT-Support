@@ -1,13 +1,11 @@
 import { Head } from '@inertiajs/react';
 import { motion } from 'framer-motion';
-
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu';
-import { Globe } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
 
 export default function AuthLayout({ children, title }) {
     const { language, setLanguage } = useLanguage();
-    
+
     return (
         <>
             <Head title={title} />
@@ -46,41 +44,90 @@ export default function AuthLayout({ children, title }) {
                     </DropdownMenu.Root>
                 </div>
 
-                {/* Left Panel - Branding & Background */}
-                <div className="hidden lg:flex lg:w-1/2 bg-primary-900 relative overflow-hidden flex-col items-center justify-end pb-24">
-                    {/* Background image anchored to the left/center */}
-                    <motion.div 
-                        initial={{ scale: 1.05 }}
+                {/* ─────────────────────────────────────────────────── */}
+                {/*  LEFT PANEL - Premium Institutional Branding       */}
+                {/* ─────────────────────────────────────────────────── */}
+                <div className="hidden lg:flex lg:w-1/2 bg-primary-900 relative overflow-hidden" style={{ fontFamily: "'Plus Jakarta Sans', 'Inter', sans-serif" }}>
+
+                    {/* Background Image — dominant, full-bleed */}
+                    <motion.div
+                        initial={{ scale: 1.04 }}
                         animate={{ scale: 1 }}
-                        transition={{ duration: 1.5, ease: "easeOut" }}
-                        className="absolute inset-0 bg-no-repeat bg-cover bg-center opacity-80"
-                        style={{ backgroundImage: "url('/images/background.png')" }}
+                        transition={{ duration: 2, ease: 'easeOut' }}
+                        className="absolute inset-0 opacity-60"
                     >
-                        {/* Overlay gradient to smooth transition to text area */}
-                        <div className="absolute inset-0 bg-gradient-to-t from-primary-900 via-primary-900/60 to-transparent"></div>
+                        <div
+                            className="absolute inset-0 bg-cover bg-center"
+                            style={{ backgroundImage: "url('/images/background.png')" }}
+                        />
                     </motion.div>
-                    
-                    {/* Text content aligned to the lower center of the left panel */}
-                    <motion.div 
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.8, delay: 0.3, ease: "easeOut" }}
-                        className="relative z-10 w-full max-w-lg text-center px-8"
-                    >
-                        <h1 className="text-4xl font-extrabold text-white tracking-tight mb-4 leading-tight drop-shadow-md">
-                            IT Support<br/>Ticketing System
-                        </h1>
-                        <p className="text-primary-100/90 text-lg leading-relaxed font-medium">
-                            {language === 'id' 
-                                ? 'Bantuan IT yang mulus, efisien, dan profesional untuk Politeknik Mitra Industri.'
-                                : 'Seamless, efficient, and professional IT assistance for Politeknik Mitra Industri.'}
-                        </p>
-                    </motion.div>
+
+                    {/* Text Composition — bottom-left, editorial rhythm */}
+                    <div className="relative z-10 flex flex-col justify-end h-full w-full px-10 pb-16">
+                        <motion.div
+                            initial={{ opacity: 0, y: 18 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ duration: 0.9, delay: 0.35, ease: 'easeOut' }}
+                            className="max-w-[460px]"
+                        >
+                            {/* Heading */}
+                            <motion.h1
+                                initial={{ opacity: 0, y: 12 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                transition={{ duration: 0.7, delay: 0.4, ease: 'easeOut' }}
+                                className="text-[30px] font-extrabold text-white leading-[1.1] tracking-[-0.02em]"
+                                style={{
+                                    textShadow: '0 2px 16px rgba(0, 0, 0, 0.4), 0 1px 4px rgba(0, 0, 0, 0.2)',
+                                }}
+                            >
+                                IT Support System
+                            </motion.h1>
+
+                            {/* Institution name */}
+                            <motion.p
+                                initial={{ opacity: 0, y: 10 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                transition={{ duration: 0.7, delay: 0.55, ease: 'easeOut' }}
+                                className="text-[18px] font-bold text-white text-white leading-[1.1 tracking-[-0.01em]"
+                                style={{
+                                    textShadow: '0 2px 16px rgba(0, 0, 0, 0.4), 0 1px 4px rgba(0, 0, 0, 0.2)',
+                                }}
+                            >
+                                Politeknik Mitra Industri
+                            </motion.p>
+
+                            {/* Divider — refined thin line */}
+                            <motion.div
+                                initial={{ opacity: 0, scaleX: 0 }}
+                                animate={{ opacity: 1, scaleX: 1 }}
+                                transition={{ duration: 0.6, delay: 0.7, ease: 'easeOut' }}
+                                className="w-16 h-[2px] bg-white/40 mt-6 mb-5 origin-left"
+                            />
+
+                            {/* Subtitle */}
+                            <motion.p
+                                initial={{ opacity: 0, y: 10 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                transition={{ duration: 0.7, delay: 0.75, ease: 'easeOut' }}
+                                className="text-white/80 text-[13.5px] font-medium leading-[1.7] max-w-[360px]"
+                                style={{
+                                    textShadow: '0 1px 6px rgba(0, 0, 0, 0.12)',
+                                }}
+                            >
+                                {language === 'id'
+                                    ? 'Sistem layanan dan pengelolaan tiket IT untuk mendukung kebutuhan operasional Politeknik Mitra Industri'
+                                    : 'An IT service and ticket management system to support the operational needs of Politeknik Mitra Industri'
+                                }
+                            </motion.p>
+                        </motion.div>
+                    </div>
                 </div>
 
-                {/* Right Panel - Form */}
+                {/* ─────────────────────────────────────────────────── */}
+                {/*  RIGHT PANEL - Form                                */}
+                {/* ─────────────────────────────────────────────────── */}
                 <div className="w-full lg:w-1/2 flex flex-col justify-center bg-white px-6 sm:px-16 lg:px-24 py-12 relative overflow-hidden">
-                    
+
                     {/* Ambient Animated Background */}
                     <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden">
                         <motion.div
@@ -110,7 +157,7 @@ export default function AuthLayout({ children, title }) {
                         />
                     </div>
 
-                    <motion.div 
+                    <motion.div
                         initial={{ opacity: 0, x: 20 }}
                         animate={{ opacity: 1, x: 0 }}
                         transition={{ duration: 0.6, ease: "easeOut" }}
@@ -120,7 +167,7 @@ export default function AuthLayout({ children, title }) {
                         <div className="lg:hidden mb-10 text-center flex flex-col items-center">
                             <img src="/images/Logo_POLMIND.png" alt="POLMIND Logo" className="h-16 w-auto mb-4" />
                             <h1 className="text-2xl font-bold text-primary-900 tracking-tight">
-                                IT Support Ticketing
+                                IT Support System
                             </h1>
                         </div>
 

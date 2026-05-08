@@ -24,7 +24,7 @@ class StoreTicketRequest extends FormRequest
             'priority' => ['required', Rule::enum(TicketPriority::class)],
             'description' => ['required', 'string', 'min:10'],
             'attachments' => ['nullable', 'array', 'max:5'],
-            'attachments.*' => ['file', 'max:10240', 'mimes:jpg,jpeg,png,gif,pdf,doc,docx,xls,xlsx,txt,md,zip'],
+            'attachments.*' => ['file', 'max:10240'],
         ];
     }
 

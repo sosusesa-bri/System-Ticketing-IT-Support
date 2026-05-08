@@ -4,6 +4,7 @@ import AppLayout from '../../layouts/AppLayout';
 import { StatusBadge, PriorityBadge } from '../../components/ui/Badge';
 import Button from '../../components/ui/Button';
 import Card from '../../components/ui/Card';
+import { useLanguage } from '../../contexts/LanguageContext';
 import {
     ChevronRight,
     User,
@@ -14,10 +15,23 @@ import {
     FileText,
     Send,
     Clock,
+    Download,
+    FileArchive,
+    FileSpreadsheet,
+    Image as ImageIcon,
 } from 'lucide-react';
+
+const getFileIcon = (mimeType) => {
+    if (mimeType.includes('pdf')) return FileText;
+    if (mimeType.includes('spreadsheet') || mimeType.includes('excel') || mimeType.includes('csv')) return FileSpreadsheet;
+    if (mimeType.includes('zip') || mimeType.includes('archive') || mimeType.includes('compressed')) return FileArchive;
+    if (mimeType.startsWith('image/')) return ImageIcon;
+    return FileText;
+};
 
 export default function TicketShow({ ticket, activityLogs }) {
     const { auth } = usePage().props;
+    const { t } = useLanguage();
     const isAdmin = auth.user?.role === 'admin';
 
     const [hoverRating, setHoverRating] = useState(0);
@@ -48,12 +62,12 @@ export default function TicketShow({ ticket, activityLogs }) {
     };
 
     return (
-        <AppLayout title={`Ticket ${ticket.ticket_number}`}>
+        <AppLayout title={`${t('ticket')} ${ticket.ticket_number}`}>
             {/* Breadcrumb */}
             <nav className="flex items-center gap-1 text-sm text-neutral-500 mb-6">
-                <Link href="/dashboard" className="hover:text-primary-700">Dashboard</Link>
+                <Link href="/dashboard" className="hover:text-primary-700">{t('dashboard')}</Link>
                 <ChevronRight className="h-4 w-4" />
-                <Link href="/tickets" className="hover:text-primary-700">Tickets</Link>
+                <Link href="/tickets" className="hover:text-primary-700">{t('tickets')}</Link>
                 <ChevronRight className="h-4 w-4" />
                 <span className="text-neutral-950 font-medium">{ticket.ticket_number}</span>
             </nav>
@@ -77,7 +91,7 @@ export default function TicketShow({ ticket, activityLogs }) {
                 <div className="lg:col-span-2 space-y-6">
                     {/* Description */}
                     <Card>
-                        <h2 className="text-base font-semibold text-neutral-950 mb-3">Description</h2>
+                        <h2 className="text-base font-semibold text-neutral-950 mb-3">{t('td_description')}</h2>
                         <p className="text-sm text-neutral-600 whitespace-pre-line leading-relaxed">
                             {ticket.description}
                         </p>
@@ -86,7 +100,7 @@ export default function TicketShow({ ticket, activityLogs }) {
                     {/* Solution notes */}
                     {ticket.solution_notes && (
                         <Card>
-                            <h2 className="text-base font-semibold text-neutral-950 mb-3">Solution Notes</h2>
+                            <h2 className="text-base font-semibold text-neutral-950 mb-3">{t('td_solutionNotes')}</h2>
                             <p className="text-sm text-neutral-600 whitespace-pre-line leading-relaxed">
                                 {ticket.solution_notes}
                             </p>
@@ -96,41 +110,58 @@ export default function TicketShow({ ticket, activityLogs }) {
                     {/* Attachments */}
                     {ticket.attachments.length > 0 && (
                         <Card>
-                            <h2 className="text-base font-semibold text-neutral-950 mb-3">Attachments</h2>
+                            <h2 className="text-base font-semibold text-neutral-950 mb-3">{t('td_attachments')}</h2>
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                 {ticket.attachments.map((file) => {
                                     const isImage = file.mime_type.startsWith('image/');
                                     return (
-                                        <a
+                                        <div
                                             key={file.id}
-                                            href={file.url}
-                                            target="_blank"
-                                            rel="noopener noreferrer"
-                                            className="block group border border-neutral-200 rounded-lg overflow-hidden hover:border-primary-300 transition-colors"
+                                            className="block group border border-neutral-200 rounded-lg overflow-hidden hover:border-primary-300 transition-colors relative"
                                         >
-                                            {isImage ? (
-                                                <div className="aspect-video w-full bg-neutral-100 overflow-hidden border-b border-neutral-200 relative">
-                                                    <img
-                                                        src={file.url}
-                                                        alt={file.original_name}
-                                                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                                                    />
-                                                </div>
-                                            ) : (
-                                                <div className="aspect-video w-full bg-neutral-50 flex items-center justify-center border-b border-neutral-200">
-                                                    <FileText className="h-10 w-10 text-neutral-300 group-hover:text-primary-400 transition-colors" />
-                                                </div>
-                                            )}
-                                            <div className="p-3 bg-white flex items-center gap-3">
-                                                <Paperclip className="h-4 w-4 text-neutral-400 shrink-0" />
-                                                <div className="min-w-0 flex-1">
-                                                    <p className="text-sm font-medium text-neutral-900 truncate group-hover:text-primary-700 transition-colors">
-                                                        {file.original_name}
-                                                    </p>
-                                                    <p className="text-xs text-neutral-500">{file.formatted_size}</p>
-                                                </div>
+                                            <a href={file.url} target="_blank" rel="noopener noreferrer" className="absolute inset-0 z-0" aria-label={`View ${file.original_name}`}></a>
+                                            <div className="relative z-10 pointer-events-none">
+                                                {isImage ? (
+                                                    <div className="aspect-video w-full bg-neutral-100 overflow-hidden border-b border-neutral-200 relative">
+                                                        <img
+                                                            src={file.url}
+                                                            alt={file.original_name}
+                                                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                                                        />
+                                                    </div>
+                                                ) : (
+                                                    <div className="aspect-video w-full bg-neutral-50 flex flex-col items-center justify-center border-b border-neutral-200 gap-2">
+                                                        {(() => {
+                                                            const Icon = getFileIcon(file.mime_type);
+                                                            return <Icon className="h-10 w-10 text-neutral-300 group-hover:text-primary-400 transition-colors" />;
+                                                        })()}
+                                                        <span className="text-xs font-medium text-neutral-400 uppercase tracking-wider">
+                                                            {file.original_name.split('.').pop()}
+                                                        </span>
+                                                    </div>
+                                                )}
                                             </div>
-                                        </a>
+                                            <div className="p-3 bg-white flex items-center justify-between gap-3 relative z-20">
+                                                <div className="flex items-center gap-3 min-w-0">
+                                                    <Paperclip className="h-4 w-4 text-neutral-400 shrink-0" />
+                                                    <div className="min-w-0">
+                                                        <p className="text-sm font-medium text-neutral-900 truncate group-hover:text-primary-700 transition-colors">
+                                                            {file.original_name}
+                                                        </p>
+                                                        <p className="text-xs text-neutral-500">{file.formatted_size}</p>
+                                                    </div>
+                                                </div>
+                                                <a
+                                                    href={`${file.url}?download=1`}
+                                                    download={file.original_name}
+                                                    className="p-1.5 text-neutral-400 hover:text-primary-600 hover:bg-primary-50 rounded-md transition-colors pointer-events-auto"
+                                                    title={t('download')}
+                                                    onClick={(e) => e.stopPropagation()}
+                                                >
+                                                    <Download className="h-4 w-4" />
+                                                </a>
+                                            </div>
+                                        </div>
                                     );
                                 })}
                             </div>
@@ -139,7 +170,7 @@ export default function TicketShow({ ticket, activityLogs }) {
 
                     {/* Comments / Activity */}
                     <Card>
-                        <h2 className="text-base font-semibold text-neutral-950 mb-4">Activity</h2>
+                        <h2 className="text-base font-semibold text-neutral-950 mb-4">{t('td_activity')}</h2>
 
                         {/* Timeline */}
                         <div className="space-y-4 mb-6">
@@ -155,7 +186,7 @@ export default function TicketShow({ ticket, activityLogs }) {
                                         <div className="flex items-center gap-2">
                                             <span className="text-sm font-medium text-neutral-950">{comment.user.name}</span>
                                             {comment.is_internal && (
-                                                <span className="text-[10px] font-medium text-warning-600 bg-warning-100 px-1.5 py-0.5 rounded">Internal</span>
+                                                <span className="text-[10px] font-medium text-warning-600 bg-warning-100 px-1.5 py-0.5 rounded">{t('td_internal')}</span>
                                             )}
                                             <span className="text-xs text-neutral-400">{comment.created_at}</span>
                                         </div>
@@ -178,7 +209,7 @@ export default function TicketShow({ ticket, activityLogs }) {
                             ))}
 
                             {ticket.comments.length === 0 && activityLogs.length === 0 && (
-                                <p className="text-sm text-neutral-400 text-center py-4">No activity yet.</p>
+                                <p className="text-sm text-neutral-400 text-center py-4">{t('td_noActivity')}</p>
                             )}
                         </div>
 
@@ -187,7 +218,7 @@ export default function TicketShow({ ticket, activityLogs }) {
                             <textarea
                                 value={commentForm.data.body}
                                 onChange={(e) => commentForm.setData('body', e.target.value)}
-                                placeholder="Write a comment..."
+                                placeholder={t('td_writeComment')}
                                 className="w-full min-h-[80px] rounded-md border border-neutral-200 bg-white px-3 py-2 text-sm placeholder:text-neutral-400 focus:outline-none focus:ring-2 focus:ring-primary-700 resize-y"
                                 required
                             />
@@ -203,7 +234,7 @@ export default function TicketShow({ ticket, activityLogs }) {
                                             onChange={(e) => commentForm.setData('is_internal', e.target.checked)}
                                             className="h-4 w-4 rounded border-neutral-300 text-warning-600 focus:ring-warning-600"
                                         />
-                                        <span className="text-xs text-neutral-500">Internal note</span>
+                                        <span className="text-xs text-neutral-500">{t('td_internalNote')}</span>
                                     </label>
                                 )}
                                 <Button
@@ -213,7 +244,7 @@ export default function TicketShow({ ticket, activityLogs }) {
                                     disabled={commentForm.processing}
                                 >
                                     <Send className="h-3.5 w-3.5" />
-                                    Post Comment
+                                    {t('td_postComment')}
                                 </Button>
                             </div>
                         </form>
@@ -223,33 +254,33 @@ export default function TicketShow({ ticket, activityLogs }) {
                 {/* Sidebar — metadata */}
                 <div className="space-y-4">
                     <Card>
-                        <h3 className="text-sm font-semibold text-neutral-950 mb-4">Details</h3>
+                        <h3 className="text-sm font-semibold text-neutral-950 mb-4">{t('td_details')}</h3>
                         <dl className="space-y-3">
                             <div className="flex items-center gap-3">
                                 <User className="h-4 w-4 text-neutral-400 shrink-0" />
                                 <div>
-                                    <dt className="text-xs text-neutral-500">Requester</dt>
+                                    <dt className="text-xs text-neutral-500">{t('td_requester')}</dt>
                                     <dd className="text-sm text-neutral-950">{ticket.user.name}</dd>
                                 </div>
                             </div>
                             <div className="flex items-center gap-3">
                                 <Tag className="h-4 w-4 text-neutral-400 shrink-0" />
                                 <div>
-                                    <dt className="text-xs text-neutral-500">Category</dt>
+                                    <dt className="text-xs text-neutral-500">{t('category')}</dt>
                                     <dd className="text-sm text-neutral-950">{ticket.category?.name || '-'}</dd>
                                 </div>
                             </div>
                             <div className="flex items-center gap-3">
                                 <UserCheck className="h-4 w-4 text-neutral-400 shrink-0" />
                                 <div>
-                                    <dt className="text-xs text-neutral-500">Assigned To</dt>
-                                    <dd className="text-sm text-neutral-950">{ticket.assignee?.name || 'Unassigned'}</dd>
+                                    <dt className="text-xs text-neutral-500">{t('td_assignedTo')}</dt>
+                                    <dd className="text-sm text-neutral-950">{ticket.assignee?.name || t('td_unassigned')}</dd>
                                 </div>
                             </div>
                             <div className="flex items-center gap-3">
                                 <Calendar className="h-4 w-4 text-neutral-400 shrink-0" />
                                 <div>
-                                    <dt className="text-xs text-neutral-500">Created</dt>
+                                    <dt className="text-xs text-neutral-500">{t('td_created')}</dt>
                                     <dd className="text-sm text-neutral-950">{ticket.created_at}</dd>
                                 </div>
                             </div>
@@ -257,7 +288,7 @@ export default function TicketShow({ ticket, activityLogs }) {
                                 <div className="flex items-center gap-3">
                                     <Clock className="h-4 w-4 text-neutral-400 shrink-0" />
                                     <div>
-                                        <dt className="text-xs text-neutral-500">Estimated Resolution</dt>
+                                        <dt className="text-xs text-neutral-500">{t('td_estimatedResolution')}</dt>
                                         <dd className="text-sm text-neutral-950">{ticket.due_at}</dd>
                                     </div>
                                 </div>
@@ -266,7 +297,7 @@ export default function TicketShow({ ticket, activityLogs }) {
                                 <div className="flex items-center gap-3">
                                     <Calendar className="h-4 w-4 text-neutral-400 shrink-0" />
                                     <div>
-                                        <dt className="text-xs text-neutral-500">Closed</dt>
+                                        <dt className="text-xs text-neutral-500">{t('td_closed')}</dt>
                                         <dd className="text-sm text-neutral-950">{ticket.closed_at}</dd>
                                     </div>
                                 </div>
@@ -279,7 +310,7 @@ export default function TicketShow({ ticket, activityLogs }) {
                         <Card>
                             {ticket.rating ? (
                                 <div>
-                                    <h3 className="text-sm font-semibold text-neutral-950 mb-3">Your Feedback</h3>
+                                    <h3 className="text-sm font-semibold text-neutral-950 mb-3">{t('td_yourFeedback')}</h3>
                                     <div className="flex items-center gap-2 mb-2">
                                         {[1, 2, 3, 4, 5].map((star) => (
                                             <svg key={star} className={`h-5 w-5 ${star <= ticket.rating ? 'text-amber-400' : 'text-neutral-200'}`} fill="currentColor" viewBox="0 0 20 20">
@@ -294,8 +325,8 @@ export default function TicketShow({ ticket, activityLogs }) {
                                 </div>
                             ) : (
                                 <div>
-                                    <h3 className="text-sm font-semibold text-neutral-950 mb-3">Rate your experience</h3>
-                                    <p className="text-xs text-neutral-500 mb-4">How satisfied are you with the resolution of this ticket?</p>
+                                    <h3 className="text-sm font-semibold text-neutral-950 mb-3">{t('td_rateExperience')}</h3>
+                                    <p className="text-xs text-neutral-500 mb-4">{t('td_rateDesc')}</p>
                                     <form onSubmit={handleRateSubmit} className="space-y-3">
                                         <div className="flex items-center gap-1">
                                             {[1, 2, 3, 4, 5].map((star) => (
@@ -317,11 +348,11 @@ export default function TicketShow({ ticket, activityLogs }) {
                                         <textarea
                                             value={rateForm.data.feedback_notes}
                                             onChange={(e) => rateForm.setData('feedback_notes', e.target.value)}
-                                            placeholder="Any additional feedback? (Optional)"
+                                            placeholder={t('td_additionalFeedback')}
                                             className="w-full min-h-[60px] rounded-md border border-neutral-200 bg-white px-3 py-2 text-sm placeholder:text-neutral-400 focus:outline-none focus:ring-2 focus:ring-primary-700 resize-y"
                                         />
                                         <Button type="submit" size="sm" className="w-full" disabled={!rateForm.data.rating || rateForm.processing} loading={rateForm.processing}>
-                                            Submit Feedback
+                                            {t('td_submitFeedback')}
                                         </Button>
                                     </form>
                                 </div>
@@ -329,11 +360,11 @@ export default function TicketShow({ ticket, activityLogs }) {
 
                             {!ticket.rating && (
                                 <div className="mt-6 pt-6 border-t border-neutral-100">
-                                    <h3 className="text-sm font-semibold text-neutral-950 mb-2">Issue not resolved?</h3>
-                                    <p className="text-xs text-neutral-500 mb-3">If you are still experiencing the same issue, you can reopen this ticket.</p>
+                                    <h3 className="text-sm font-semibold text-neutral-950 mb-2">{t('td_issueNotResolved')}</h3>
+                                    <p className="text-xs text-neutral-500 mb-3">{t('td_issueNotResolvedDesc')}</p>
                                     <form onSubmit={handleReopen}>
-                                        <Button type="submit" variant="outline" size="sm" className="w-full text-neutral-700" loading={reopenForm.processing}>
-                                            Reopen Ticket
+                                        <Button type="submit" variant="secondary" size="sm" className="w-full text-neutral-700" loading={reopenForm.processing}>
+                                            {t('td_reopenTicket')}
                                         </Button>
                                     </form>
                                 </div>
@@ -342,11 +373,11 @@ export default function TicketShow({ ticket, activityLogs }) {
                     )}
 
                     <Card>
-                        <h3 className="text-sm font-semibold text-neutral-950 mb-3">Attachments</h3>
+                        <h3 className="text-sm font-semibold text-neutral-950 mb-3">{t('td_attachments')}</h3>
                         <div className="flex items-center gap-2">
                             <FileText className="h-4 w-4 text-neutral-400" />
                             <span className="text-sm text-neutral-500">
-                                {ticket.attachments.length} file{ticket.attachments.length !== 1 ? 's' : ''}
+                                {ticket.attachments.length} {t('td_files')}
                             </span>
                         </div>
                     </Card>

@@ -67,4 +67,12 @@ class TicketPolicy
     {
         return $user->isAdmin();
     }
+
+    /**
+     * Ticket owners can rate their own closed tickets.
+     */
+    public function rate(User $user, Ticket $ticket): bool
+    {
+        return $ticket->user_id === $user->id && $ticket->status->value === 'closed';
+    }
 }

@@ -122,7 +122,6 @@ export default function TicketCreate({ categories }) {
                                 multiple
                                 onChange={(e) => setData('attachments', Array.from(e.target.files))}
                                 className="w-full text-sm text-neutral-500 file:mr-3 file:py-1.5 file:px-3 file:rounded-md file:border-0 file:text-sm file:font-medium file:bg-primary-100 file:text-primary-700 hover:file:bg-primary-50"
-                                accept=".jpg,.jpeg,.png,.gif,.pdf,.doc,.docx,.xls,.xlsx,.txt,.md,.zip"
                             />
                             <p className="text-xs text-neutral-400 mt-2">
                                 {t('attachmentHint')}

@@ -14,11 +14,21 @@ const priorityConfig = {
     critical: { bg: 'bg-danger-100', text: 'text-danger-600', label: 'Critical' },
 };
 
+const variantConfig = {
+    default: 'bg-neutral-100 text-neutral-600',
+    success: 'bg-success-100 text-success-600',
+    warning: 'bg-warning-100 text-warning-600',
+    danger: 'bg-danger-100 text-danger-600',
+    info: 'bg-info-100 text-info-600',
+    neutral: 'bg-neutral-100 text-neutral-500',
+};
+
 export function Badge({ children, variant = 'default', className = '' }) {
     const baseClasses = 'inline-flex items-center h-6 px-2.5 rounded-full text-xs font-medium';
+    const variantClasses = variantConfig[variant] || variantConfig.default;
 
     return (
-        <span className={cn(baseClasses, className)}>
+        <span className={cn(baseClasses, variantClasses, className)}>
             {children}
         </span>
     );

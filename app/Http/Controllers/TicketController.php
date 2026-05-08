@@ -146,7 +146,7 @@ class TicketController extends Controller
                     'original_name' => $a->original_name,
                     'mime_type' => $a->mime_type,
                     'formatted_size' => $a->formatted_size,
-                    'url' => \Illuminate\Support\Facades\Storage::url($a->file_path),
+                    'url' => route('attachments.show', $a->id),
                 ]),
             ],
             'activityLogs' => $activityLogs,
@@ -182,7 +182,7 @@ class TicketController extends Controller
      */
     public function rate(Request $request, Ticket $ticket): RedirectResponse
     {
-        $this->authorize('update', $ticket);
+        $this->authorize('rate', $ticket);
 
         if ($ticket->status->value !== 'closed') {
             return back()->with('error', 'You can only rate closed tickets.');
