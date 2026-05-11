@@ -1,4 +1,4 @@
-﻿import React, { useState, useRef, useCallback } from 'react';
+import React, { useState, useRef, useCallback } from 'react';
 import { useForm, router } from '@inertiajs/react';
 import AppLayout from '../../layouts/AppLayout';
 import Input from '../../components/ui/Input';
@@ -278,12 +278,12 @@ export default function ProfileEdit({ user, recentActivity }) {
                             </div>
                             <div className="flex justify-between items-center text-sm">
                                 <span className="text-neutral-500 flex items-center gap-2"><CalendarClock className="h-4 w-4" /> {t('joinedLabel')}</span>
-                                <span className="font-medium text-neutral-900">{new Date(user.created_at).toLocaleDateString()}</span>
+                                <span className="font-medium text-neutral-900">{new Date(user.created_at).toLocaleString([], { dateStyle: 'medium', timeStyle: 'short' })}</span>
                             </div>
                             <div className="flex justify-between items-center text-sm">
                                 <span className="text-neutral-500 flex items-center gap-2"><Clock className="h-4 w-4" /> {t('lastLoginLabel')}</span>
                                 <span className="font-medium text-neutral-900">
-                                    {user.last_login_at ? new Date(user.last_login_at).toLocaleDateString() : t('never')}
+                                    {user.last_login_at ? new Date(user.last_login_at).toLocaleString([], { dateStyle: 'medium', timeStyle: 'short' }) : t('never')}
                                 </span>
                             </div>
                         </div>

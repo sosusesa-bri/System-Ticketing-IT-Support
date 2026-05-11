@@ -49,7 +49,7 @@ class UserManagementController extends Controller
                 'department'    => $user->department,
                 'avatar_path'   => $user->avatar_path,
                 'tickets_count' => $user->tickets()->count(),
-                'last_login_at' => $user->last_login_at?->diffForHumans(),
+                'last_login_at' => $user->last_login_at ? $user->last_login_at->format('d M Y, H:i') : null,
                 'created_at'    => $user->created_at->format('d M Y'),
             ]);
 
@@ -73,7 +73,7 @@ class UserManagementController extends Controller
                 'activity_logs_count'=> $user->activity_logs_count,
                 'role'               => $user->role->value,
                 'created_at_human'   => $user->created_at->format('d M Y, H:i'),
-                'last_login_human'   => $user->last_login_at ? $user->last_login_at->diffForHumans() : 'Never',
+                'last_login_human'   => $user->last_login_at ? $user->last_login_at->format('d M Y, H:i') : 'Never',
             ]),
             'recentActivity' => $user->activityLogs()->latest()->take(10)->get(),
         ]);
