@@ -32,6 +32,10 @@ class TicketCommentController extends Controller
             'is_internal' => $isInternal,
         ]);
 
+        if ($request->user()->isAdmin() && !$ticket->first_responded_at) {
+            $ticket->update(['first_responded_at' => now()]);
+        }
+
         AuditService::log(
             'comment_added',
             "Comment added to ticket {$ticket->ticket_number}",

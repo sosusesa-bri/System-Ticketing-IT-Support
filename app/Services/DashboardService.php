@@ -87,6 +87,46 @@ class DashboardService
                     'user' => $log->user?->name ?? 'System',
                     'created_at' => $log->created_at->diffForHumans(),
                 ]),
+            'workload' => $this->getWorkloadMonitoring(),
         ];
+    }
+
+    /**
+     * Workload monitoring data for all admin/technician users.
+     *
+     * @return array<int, array<string, mixed>>
+     */
+    protected function getWorkloadMonitoring(): array
+    {
+        $admins = User::where('role', \App\Enums\UserRole::ADMIN)
+            ->withCount([
+                'assignedTickets as active_tickets_count' => function ($q) {
+                    $q->whereIn('status', [
+                        TicketStatus::OPEN,
+                        TicketStatus::ON_PROCESS,
+                        TicketStatus::REOPENED,
+                    ]);
+                },
+                'assignedTickets as overdue_tickets_count' => function ($q) {
+                    $q->whereIn('status', [
+                        TicketStatus::OPEN,
+                        TicketStatus::ON_PROCESS,
+                        TicketStatus::REOPENED,
+                    ])->where('due_at', '<', now());
+                },
+                'assignedTickets as resolved_count' => function ($q) {
+                    $q->where('status', TicketStatus::CLOSED);
+                },
+            ])
+            ->get();
+
+        return $admins->map(fn (User $admin) => [
+            'id'              => $admin->id,
+            'name'            => $admin->name,
+            'active'          => $admin->active_tickets_count,
+            'overdue'         => $admin->overdue_tickets_count,
+            'resolved'        => $admin->resolved_count,
+            'avatar_path'     => $admin->avatar_path,
+        ])->sortByDesc('active')->values()->toArray();
     }
 }

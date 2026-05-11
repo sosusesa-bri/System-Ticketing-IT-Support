@@ -7,6 +7,7 @@ use App\Http\Controllers\Admin\AdminDashboardController;
 use App\Http\Controllers\Admin\AdminTicketController;
 use App\Http\Controllers\Admin\AuditLogController;
 use App\Http\Controllers\Admin\ExportController;
+use App\Http\Controllers\Admin\KnowledgeBaseAdminController;
 use App\Http\Controllers\Admin\ReportController;
 use App\Http\Controllers\Admin\SettingsController;
 use App\Http\Controllers\Admin\UserManagementController;
@@ -15,6 +16,7 @@ use App\Http\Controllers\Admin\NotificationBroadcastController;
 use App\Http\Controllers\Admin\NotificationTemplateController;
 use App\Http\Controllers\Admin\NotificationAutomationController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\KnowledgeBaseController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\TicketController;
@@ -59,6 +61,7 @@ Route::middleware('auth')->group(function () {
 
     // Ticket routes
     Route::resource('tickets', TicketController::class);
+    Route::get('/tickets-search/duplicates', [TicketController::class, 'checkDuplicates'])->name('tickets.checkDuplicates');
     Route::post('/tickets/{ticket}/reopen', [TicketController::class, 'reopen'])->name('tickets.reopen');
     Route::post('/tickets/{ticket}/rate', [TicketController::class, 'rate'])->name('tickets.rate');
     Route::post('/tickets/{ticket}/comments', [TicketCommentController::class, 'store'])->name('tickets.comments.store');
@@ -83,6 +86,10 @@ Route::middleware('auth')->group(function () {
     Route::delete('/notifications/{id}', [NotificationController::class, 'destroy'])->name('notifications.destroy');
     Route::delete('/notifications-read', [NotificationController::class, 'destroyRead'])->name('notifications.destroyRead');
 
+    // Knowledge Base (public-facing for all authenticated users)
+    Route::get('/knowledge-base', [KnowledgeBaseController::class, 'index'])->name('knowledgeBase.index');
+    Route::get('/knowledge-base/{article}', [KnowledgeBaseController::class, 'show'])->name('knowledgeBase.show');
+
     // Admin routes
     Route::prefix('admin')->middleware('admin')->name('admin.')->group(function () {
         Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('dashboard');
@@ -92,6 +99,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/tickets/{ticket}', [AdminTicketController::class, 'show'])->name('tickets.show');
         Route::put('/tickets/{ticket}', [AdminTicketController::class, 'update'])->name('tickets.update');
         Route::post('/tickets/{ticket}/assign', [AdminTicketController::class, 'assign'])->name('tickets.assign');
+        Route::post('/tickets/{ticket}/escalate', [AdminTicketController::class, 'escalate'])->name('tickets.escalate');
 
         // User management
         Route::get('/users', [UserManagementController::class, 'index'])->name('users.index');
@@ -129,5 +137,8 @@ Route::middleware('auth')->group(function () {
         // Exports
         Route::get('/export/tickets', [ExportController::class, 'exportTickets'])->name('export.tickets');
         Route::get('/export/audit-logs', [ExportController::class, 'exportAuditLogs'])->name('export.auditLogs');
+
+        // Knowledge Base Management
+        Route::resource('knowledge-base', KnowledgeBaseAdminController::class)->names('knowledgeBase');
     });
 });

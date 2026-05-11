@@ -19,6 +19,7 @@ import {
     FileArchive,
     FileSpreadsheet,
     Image as ImageIcon,
+    AlertTriangle,
 } from 'lucide-react';
 
 const getFileIcon = (mimeType) => {
@@ -284,12 +285,42 @@ export default function TicketShow({ ticket, activityLogs }) {
                                     <dd className="text-sm text-neutral-950">{ticket.created_at}</dd>
                                 </div>
                             </div>
+                            {ticket.response_due_at && !ticket.first_responded_at && (
+                                <div className="flex items-center gap-3">
+                                    <Clock className="h-4 w-4 text-warning-500 shrink-0" />
+                                    <div>
+                                        <dt className="text-xs text-neutral-500">{t('td_responseDeadline')}</dt>
+                                        <dd className="text-sm font-medium text-warning-700">{ticket.response_due_at}</dd>
+                                    </div>
+                                </div>
+                            )}
+                            {ticket.first_responded_at && (
+                                <div className="flex items-center gap-3">
+                                    <UserCheck className="h-4 w-4 text-success-500 shrink-0" />
+                                    <div>
+                                        <dt className="text-xs text-neutral-500">{t('td_firstRespondedAt')}</dt>
+                                        <dd className="text-sm text-neutral-950">{ticket.first_responded_at}</dd>
+                                    </div>
+                                </div>
+                            )}
                             {ticket.due_at && (
                                 <div className="flex items-center gap-3">
                                     <Clock className="h-4 w-4 text-neutral-400 shrink-0" />
                                     <div>
                                         <dt className="text-xs text-neutral-500">{t('td_estimatedResolution')}</dt>
                                         <dd className="text-sm text-neutral-950">{ticket.due_at}</dd>
+                                    </div>
+                                </div>
+                            )}
+                            {ticket.is_escalated && (
+                                <div className="flex items-center gap-3">
+                                    <AlertTriangle className="h-4 w-4 text-danger-500 shrink-0" />
+                                    <div>
+                                        <dt className="text-xs text-neutral-500">{t('td_escalationLevel')} {ticket.escalation_level}</dt>
+                                        <dd className="text-sm font-medium text-danger-700">{t('td_escalatedAt')}: {ticket.escalated_at}</dd>
+                                        {ticket.escalation_reason && (
+                                            <p className="text-xs text-neutral-500 mt-0.5">{ticket.escalation_reason}</p>
+                                        )}
                                     </div>
                                 </div>
                             )}

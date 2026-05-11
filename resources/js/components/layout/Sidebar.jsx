@@ -44,6 +44,7 @@ export default function Sidebar({ open, onClose, user }) {
         { name: t('dashboard'), href: '/dashboard', icon: LayoutDashboard },
         { name: t('createTicket'), href: '/tickets/create', icon: TicketPlus },
         { name: t('myTickets'), href: '/tickets', icon: Tickets },
+        { name: t('knowledgeBase'), href: '/knowledge-base', icon: BookOpen },
         { name: t('notifications'), href: '/notifications', icon: Bell },
         { name: t('profile'), href: '/profile', icon: User },
     ];
@@ -53,9 +54,10 @@ export default function Sidebar({ open, onClose, user }) {
         { name: t('tickets'), href: '/admin/tickets', icon: Tickets },
         { name: t('users'), href: '/admin/users', icon: Users },
         { name: t('reports'), href: '/admin/reports', icon: BarChart3 },
+        { name: t('knowledgeBase'), href: '/admin/knowledge-base', icon: BookOpen },
         { name: t('broadcast'), href: '/admin/notifications/dashboard', icon: Bell },
         { name: t('auditLog'), href: '/admin/audit-log', icon: FileText },
-        { name: t('documentation'), href: '/admin/documentation', icon: BookOpen },
+        { name: t('documentation'), href: '/admin/documentation', icon: HelpCircle },
         { name: t('settings'), href: '/admin/settings', icon: Settings },
     ];
 

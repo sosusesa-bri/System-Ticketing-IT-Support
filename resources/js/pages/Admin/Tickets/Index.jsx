@@ -22,6 +22,14 @@ export default function AdminTicketIndex({ tickets, filters, categories, admins 
         applyFilter('search', search);
     };
 
+    const handleQuickUpdate = (ticketId, field, value) => {
+        router.put(`/admin/tickets/${ticketId}`, { [field]: value }, {
+            preserveScroll: true,
+            preserveState: true,
+            only: ['tickets'],
+        });
+    };
+
     return (
         <AppLayout title="All Tickets">
             <div className="flex items-center justify-between mb-6">
@@ -113,8 +121,30 @@ export default function AdminTicketIndex({ tickets, filters, categories, admins 
                                             </td>
                                             <td className="px-6 py-3 text-sm text-neutral-500">{ticket.requester}</td>
                                             <td className="px-6 py-3 text-sm text-neutral-500">{ticket.category || '-'}</td>
-                                            <td className="px-6 py-3"><StatusBadge status={ticket.status} /></td>
-                                            <td className="px-6 py-3"><PriorityBadge priority={ticket.priority} /></td>
+                                            <td className="px-6 py-3">
+                                                <select 
+                                                    value={ticket.status}
+                                                    onChange={(e) => handleQuickUpdate(ticket.id, 'status', e.target.value)}
+                                                    className="text-xs font-medium rounded-full px-2.5 py-0.5 border border-neutral-200 bg-white focus:outline-none focus:ring-1 focus:ring-primary-500 cursor-pointer w-28"
+                                                >
+                                                    <option value="open">{t('open')}</option>
+                                                    <option value="on_process">{t('inProgress')}</option>
+                                                    <option value="closed">{t('closed')}</option>
+                                                    <option value="reopened">Reopened</option>
+                                                </select>
+                                            </td>
+                                            <td className="px-6 py-3">
+                                                <select 
+                                                    value={ticket.priority}
+                                                    onChange={(e) => handleQuickUpdate(ticket.id, 'priority', e.target.value)}
+                                                    className="text-xs font-medium rounded-full px-2.5 py-0.5 border border-neutral-200 bg-white focus:outline-none focus:ring-1 focus:ring-primary-500 cursor-pointer w-24"
+                                                >
+                                                    <option value="low">Low</option>
+                                                    <option value="medium">Medium</option>
+                                                    <option value="high">High</option>
+                                                    <option value="critical">Critical</option>
+                                                </select>
+                                            </td>
                                             <td className="px-6 py-3 text-sm text-neutral-500">{ticket.assigned_to || <span className="text-warning-600">Unassigned</span>}</td>
                                             <td className="px-6 py-3 text-sm text-neutral-500">{ticket.created_at}</td>
                                         </tr>

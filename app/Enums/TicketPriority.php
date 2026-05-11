@@ -51,4 +51,17 @@ enum TicketPriority: string
             self::LOW => 168,       // 7 days
         };
     }
+
+    /**
+     * Get the SLA first response time in hours.
+     */
+    public function responseSlaHours(): int
+    {
+        return match ($this) {
+            self::CRITICAL => 1,    // 1 hour
+            self::HIGH => 4,        // 4 hours
+            self::MEDIUM => 12,     // 12 hours
+            self::LOW => 24,        // 1 day
+        };
+    }
 }

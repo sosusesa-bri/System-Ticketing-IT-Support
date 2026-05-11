@@ -31,7 +31,34 @@ class CreateTicketAction
                 'user_id' => $data['user_id'],
                 'status' => 'open',
                 'due_at' => now()->addHours($priorityEnum->slaHours()),
+                'response_due_at' => now()->addHours($priorityEnum->responseSlaHours()),
             ]);
+
+            // Intelligent Auto-Assignment: find the admin with the lowest active workload
+            $assignedAdmin = \App\Models\User::where('role', \App\Enums\UserRole::ADMIN)
+                ->withCount(['assignedTickets' => function ($query) {
+                    $query->whereIn('status', ['open', 'on_process', 'reopened']);
+                }])
+                ->orderBy('assigned_tickets_count', 'asc')
+                ->first();
+
+            if ($assignedAdmin) {
+                $ticket->update(['assigned_to' => $assignedAdmin->id]);
+                
+                \App\Models\TicketAssignment::create([
+                    'ticket_id' => $ticket->id,
+                    'assigner_id' => $data['user_id'], // System or self
+                    'assignee_id' => $assignedAdmin->id,
+                    'notes' => 'Auto-assigned by intelligent workload distribution.',
+                ]);
+
+                AuditService::log(
+                    'ticket_auto_assigned',
+                    "Ticket {$ticket->ticket_number} auto-assigned to {$assignedAdmin->name}",
+                    $ticket,
+                    ['assigned_to' => $assignedAdmin->id]
+                );
+            }
 
             if ($files) {
                 foreach ($files as $file) {

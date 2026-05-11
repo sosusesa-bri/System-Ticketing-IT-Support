@@ -39,7 +39,8 @@ class LoginController extends Controller
         $request->session()->regenerate();
 
         $user = Auth::user();
-        $user->update(['last_login_at' => now()]);
+        $user->last_login_at = now();
+        $user->save();
 
         AuditService::log('login', 'User logged in', $user);
 

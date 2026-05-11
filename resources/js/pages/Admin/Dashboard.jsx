@@ -12,13 +12,19 @@ import {
     UserX,
     Bell,
     BarChart3,
-    ArrowRight
+    ArrowRight,
+    Users,
+    UserCircle
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useLanguage } from '../../contexts/LanguageContext';
 
-export default function AdminDashboard({ stats, priorityQueue, recentActivity }) {
+export default function AdminDashboard({ stats, priorityQueue, recentActivity, workload }) {
     const { t, language } = useLanguage();
+
+    const maxActive = workload && workload.length > 0
+        ? Math.max(...workload.map(w => w.active), 1)
+        : 1;
 
     return (
         <AppLayout title={t('adminDashboard')}>
@@ -60,6 +66,80 @@ export default function AdminDashboard({ stats, priorityQueue, recentActivity })
                 <StatCard label={language === 'id' ? 'Mendesak' : 'Urgent'} value={stats.urgent} icon={AlertTriangle} accent="danger" />
                 <StatCard label={language === 'id' ? 'Belum Ditugaskan' : 'Unassigned'} value={stats.unassigned} icon={UserX} accent="warning" />
             </motion.div>
+
+            {/* Workload Monitoring */}
+            {workload && workload.length > 0 && (
+                <motion.div 
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.5, delay: 0.15 }}
+                    className="mb-10"
+                >
+                    <div className="bg-white border border-neutral-200 rounded-xl shadow-sm">
+                        <div className="px-6 py-5 border-b border-neutral-200 bg-neutral-50/50 flex justify-between items-center">
+                            <div>
+                                <h2 className="text-lg font-semibold text-neutral-900 flex items-center gap-2">
+                                    <Users className="h-5 w-5 text-primary-600" />
+                                    {language === 'id' ? 'Monitor Beban Kerja' : 'Workload Monitor'}
+                                </h2>
+                                <p className="text-xs text-neutral-500 mt-1">
+                                    {language === 'id' ? 'Distribusi tiket aktif per teknisi' : 'Active ticket distribution per technician'}
+                                </p>
+                            </div>
+                        </div>
+                        <div className="p-6">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                                {workload.map((tech) => {
+                                    const loadPercent = maxActive > 0 ? (tech.active / maxActive) * 100 : 0;
+                                    const loadColor = tech.overdue > 0
+                                        ? 'bg-danger-500'
+                                        : tech.active >= 5
+                                            ? 'bg-warning-500'
+                                            : 'bg-primary-500';
+
+                                    return (
+                                        <div key={tech.id} className="border border-neutral-100 rounded-lg p-4 hover:border-neutral-200 transition-colors">
+                                            <div className="flex items-center gap-3 mb-3">
+                                                <div className="h-9 w-9 rounded-full bg-primary-100 flex items-center justify-center overflow-hidden shrink-0">
+                                                    {tech.avatar_path ? (
+                                                        <img src={`/storage/${tech.avatar_path}`} alt={tech.name} className="h-full w-full object-cover" />
+                                                    ) : (
+                                                        <UserCircle className="h-5 w-5 text-primary-400" strokeWidth={1.5} />
+                                                    )}
+                                                </div>
+                                                <div className="min-w-0 flex-1">
+                                                    <p className="text-sm font-semibold text-neutral-900 truncate">{tech.name}</p>
+                                                    <p className="text-xs text-neutral-500">
+                                                        {tech.active} {language === 'id' ? 'tiket aktif' : 'active'}
+                                                        {tech.overdue > 0 && (
+                                                            <span className="text-danger-600 font-medium ml-1">
+                                                                ({tech.overdue} {language === 'id' ? 'lewat jatuh tempo' : 'overdue'})
+                                                            </span>
+                                                        )}
+                                                    </p>
+                                                </div>
+                                            </div>
+                                            {/* Load bar */}
+                                            <div className="h-2 w-full bg-neutral-100 rounded-full overflow-hidden">
+                                                <motion.div 
+                                                    className={`h-full rounded-full ${loadColor}`}
+                                                    initial={{ width: 0 }}
+                                                    animate={{ width: `${Math.max(loadPercent, 4)}%` }}
+                                                    transition={{ duration: 0.6, delay: 0.2 }}
+                                                />
+                                            </div>
+                                            <div className="flex justify-between mt-2 text-xs text-neutral-400">
+                                                <span>{language === 'id' ? 'Selesai' : 'Resolved'}: {tech.resolved}</span>
+                                                <span>{language === 'id' ? 'Aktif' : 'Active'}: {tech.active}</span>
+                                            </div>
+                                        </div>
+                                    );
+                                })}
+                            </div>
+                        </div>
+                    </div>
+                </motion.div>
+            )}
 
             <motion.div 
                 initial={{ opacity: 0, y: 10 }}

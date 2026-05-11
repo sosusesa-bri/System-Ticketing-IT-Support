@@ -116,6 +116,12 @@ class AdminTicketController extends Controller
                 'priority' => $ticket->priority,
                 'solution_notes' => $ticket->solution_notes,
                 'due_at' => $ticket->due_at?->format('d M Y, H:i'),
+                'response_due_at' => $ticket->response_due_at?->format('d M Y, H:i'),
+                'first_responded_at' => $ticket->first_responded_at?->format('d M Y, H:i'),
+                'is_escalated' => $ticket->is_escalated,
+                'escalation_level' => $ticket->escalation_level,
+                'escalated_at' => $ticket->escalated_at?->format('d M Y, H:i'),
+                'escalation_reason' => $ticket->escalation_reason,
                 'rating' => $ticket->rating,
                 'feedback_notes' => $ticket->feedback_notes,
                 'created_at' => $ticket->created_at->format('d M Y, H:i'),
@@ -147,7 +153,7 @@ class AdminTicketController extends Controller
             ],
             'activityLogs' => $activityLogs,
             'admins' => User::where('role', UserRole::ADMIN)->get(['id', 'name']),
-            'macros' => \App\Models\CannedResponse::where('is_active', true)->orderBy('title')->get(['id', 'title', 'body']),
+            'macros' => \App\Models\CannedResponse::where('is_active', true)->get(['id', 'title_en', 'title_id', 'body_en', 'body_id']),
         ]);
     }
 
@@ -188,5 +194,19 @@ class AdminTicketController extends Controller
         );
 
         return back()->with('success', 'Ticket assigned successfully.');
+    }
+
+    /**
+     * Escalate a ticket.
+     */
+    public function escalate(Request $request, Ticket $ticket, \App\Actions\Tickets\EscalateTicketAction $action): RedirectResponse
+    {
+        $validated = $request->validate([
+            'reason' => ['required', 'string', 'max:500'],
+        ]);
+
+        $action->execute($ticket, $validated['reason']);
+
+        return back()->with('success', 'Ticket escalated successfully.');
     }
 }

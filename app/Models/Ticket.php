@@ -25,6 +25,12 @@ class Ticket extends Model
         'assigned_to',
         'solution_notes',
         'due_at',
+        'response_due_at',
+        'first_responded_at',
+        'is_escalated',
+        'escalation_level',
+        'escalated_at',
+        'escalation_reason',
         'rating',
         'feedback_notes',
         'closed_at',
@@ -42,6 +48,10 @@ class Ticket extends Model
             'priority' => TicketPriority::class,
             'closed_at' => 'datetime',
             'due_at' => 'datetime',
+            'response_due_at' => 'datetime',
+            'first_responded_at' => 'datetime',
+            'escalated_at' => 'datetime',
+            'is_escalated' => 'boolean',
         ];
     }
 

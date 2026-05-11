@@ -73,6 +73,48 @@ class TicketController extends Controller
     }
 
     /**
+     * Check for duplicate/similar open tickets.
+     */
+    public function checkDuplicates(Request $request)
+    {
+        $title = $request->input('title');
+        $categoryId = $request->input('category_id');
+
+        if (!$title || strlen($title) < 5) {
+            return response()->json([]);
+        }
+
+        $query = Ticket::whereIn('status', ['open', 'on_process', 'reopened'])
+            ->where(function ($q) use ($title) {
+                $words = array_filter(explode(' ', $title), fn($w) => strlen($w) > 3);
+                if (count($words) === 0) {
+                    $q->where('title', 'like', "%{$title}%");
+                } else {
+                    foreach ($words as $word) {
+                        $q->orWhere('title', 'like', "%{$word}%");
+                    }
+                }
+            });
+
+        if ($categoryId) {
+            $query->where('category_id', $categoryId);
+        }
+
+        $duplicates = $query->latest()
+            ->take(3)
+            ->get(['id', 'ticket_number', 'title', 'status', 'created_at'])
+            ->map(fn($t) => [
+                'id' => $t->id,
+                'ticket_number' => $t->ticket_number,
+                'title' => $t->title,
+                'status' => $t->status->label(),
+                'created_at' => $t->created_at->diffForHumans(),
+            ]);
+
+        return response()->json($duplicates);
+    }
+
+    /**
      * Store a new ticket.
      */
     public function store(StoreTicketRequest $request, CreateTicketAction $action): RedirectResponse
@@ -127,6 +169,12 @@ class TicketController extends Controller
                 'priority' => $ticket->priority,
                 'solution_notes' => $ticket->solution_notes,
                 'due_at' => $ticket->due_at?->format('d M Y, H:i'),
+                'response_due_at' => $ticket->response_due_at?->format('d M Y, H:i'),
+                'first_responded_at' => $ticket->first_responded_at?->format('d M Y, H:i'),
+                'is_escalated' => $ticket->is_escalated,
+                'escalation_level' => $ticket->escalation_level,
+                'escalated_at' => $ticket->escalated_at?->format('d M Y, H:i'),
+                'escalation_reason' => $ticket->escalation_reason,
                 'rating' => $ticket->rating,
                 'feedback_notes' => $ticket->feedback_notes,
                 'created_at' => $ticket->created_at->format('d M Y, H:i'),

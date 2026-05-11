@@ -21,6 +21,7 @@ import {
     FileArchive,
     FileSpreadsheet,
     Image as ImageIcon,
+    AlertTriangle,
 } from 'lucide-react';
 
 const getFileIcon = (mimeType) => {
@@ -32,10 +33,11 @@ const getFileIcon = (mimeType) => {
 };
 
 export default function AdminTicketShow({ ticket, activityLogs, admins, macros }) {
-    const { t } = useLanguage();
+    const { t, language } = useLanguage();
     const commentForm = useForm({ body: '', is_internal: false });
     const statusForm = useForm({ status: ticket.status, solution_notes: ticket.solution_notes || '' });
     const assignForm = useForm({ assigned_to: ticket.assignee?.id || '', notes: '' });
+    const escalateForm = useForm({ reason: '' });
 
     const handleCommentSubmit = (e) => {
         e.preventDefault();
@@ -55,6 +57,14 @@ export default function AdminTicketShow({ ticket, activityLogs, admins, macros }
         assignForm.post(`/admin/tickets/${ticket.id}/assign`, {
             preserveScroll: true,
             onSuccess: () => assignForm.reset('notes'),
+        });
+    };
+
+    const handleEscalate = (e) => {
+        e.preventDefault();
+        escalateForm.post(`/admin/tickets/${ticket.id}/escalate`, {
+            preserveScroll: true,
+            onSuccess: () => escalateForm.reset('reason'),
         });
     };
 
@@ -222,7 +232,8 @@ export default function AdminTicketShow({ ticket, activityLogs, admins, macros }
                                             if (e.target.value) {
                                                 const macro = macros.find(m => m.id == e.target.value);
                                                 if (macro) {
-                                                    commentForm.setData('body', commentForm.data.body + (commentForm.data.body ? '\n\n' : '') + macro.body);
+                                                    const body = language === 'id' ? (macro.body_id || macro.body_en) : (macro.body_en || macro.body_id);
+                                                    commentForm.setData('body', commentForm.data.body + (commentForm.data.body ? '\n\n' : '') + body);
                                                 }
                                                 e.target.value = '';
                                             }
@@ -231,7 +242,7 @@ export default function AdminTicketShow({ ticket, activityLogs, admins, macros }
                                     >
                                         <option value="" disabled>{t('td_insertTemplate')}</option>
                                         {macros.map(m => (
-                                            <option key={m.id} value={m.id}>{m.title}</option>
+                                            <option key={m.id} value={m.id}>{language === 'id' ? (m.title_id || m.title_en) : (m.title_en || m.title_id)}</option>
                                         ))}
                                     </select>
                                 </div>
@@ -395,6 +406,24 @@ export default function AdminTicketShow({ ticket, activityLogs, admins, macros }
                             </Button>
                         </form>
                     </Card>
+                    {/* Escalation */}
+                    {ticket.status !== 'closed' && (
+                        <Card>
+                            <div className="flex items-center gap-2 mb-4">
+                                <AlertTriangle className="h-4 w-4 text-neutral-400" />
+                                <h3 className="text-sm font-semibold text-neutral-950">{ticket.is_escalated ? t('td_escalated') : t('td_escalation')}</h3>
+                            </div>
+                            <form onSubmit={handleEscalate} className="space-y-3">
+                                <div className="space-y-1">
+                                    <label className="block text-xs font-medium text-neutral-500">{t('td_escalationReason')}</label>
+                                    <input type="text" value={escalateForm.data.reason} onChange={(e) => escalateForm.setData('reason', e.target.value)} placeholder="Reason for escalation..." className="h-10 w-full rounded-md border border-neutral-200 bg-white px-3 text-sm placeholder:text-neutral-400 focus:outline-none focus:ring-2 focus:ring-primary-700" required />
+                                </div>
+                                <Button type="submit" size="sm" variant={ticket.is_escalated ? 'secondary' : 'danger'} className="w-full" loading={escalateForm.processing}>
+                                    {ticket.is_escalated ? t('td_escalateFurther') : t('td_escalateTicket')}
+                                </Button>
+                            </form>
+                        </Card>
+                    )}
                 </div>
             </div>
         </AppLayout>
