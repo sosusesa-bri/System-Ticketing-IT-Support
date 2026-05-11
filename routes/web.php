@@ -71,6 +71,8 @@ Route::middleware('auth')->group(function () {
     Route::put('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::post('/profile/photo', [ProfileController::class, 'updatePhoto'])->name('profile.photo');
     Route::delete('/profile/photo', [ProfileController::class, 'destroyPhoto'])->name('profile.photo.destroy');
+    Route::put('/profile/cover', [ProfileController::class, 'updateCover'])->name('profile.cover');
+    Route::delete('/profile/cover', [ProfileController::class, 'destroyCover'])->name('profile.cover.destroy');
     Route::put('/profile/password', [ProfileController::class, 'updatePassword'])->name('profile.password');
     Route::put('/profile/preferences', [ProfileController::class, 'updatePreferences'])->name('profile.preferences');
 
@@ -95,12 +97,19 @@ Route::middleware('auth')->group(function () {
         Route::get('/users', [UserManagementController::class, 'index'])->name('users.index');
         Route::get('/users/{user}', [UserManagementController::class, 'show'])->name('users.show');
         Route::put('/users/{user}/role', [UserManagementController::class, 'updateRole'])->name('users.updateRole');
+        Route::put('/users/{user}/department', [UserManagementController::class, 'updateDepartment'])->name('users.updateDepartment');
+        Route::put('/users/{user}/email', [UserManagementController::class, 'updateEmail'])->name('users.updateEmail');
+        Route::put('/users/{user}/password', [UserManagementController::class, 'updatePassword'])->name('users.updatePassword');
+        Route::delete('/users/{user}', [UserManagementController::class, 'destroy'])->name('users.destroy');
 
         // Reports
         Route::get('/reports', [ReportController::class, 'index'])->name('reports.index');
 
         // Audit log
         Route::get('/audit-log', [AuditLogController::class, 'index'])->name('auditLog.index');
+
+        // Documentation
+        Route::get('/documentation', [\App\Http\Controllers\Admin\DocumentationController::class, 'index'])->name('documentation.index');
 
         // Notification Operations Center
         Route::prefix('notifications')->name('notifications.')->group(function () {

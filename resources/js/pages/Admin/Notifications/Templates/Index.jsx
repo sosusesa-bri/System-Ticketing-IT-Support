@@ -21,6 +21,7 @@ import {
     Eye,
     X,
 } from 'lucide-react';
+import NavCards from '../NavCards';
 
 export default function TemplatesIndex({ templates }) {
     const { t } = useLanguage();
@@ -70,6 +71,9 @@ export default function TemplatesIndex({ templates }) {
                     {t('nt_newTemplate')}
                 </Link>
             </div>
+
+            {/* Navigation Cards */}
+            <NavCards currentPath="templates" stats={{ active_templates: templates?.filter(t => t.is_active)?.length || 0 }} />
 
             {/* Search */}
             <div className="mb-4">

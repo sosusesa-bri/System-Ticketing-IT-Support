@@ -17,9 +17,10 @@ import {
     ChevronRight,
     FileText,
     ArrowRight,
-    Bell,
     Activity,
+    Bell,
 } from 'lucide-react';
+import NavCards from '../NavCards';
 
 const EVENT_ICONS = {
     ticket_created: Zap,
@@ -91,6 +92,9 @@ export default function AutomationIndex({ rules }) {
                     {t('na_newRule')}
                 </Link>
             </div>
+
+            {/* Navigation Cards */}
+            <NavCards currentPath="automation" stats={{ active_rules: activeCount }} />
 
             {/* Stats */}
             <div className="grid grid-cols-3 gap-4 mb-6">

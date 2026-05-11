@@ -51,6 +51,7 @@ export const translations = {
         'broadcast': 'Broadcast',
         'adminDashboard': 'Admin Dashboard',
         'auditLog': 'Audit Log',
+        'documentation': 'Documentation',
         'users': 'Users',
         
         // Dashboard
@@ -179,6 +180,10 @@ export const translations = {
         
         // Profile additional
         'phoneNumber': 'Phone Number',
+        'phonePlaceholder': '081234567890',
+        'phoneHint': 'Numbers only, 9–15 digits.',
+        'departmentAdminOnly': 'Department can only be changed by an Admin.',
+        'contactAdminToChange': 'Contact administrator to change.',
         'min8chars': 'Minimum 8 characters',
 
         // Broadcast
@@ -513,6 +518,7 @@ export const translations = {
         'broadcast': 'Notifikasi',
         'adminDashboard': 'Beranda Admin',
         'auditLog': 'Log Audit',
+        'documentation': 'Dokumentasi',
         'users': 'Pengguna',
         'notifications': 'Notifikasi',
         
@@ -642,6 +648,10 @@ export const translations = {
         
         // Profile additional
         'phoneNumber': 'Nomor Telepon',
+        'phonePlaceholder': '081234567890',
+        'phoneHint': 'Hanya angka, 9–15 digit.',
+        'departmentAdminOnly': 'Departemen hanya dapat diubah oleh Admin.',
+        'contactAdminToChange': 'Hubungi administrator untuk mengubah.',
         'min8chars': 'Minimal 8 karakter',
 
         // Broadcast

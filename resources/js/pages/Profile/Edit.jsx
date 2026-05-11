@@ -1,4 +1,4 @@
-import React, { useState, useRef, useCallback } from 'react';
+﻿import React, { useState, useRef, useCallback } from 'react';
 import { useForm, router } from '@inertiajs/react';
 import AppLayout from '../../layouts/AppLayout';
 import Input from '../../components/ui/Input';
@@ -8,9 +8,9 @@ import * as Tabs from '@radix-ui/react-tabs';
 import * as Dialog from '@radix-ui/react-dialog';
 import Cropper from 'react-easy-crop';
 import getCroppedImg from '../../utils/cropImage';
-import { 
-    User, Lock, Settings, Activity, Camera, X, Check,
-    UserCircle, Mail, Phone, Briefcase, CalendarClock, Shield, Clock
+import {
+    User, Lock, Settings, Activity, Camera, X, Check, ImagePlus,
+    UserCircle, Mail, Phone, Briefcase, CalendarClock, Shield, Clock, Info
 } from 'lucide-react';
 import { useLanguage } from '../../contexts/LanguageContext';
 import { cn } from '../../lib/utils';
@@ -18,12 +18,12 @@ import { motion, AnimatePresence } from 'framer-motion';
 
 export default function ProfileEdit({ user, recentActivity }) {
     const { t, setLanguage } = useLanguage();
+    const [activeTab, setActiveTab] = useState('profile');
     
     // Forms
     const profileForm = useForm({
         name: user.name,
         phone: user.phone || '',
-        department: user.department,
     });
 
     const passwordForm = useForm({
@@ -78,6 +78,33 @@ export default function ProfileEdit({ user, recentActivity }) {
     const [croppedAreaPixels, setCroppedAreaPixels] = useState(null);
     const [uploadingAvatar, setUploadingAvatar] = useState(false);
     const fileInputRef = useRef(null);
+
+    // Cover photo state
+    const [coverPreview, setCoverPreview] = useState(user.cover_path ? `/storage/${user.cover_path}` : null);
+    const [uploadingCover, setUploadingCover] = useState(false);
+    const coverInputRef = useRef(null);
+
+    const handleCoverChange = async (e) => {
+        if (!e.target.files || e.target.files.length === 0) return;
+        const file = e.target.files[0];
+        setUploadingCover(true);
+        setCoverPreview(URL.createObjectURL(file));
+        e.target.value = '';
+        router.post('/profile/cover', {
+            _method: 'put',
+            cover: file,
+        }, {
+            preserveScroll: true,
+            onFinish: () => setUploadingCover(false),
+        });
+    };
+
+    const handleRemoveCover = () => {
+        router.delete('/profile/cover', {
+            preserveScroll: true,
+            onSuccess: () => setCoverPreview(null),
+        });
+    };
 
     const onCropComplete = useCallback((croppedArea, croppedAreaPixels) => {
         setCroppedAreaPixels(croppedAreaPixels);
@@ -140,7 +167,45 @@ export default function ProfileEdit({ user, recentActivity }) {
                 {/* Left Column: Summary & Avatar */}
                 <div className="lg:col-span-4 space-y-6">
                     <Card className="overflow-hidden">
-                        <div className="h-24 bg-gradient-to-r from-primary-600 to-primary-800"></div>
+                        {/* LinkedIn-style Cover Photo */}
+                        <div
+                            className="relative h-32 bg-gradient-to-r from-primary-600 to-primary-800 group cursor-pointer overflow-hidden"
+                            onClick={() => coverInputRef.current?.click()}
+                            title={t('uploadPhoto')}
+                        >
+                            {coverPreview && (
+                                <img src={coverPreview} alt="Cover" className="absolute inset-0 w-full h-full object-cover" />
+                            )}
+                            <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-3">
+                                <button
+                                    type="button"
+                                    onClick={(e) => { e.stopPropagation(); coverInputRef.current?.click(); }}
+                                    disabled={uploadingCover}
+                                    className="flex items-center gap-1.5 px-3 py-1.5 bg-white/20 hover:bg-white/40 rounded-full text-white text-xs font-medium backdrop-blur-sm transition-colors"
+                                >
+                                    <ImagePlus className="h-3.5 w-3.5" />
+                                    {t('uploadPhoto')}
+                                </button>
+                                {coverPreview && (
+                                    <button
+                                        type="button"
+                                        onClick={(e) => { e.stopPropagation(); handleRemoveCover(); }}
+                                        disabled={uploadingCover}
+                                        className="flex items-center gap-1.5 px-3 py-1.5 bg-rose-500/80 hover:bg-rose-600 rounded-full text-white text-xs font-medium backdrop-blur-sm transition-colors"
+                                    >
+                                        <X className="h-3.5 w-3.5" />
+                                        {t('removePhoto')}
+                                    </button>
+                                )}
+                            </div>
+                            <input
+                                type="file"
+                                ref={coverInputRef}
+                                onChange={handleCoverChange}
+                                className="hidden"
+                                accept="image/*"
+                            />
+                        </div>
                         <div className="px-6 pb-6 pt-0 relative flex flex-col items-center text-center">
                             {/* Avatar Wrapper */}
                             <div className="relative -mt-12 mb-4 group">
@@ -227,7 +292,7 @@ export default function ProfileEdit({ user, recentActivity }) {
 
                 {/* Right Column: Tabs */}
                 <div className="lg:col-span-8">
-                    <Tabs.Root defaultValue="profile" className="flex flex-col w-full">
+                    <Tabs.Root value={activeTab} onValueChange={setActiveTab} className="flex flex-col w-full">
                         <Tabs.List className="flex border-b border-neutral-200 mb-6 px-1 overflow-x-auto scrollbar-hide">
                             <Tabs.Trigger
                                 value="profile"
@@ -256,8 +321,14 @@ export default function ProfileEdit({ user, recentActivity }) {
                         </Tabs.List>
 
                         <AnimatePresence mode="wait">
-                            <Tabs.Content value="profile" asChild>
-                                <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }}>
+                            <motion.div
+                                key={activeTab}
+                                initial={{ opacity: 0, y: 10 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                exit={{ opacity: 0, y: -10 }}
+                                transition={{ duration: 0.15 }}
+                            >
+                                {activeTab === 'profile' && (
                                     <Card>
                                         <div className="mb-6">
                                             <h2 className="text-lg font-semibold text-neutral-900">{t('personalInfo')}</h2>
@@ -281,33 +352,36 @@ export default function ProfileEdit({ user, recentActivity }) {
                                                 disabled
                                                 helpText={t('contactAdminToChange')}
                                             />
-                                            <Input
-                                                id="phone"
-                                                label={t('phoneNumber')}
-                                                type="text"
-                                                value={profileForm.data.phone}
-                                                onChange={(e) => profileForm.setData('phone', e.target.value)}
-                                                error={profileForm.errors.phone}
-                                                placeholder={t('phonePlaceholder')}
-                                            />
                                             <div className="space-y-1">
-                                                <label htmlFor="profile_department" className="block text-xs font-medium text-neutral-500">{t('department')}</label>
-                                                <select
-                                                    id="profile_department"
-                                                    value={profileForm.data.department}
-                                                    onChange={(e) => profileForm.setData('department', e.target.value)}
-                                                    className="h-10 w-full rounded-md border border-neutral-200 bg-white px-3 text-sm text-neutral-950 focus:outline-none focus:ring-2 focus:ring-primary-700"
-                                                    required
-                                                >
-                                                    <option value="Administrasi">Administrasi</option>
-                                                    <option value="Akademik">Akademik</option>
-                                                    <option value="Keuangan">Keuangan</option>
-                                                    <option value="IT Department">IT Department</option>
-                                                    <option value="Kemahasiswaan">Kemahasiswaan</option>
-                                                    <option value="Perpustakaan">Perpustakaan</option>
-                                                    <option value="Lainnya">Lainnya</option>
-                                                </select>
-                                                {profileForm.errors.department && <p className="text-xs text-danger-600 mt-1">{profileForm.errors.department}</p>}
+                                                <label htmlFor="phone" className="block text-xs font-medium text-neutral-500">
+                                                    {t('phoneNumber')}
+                                                </label>
+                                                <input
+                                                    id="phone"
+                                                    type="tel"
+                                                    inputMode="numeric"
+                                                    pattern="[0-9]{9,15}"
+                                                    value={profileForm.data.phone}
+                                                    onChange={(e) => {
+                                                        const val = e.target.value.replace(/[^0-9]/g, '').slice(0, 15);
+                                                        profileForm.setData('phone', val);
+                                                    }}
+                                                    placeholder={t('phonePlaceholder')}
+                                                    className="h-10 w-full rounded-md border border-neutral-200 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary-700"
+                                                />
+                                                {profileForm.errors.phone && <p className="text-xs text-danger-600 mt-1">{profileForm.errors.phone}</p>}
+                                                <p className="text-xs text-neutral-400">{t('phoneHint')}</p>
+                                            </div>
+                                            {/* Department â€” read-only, admin-only change */}
+                                            <div className="space-y-1">
+                                                <label className="block text-xs font-medium text-neutral-500">{t('department')}</label>
+                                                <div className="h-10 w-full rounded-md border border-neutral-100 bg-neutral-50 px-3 flex items-center text-sm text-neutral-500">
+                                                    {user.department || '-'}
+                                                </div>
+                                                <p className="flex items-center gap-1 text-xs text-neutral-400">
+                                                    <Info className="h-3 w-3" />
+                                                    {t('departmentAdminOnly')}
+                                                </p>
                                             </div>
                                             <div className="pt-4 flex justify-end">
                                                 <Button type="submit" loading={profileForm.processing}>
@@ -316,17 +390,14 @@ export default function ProfileEdit({ user, recentActivity }) {
                                             </div>
                                         </form>
                                     </Card>
-                                </motion.div>
-                            </Tabs.Content>
+                                )}
 
-                            <Tabs.Content value="preferences" asChild>
-                                <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }}>
+                                {activeTab === 'preferences' && (
                                     <Card>
                                         <div className="mb-6">
                                             <h2 className="text-lg font-semibold text-neutral-900">{t('preferences')}</h2>
                                         </div>
                                         <form onSubmit={handlePreferencesSubmit} className="space-y-8 max-w-xl">
-                                            
                                             {/* Language Preference */}
                                             <div className="space-y-3">
                                                 <h3 className="text-sm font-medium text-neutral-900 border-b border-neutral-100 pb-2">{t('languagePref')}</h3>
@@ -341,7 +412,6 @@ export default function ProfileEdit({ user, recentActivity }) {
                                                     </label>
                                                 </div>
                                             </div>
-
                                             {/* Notification Preference */}
                                             <div className="space-y-3">
                                                 <h3 className="text-sm font-medium text-neutral-900 border-b border-neutral-100 pb-2">{t('notificationPref')}</h3>
@@ -362,7 +432,6 @@ export default function ProfileEdit({ user, recentActivity }) {
                                                     </label>
                                                 </div>
                                             </div>
-
                                             <div className="pt-4 flex justify-end">
                                                 <Button type="submit" loading={preferencesForm.processing}>
                                                     {preferencesForm.processing ? t('saving') : t('saveChanges')}
@@ -370,11 +439,9 @@ export default function ProfileEdit({ user, recentActivity }) {
                                             </div>
                                         </form>
                                     </Card>
-                                </motion.div>
-                            </Tabs.Content>
+                                )}
 
-                            <Tabs.Content value="security" asChild>
-                                <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }}>
+                                {activeTab === 'security' && (
                                     <Card>
                                         <div className="mb-6">
                                             <h2 className="text-lg font-semibold text-neutral-900">{t('security')}</h2>
@@ -415,11 +482,9 @@ export default function ProfileEdit({ user, recentActivity }) {
                                             </div>
                                         </form>
                                     </Card>
-                                </motion.div>
-                            </Tabs.Content>
+                                )}
 
-                            <Tabs.Content value="activity" asChild>
-                                <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }}>
+                                {activeTab === 'activity' && (
                                     <Card>
                                         <div className="mb-6">
                                             <h2 className="text-lg font-semibold text-neutral-900">{t('auditHistory')}</h2>
@@ -427,7 +492,7 @@ export default function ProfileEdit({ user, recentActivity }) {
                                         <div className="space-y-6">
                                             {recentActivity && recentActivity.length > 0 ? (
                                                 <div className="relative border-l border-neutral-200 ml-3 space-y-6">
-                                                    {recentActivity.map((activity, index) => (
+                                                    {recentActivity.map((activity) => (
                                                         <div key={activity.id} className="relative pl-6">
                                                             <div className="absolute -left-1.5 top-1.5 h-3 w-3 rounded-full bg-neutral-200 border-2 border-white ring-1 ring-neutral-200"></div>
                                                             <p className="text-sm font-medium text-neutral-900">{activity.description}</p>
@@ -452,8 +517,8 @@ export default function ProfileEdit({ user, recentActivity }) {
                                             )}
                                         </div>
                                     </Card>
-                                </motion.div>
-                            </Tabs.Content>
+                                )}
+                            </motion.div>
                         </AnimatePresence>
                     </Tabs.Root>
                 </div>

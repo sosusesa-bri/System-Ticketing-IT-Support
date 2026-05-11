@@ -13,6 +13,7 @@ import {
     FileText,
     Shield,
     X,
+    BookOpen,
 } from 'lucide-react';
 import { cn } from '../../lib/utils';
 import { useLanguage } from '../../contexts/LanguageContext';
@@ -54,6 +55,7 @@ export default function Sidebar({ open, onClose, user }) {
         { name: t('reports'), href: '/admin/reports', icon: BarChart3 },
         { name: t('broadcast'), href: '/admin/notifications/dashboard', icon: Bell },
         { name: t('auditLog'), href: '/admin/audit-log', icon: FileText },
+        { name: t('documentation'), href: '/admin/documentation', icon: BookOpen },
         { name: t('settings'), href: '/admin/settings', icon: Settings },
     ];
 
@@ -92,6 +94,12 @@ export default function Sidebar({ open, onClose, user }) {
                     }
                     if (item.href === '/admin/tickets') {
                         active = url === '/admin/tickets' || (url.startsWith('/admin/tickets') && !url.startsWith('/admin/tickets/create'));
+                    }
+                    if (item.href === '/admin/documentation') {
+                        active = url.startsWith('/admin/documentation');
+                    }
+                    if (item.href === '/admin/notifications/dashboard') {
+                        active = url.startsWith('/admin/notifications');
                     }
                     if (item.href === '/dashboard' && url !== '/dashboard') active = false;
                     if (item.href === '/admin/dashboard' && url !== '/admin/dashboard') active = false;

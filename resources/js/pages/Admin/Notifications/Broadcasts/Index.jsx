@@ -4,6 +4,7 @@ import Card from '../../../../components/ui/Card';
 import { Badge } from '../../../../components/ui/Badge';
 import { Bell, Send, FileText, Play, Plus, Search } from 'lucide-react';
 import Input from '../../../../components/ui/Input';
+import NavCards from '../NavCards';
 
 export default function BroadcastsIndex({ broadcasts }) {
     return (
@@ -23,24 +24,7 @@ export default function BroadcastsIndex({ broadcasts }) {
             </div>
 
             {/* Quick Actions Navigation */}
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-                <Link href="/admin/notifications/dashboard" className="flex items-center p-4 bg-white rounded-lg border border-neutral-200 text-neutral-700 hover:bg-neutral-50 transition-colors">
-                    <Bell className="h-5 w-5 mr-3 text-neutral-400" />
-                    <span className="font-semibold">Overview</span>
-                </Link>
-                <Link href="/admin/notifications/broadcasts" className="flex items-center p-4 bg-primary-50 rounded-lg border border-primary-100 text-primary-700 hover:bg-primary-100 transition-colors">
-                    <Send className="h-5 w-5 mr-3" />
-                    <span className="font-semibold">Broadcasts</span>
-                </Link>
-                <Link href="/admin/notifications/templates" className="flex items-center p-4 bg-white rounded-lg border border-neutral-200 text-neutral-700 hover:bg-neutral-50 transition-colors">
-                    <FileText className="h-5 w-5 mr-3 text-neutral-400" />
-                    <span className="font-semibold">Templates</span>
-                </Link>
-                <Link href="/admin/notifications/automation" className="flex items-center p-4 bg-white rounded-lg border border-neutral-200 text-neutral-700 hover:bg-neutral-50 transition-colors">
-                    <Play className="h-5 w-5 mr-3 text-neutral-400" />
-                    <span className="font-semibold">Automation</span>
-                </Link>
-            </div>
+            <NavCards currentPath="broadcasts" />
 
             <Card className="mb-6">
                 <div className="p-4 flex flex-col sm:flex-row gap-4 justify-between items-center border-b border-neutral-100">
