@@ -101,6 +101,9 @@ The application provides:
 - forgot-password flow using Laravel's password reset link mechanism
 - role-aware post-login redirects to `/dashboard` or `/admin/dashboard`
 
+Admin Account: `admin@politekmitra.ac.id` || `password`
+User Account: `budi@politekmitra.ac.id` || `password`
+
 ### 2. User ticket workspace
 
 Authenticated users can:

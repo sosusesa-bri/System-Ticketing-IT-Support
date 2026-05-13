@@ -59,15 +59,21 @@ const initialNodes = [
                 { name: 'id', type: 'bigint', isPk: true },
                 { name: 'name', type: 'string' },
                 { name: 'email', type: 'string' },
+                { name: 'password', type: 'string' },
                 { name: 'role', type: 'enum' },
                 { name: 'department', type: 'string' },
+                { name: 'phone', type: 'string' },
+                { name: 'language', type: 'string' },
+                { name: 'theme', type: 'string' },
+                { name: 'notification_preferences', type: 'json' },
+                { name: 'last_login_at', type: 'timestamp' },
             ],
         },
     },
     {
         id: 'ticket_categories',
         type: 'table',
-        position: { x: 50, y: 350 },
+        position: { x: 50, y: 450 },
         data: {
             label: 'ticket_categories',
             columns: [
@@ -80,24 +86,26 @@ const initialNodes = [
     {
         id: 'tickets',
         type: 'table',
-        position: { x: 400, y: 100 },
+        position: { x: 400, y: 50 },
         data: {
             label: 'tickets',
             columns: [
                 { name: 'id', type: 'bigint', isPk: true },
                 { name: 'ticket_number', type: 'string' },
+                { name: 'title', type: 'string' },
                 { name: 'user_id', type: 'bigint', isFk: true },
                 { name: 'category_id', type: 'bigint', isFk: true },
                 { name: 'assigned_to', type: 'bigint', isFk: true },
                 { name: 'status', type: 'enum' },
                 { name: 'priority', type: 'enum' },
+                { name: 'due_at', type: 'timestamp' },
             ],
         },
     },
     {
         id: 'ticket_comments',
         type: 'table',
-        position: { x: 750, y: 50 },
+        position: { x: 400, y: 400 },
         data: {
             label: 'ticket_comments',
             columns: [
@@ -111,7 +119,7 @@ const initialNodes = [
     {
         id: 'ticket_attachments',
         type: 'table',
-        position: { x: 750, y: 250 },
+        position: { x: 400, y: 600 },
         data: {
             label: 'ticket_attachments',
             columns: [
@@ -123,17 +131,64 @@ const initialNodes = [
         },
     },
     {
-        id: 'activity_logs',
+        id: 'kb_categories',
         type: 'table',
-        position: { x: 400, y: 400 },
+        position: { x: 800, y: 50 },
         data: {
-            label: 'activity_logs',
+            label: 'kb_categories',
             columns: [
                 { name: 'id', type: 'bigint', isPk: true },
-                { name: 'user_id', type: 'bigint', isFk: true },
-                { name: 'loggable_type', type: 'string' },
-                { name: 'loggable_id', type: 'bigint' },
-                { name: 'action', type: 'string' },
+                { name: 'name', type: 'string' },
+                { name: 'slug', type: 'string' },
+                { name: 'is_active', type: 'boolean' },
+            ],
+        },
+    },
+    {
+        id: 'kb_articles',
+        type: 'table',
+        position: { x: 800, y: 250 },
+        data: {
+            label: 'kb_articles',
+            columns: [
+                { name: 'id', type: 'bigint', isPk: true },
+                { name: 'category_id', type: 'bigint', isFk: true },
+                { name: 'author_id', type: 'bigint', isFk: true },
+                { name: 'title', type: 'string' },
+                { name: 'status', type: 'enum' },
+                { name: 'views_count', type: 'integer' },
+            ],
+        },
+    },
+    {
+        id: 'notification_broadcasts',
+        type: 'table',
+        position: { x: 1200, y: 50 },
+        data: {
+            label: 'notification_broadcasts',
+            columns: [
+                { name: 'id', type: 'bigint', isPk: true },
+                { name: 'title', type: 'string' },
+                { name: 'message', type: 'text' },
+                { name: 'type', type: 'string' },
+                { name: 'audience', type: 'string' },
+                { name: 'sender_id', type: 'bigint', isFk: true },
+                { name: 'is_sent', type: 'boolean' },
+            ],
+        },
+    },
+    {
+        id: 'notifications',
+        type: 'table',
+        position: { x: 1200, y: 350 },
+        data: {
+            label: 'notifications',
+            columns: [
+                { name: 'id', type: 'uuid', isPk: true },
+                { name: 'type', type: 'string' },
+                { name: 'notifiable_id', type: 'bigint', isFk: true },
+                { name: 'data', type: 'json' },
+                { name: 'read_at', type: 'timestamp' },
             ],
         },
     },
@@ -144,8 +199,11 @@ const initialEdges = [
     { id: 'e-assign-ticket', source: 'users', target: 'tickets', sourceHandle: 'id-out', targetHandle: 'assigned_to-in', animated: false, style: { stroke: '#94a3b8', strokeWidth: 2, strokeDasharray: '5 5' } },
     { id: 'e-cat-ticket', source: 'ticket_categories', target: 'tickets', sourceHandle: 'id-out', targetHandle: 'category_id-in', animated: false, style: { stroke: '#94a3b8', strokeWidth: 2 } },
     { id: 'e-ticket-comment', source: 'tickets', target: 'ticket_comments', sourceHandle: 'id-out', targetHandle: 'ticket_id-in', animated: false, style: { stroke: '#94a3b8', strokeWidth: 2 } },
-    { id: 'e-user-comment', source: 'users', target: 'ticket_comments', sourceHandle: 'id-out', targetHandle: 'user_id-in', animated: false, style: { stroke: '#94a3b8', strokeWidth: 2 } },
     { id: 'e-ticket-attach', source: 'tickets', target: 'ticket_attachments', sourceHandle: 'id-out', targetHandle: 'ticket_id-in', animated: false, style: { stroke: '#94a3b8', strokeWidth: 2 } },
+    { id: 'e-kb-cat-article', source: 'kb_categories', target: 'kb_articles', sourceHandle: 'id-out', targetHandle: 'category_id-in', animated: false, style: { stroke: '#94a3b8', strokeWidth: 2 } },
+    { id: 'e-user-kb-article', source: 'users', target: 'kb_articles', sourceHandle: 'id-out', targetHandle: 'author_id-in', animated: false, style: { stroke: '#94a3b8', strokeWidth: 2 } },
+    { id: 'e-user-broadcast', source: 'users', target: 'notification_broadcasts', sourceHandle: 'id-out', targetHandle: 'sender_id-in', animated: false, style: { stroke: '#94a3b8', strokeWidth: 2 } },
+    { id: 'e-user-notification', source: 'users', target: 'notifications', sourceHandle: 'id-out', targetHandle: 'notifiable_id-in', animated: false, style: { stroke: '#94a3b8', strokeWidth: 2 } },
 ];
 
 export default function ERD() {

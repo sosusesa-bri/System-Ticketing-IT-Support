@@ -28,7 +28,7 @@ const ActorNode = ({ data }) => (
 );
 
 const UseCaseNode = ({ data }) => (
-    <div className="px-6 py-3 rounded-[100%] bg-white border-2 border-primary-500 shadow-sm flex items-center justify-center min-w-[160px] min-h-[60px] text-center text-sm font-medium text-neutral-800">
+    <div className="px-6 py-3 rounded-[100%] bg-white border-2 border-primary-500 shadow-sm flex items-center justify-center min-w-[160px] min-h-[60px] text-center text-sm font-medium text-neutral-800 dark:text-white">
         <Handle type="target" position={Position.Left} className="!opacity-0" />
         {data.label}
         <Handle type="source" position={Position.Right} className="!opacity-0" />

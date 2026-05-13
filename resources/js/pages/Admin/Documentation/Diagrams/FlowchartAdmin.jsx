@@ -6,7 +6,7 @@ import { toPng } from 'html-to-image';
 import { useLanguage } from '../../../../contexts/LanguageContext';
 
 const ProcessNode = ({ data }) => (
-    <div className="px-4 py-2 shadow-md rounded-md bg-white border-2 border-rose-500 font-medium text-center min-w-[150px]">
+    <div className="px-4 py-2 shadow-md rounded-md bg-white border-2 border-rose-500 font-medium text-center text-neutral-800 dark:text-white min-w-[150px]">
         <Handle type="target" position={Position.Top} className="w-2 h-2" />
         {data.label}
         <Handle type="source" position={Position.Bottom} className="w-2 h-2" />
@@ -14,7 +14,7 @@ const ProcessNode = ({ data }) => (
 );
 
 const DecisionNode = ({ data }) => (
-    <div className="px-4 py-4 shadow-md bg-amber-50 border-2 border-amber-500 font-medium text-center transform rotate-45 w-24 h-24 flex items-center justify-center">
+    <div className="px-4 py-4 shadow-md bg-amber-50 border-2 border-amber-500 font-medium text-neutral-900 text-center transform rotate-45 w-24 h-24 flex items-center justify-center">
         <div className="transform -rotate-45 text-xs whitespace-normal">{data.label}</div>
         <Handle type="target" position={Position.Top} className="w-2 h-2 transform -rotate-45 translate-x-3 -translate-y-3" />
         <Handle type="source" position={Position.Bottom} id="yes" className="w-2 h-2 transform -rotate-45 -translate-x-3 translate-y-3" />

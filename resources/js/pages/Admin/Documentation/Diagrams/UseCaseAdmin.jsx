@@ -17,7 +17,7 @@ const ActorNode = ({ data }) => (
 );
 
 const UseCaseNode = ({ data }) => (
-    <div className="px-6 py-3 bg-white border-2 border-emerald-500 rounded-[50%] shadow-md font-medium text-center text-slate-700 min-w-[160px]">
+    <div className="px-6 py-3 bg-white border-2 border-emerald-500 rounded-[50%] shadow-md font-medium text-center text-slate-700 dark:text-white min-w-[160px]">
         <Handle type="target" position={Position.Left} className="!bg-transparent !border-none" />
         {data.label}
         <Handle type="source" position={Position.Right} className="!bg-transparent !border-none" />
