@@ -28,6 +28,9 @@ class ReopenTicketAction
                 ['status' => 'reopened']
             );
 
+            // Notify user of reopen
+            $ticket->user->notify(new \App\Notifications\TicketStatusUpdated($ticket, 'closed', 'reopened'));
+
             return $ticket;
         });
     }

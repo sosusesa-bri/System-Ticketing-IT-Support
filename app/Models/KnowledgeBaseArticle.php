@@ -4,6 +4,8 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Facades\DB;
 
 class KnowledgeBaseArticle extends Model
 {
@@ -35,6 +37,14 @@ class KnowledgeBaseArticle extends Model
     }
 
     /**
+     * File attachments for this article.
+     */
+    public function attachments(): HasMany
+    {
+        return $this->hasMany(KbAttachment::class, 'knowledge_base_article_id');
+    }
+
+    /**
      * Scope: only published articles.
      */
     public function scopePublished($query)
@@ -47,7 +57,7 @@ class KnowledgeBaseArticle extends Model
      */
     public function localizedTitle(string $lang = 'en'): string
     {
-        return $lang === 'id' ? ($this->title_id ?: $this->title_en) : $this->title_en;
+        return $lang === 'id' ? ($this->title_id ?: $this->title_en) : ($this->title_en ?: $this->title_id);
     }
 
     /**
@@ -55,6 +65,36 @@ class KnowledgeBaseArticle extends Model
      */
     public function localizedContent(string $lang = 'en'): string
     {
-        return $lang === 'id' ? ($this->content_id ?: $this->content_en) : $this->content_en;
+        return $lang === 'id' ? ($this->content_id ?: $this->content_en) : ($this->content_en ?: $this->content_id);
+    }
+
+    /**
+     * Record a unique view for the given user.
+     * Returns true if this is a new view, false if already viewed.
+     */
+    public function recordView(int $userId): bool
+    {
+        $inserted = DB::table('kb_article_views')->insertOrIgnore([
+            'knowledge_base_article_id' => $this->id,
+            'user_id' => $userId,
+            'viewed_at' => now(),
+        ]);
+
+        if ($inserted) {
+            $this->increment('views');
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * Get unique view count from the views table.
+     */
+    public function uniqueViewCount(): int
+    {
+        return DB::table('kb_article_views')
+            ->where('knowledge_base_article_id', $this->id)
+            ->count();
     }
 }

@@ -29,9 +29,9 @@ class CreateTicketAction
                 'priority' => $data['priority'],
                 'category_id' => $data['category_id'],
                 'user_id' => $data['user_id'],
-                'status' => 'open',
-                'due_at' => now()->addHours($priorityEnum->slaHours()),
-                'response_due_at' => now()->addHours($priorityEnum->responseSlaHours()),
+                'status' => $data['status'] ?? 'open',
+                'due_at' => ($data['status'] ?? 'open') === 'draft' ? null : now()->addHours($priorityEnum->slaHours()),
+                'response_due_at' => ($data['status'] ?? 'open') === 'draft' ? null : now()->addHours($priorityEnum->responseSlaHours()),
             ]);
 
             // Intelligent Auto-Assignment: find the admin with the lowest active workload
@@ -42,13 +42,13 @@ class CreateTicketAction
                 ->orderBy('assigned_tickets_count', 'asc')
                 ->first();
 
-            if ($assignedAdmin) {
+            if ($ticket->status->value !== 'draft' && $assignedAdmin) {
                 $ticket->update(['assigned_to' => $assignedAdmin->id]);
                 
                 \App\Models\TicketAssignment::create([
                     'ticket_id' => $ticket->id,
-                    'assigner_id' => $data['user_id'], // System or self
-                    'assignee_id' => $assignedAdmin->id,
+                    'assigned_by' => $data['user_id'], // System or self
+                    'assigned_to' => $assignedAdmin->id,
                     'notes' => 'Auto-assigned by intelligent workload distribution.',
                 ]);
 

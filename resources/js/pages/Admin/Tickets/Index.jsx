@@ -60,21 +60,21 @@ export default function AdminTicketIndex({ tickets, filters, categories, admins 
                     </form>
                     <select value={filters.status || ''} onChange={(e) => applyFilter('status', e.target.value)} className="h-10 rounded-md border border-neutral-200 bg-white px-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary-700">
                         <option value="">{t('allStatus')}</option>
-                        <option value="open">Open</option>
-                        <option value="on_process">In Progress</option>
-                        <option value="closed">Closed</option>
-                        <option value="reopened">Reopened</option>
+                        <option value="open">{t('open')}</option>
+                        <option value="on_process">{t('inProgress')}</option>
+                        <option value="closed">{t('closed')}</option>
+                        <option value="reopened">{t('reopened')}</option>
                     </select>
                     <select value={filters.priority || ''} onChange={(e) => applyFilter('priority', e.target.value)} className="h-10 rounded-md border border-neutral-200 bg-white px-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary-700">
                         <option value="">{t('allPriority')}</option>
-                        <option value="low">Low</option>
-                        <option value="medium">Medium</option>
-                        <option value="high">High</option>
-                        <option value="critical">Critical</option>
+                        <option value="low">{t('low')}</option>
+                        <option value="medium">{t('medium')}</option>
+                        <option value="high">{t('high')}</option>
+                        <option value="critical">{t('critical')}</option>
                     </select>
                     <select value={filters.assigned_to || ''} onChange={(e) => applyFilter('assigned_to', e.target.value)} className="h-10 rounded-md border border-neutral-200 bg-white px-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary-700">
                         <option value="">{t('allAssignee')}</option>
-                        <option value="unassigned">Unassigned</option>
+                        <option value="unassigned">{t('unassigned')}</option>
                         {admins.map((a) => <option key={a.id} value={a.id}>{a.name}</option>)}
                     </select>
                 </div>
@@ -130,7 +130,7 @@ export default function AdminTicketIndex({ tickets, filters, categories, admins 
                                                     <option value="open">{t('open')}</option>
                                                     <option value="on_process">{t('inProgress')}</option>
                                                     <option value="closed">{t('closed')}</option>
-                                                    <option value="reopened">Reopened</option>
+                                                    <option value="reopened">{t('reopened')}</option>
                                                 </select>
                                             </td>
                                             <td className="px-6 py-3">
@@ -139,13 +139,13 @@ export default function AdminTicketIndex({ tickets, filters, categories, admins 
                                                     onChange={(e) => handleQuickUpdate(ticket.id, 'priority', e.target.value)}
                                                     className="text-xs font-medium rounded-full px-2.5 py-0.5 border border-neutral-200 bg-white focus:outline-none focus:ring-1 focus:ring-primary-500 cursor-pointer w-24"
                                                 >
-                                                    <option value="low">Low</option>
-                                                    <option value="medium">Medium</option>
-                                                    <option value="high">High</option>
-                                                    <option value="critical">Critical</option>
+                                                    <option value="low">{t('low')}</option>
+                                                    <option value="medium">{t('medium')}</option>
+                                                    <option value="high">{t('high')}</option>
+                                                    <option value="critical">{t('critical')}</option>
                                                 </select>
                                             </td>
-                                            <td className="px-6 py-3 text-sm text-neutral-500">{ticket.assigned_to || <span className="text-warning-600">Unassigned</span>}</td>
+                                            <td className="px-6 py-3 text-sm text-neutral-500">{ticket.assigned_to || <span className="text-warning-600">{t('unassigned')}</span>}</td>
                                             <td className="px-6 py-3 text-sm text-neutral-500">{ticket.created_at}</td>
                                         </tr>
                                     ))}

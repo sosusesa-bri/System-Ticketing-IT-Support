@@ -15,9 +15,12 @@ import {
 import { useLanguage } from '../../contexts/LanguageContext';
 import { cn } from '../../lib/utils';
 import { motion, AnimatePresence } from 'framer-motion';
+import { actionLabels, getActionColor } from '../../utils/audit';
+import { useTheme } from '../../contexts/ThemeContext';
 
 export default function ProfileEdit({ user, recentActivity }) {
     const { t, setLanguage } = useLanguage();
+    const { setTheme } = useTheme();
     const [activeTab, setActiveTab] = useState('profile');
     
     // Forms
@@ -34,6 +37,7 @@ export default function ProfileEdit({ user, recentActivity }) {
 
     const preferencesForm = useForm({
         language: user.language || 'en',
+        theme: user.theme || 'light',
         notification_preferences: user.notification_preferences || {
             email: true,
             in_app: true
@@ -58,6 +62,7 @@ export default function ProfileEdit({ user, recentActivity }) {
         preferencesForm.put('/profile/preferences', {
             onSuccess: () => {
                 setLanguage(preferencesForm.data.language);
+                setTheme(preferencesForm.data.theme);
             }
         });
     };
@@ -283,7 +288,7 @@ export default function ProfileEdit({ user, recentActivity }) {
                             <div className="flex justify-between items-center text-sm">
                                 <span className="text-neutral-500 flex items-center gap-2"><Clock className="h-4 w-4" /> {t('lastLoginLabel')}</span>
                                 <span className="font-medium text-neutral-900">
-                                    {user.last_login_at ? new Date(user.last_login_at).toLocaleString('en-GB', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : t('never')}
+                                    {user.last_login_at ? new Date(user.last_login_at).toLocaleString('id-ID', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit', timeZoneName: 'short' }) : t('never')}
                                 </span>
                             </div>
                         </div>
@@ -412,6 +417,26 @@ export default function ProfileEdit({ user, recentActivity }) {
                                                     </label>
                                                 </div>
                                             </div>
+
+                                            {/* Theme Preference */}
+                                            <div className="space-y-3">
+                                                <h3 className="text-sm font-medium text-neutral-900 border-b border-neutral-100 pb-2">{t('theme') || (preferencesForm.data.language === 'id' ? 'Tampilan' : 'Theme')}</h3>
+                                                <div className="grid grid-cols-3 gap-3">
+                                                    <label className={`flex items-center justify-center gap-2 p-3 border rounded-lg cursor-pointer transition-colors ${preferencesForm.data.theme === 'light' ? 'border-primary-600 bg-primary-50' : 'border-neutral-200 hover:bg-neutral-50'}`}>
+                                                        <input type="radio" name="theme" value="light" checked={preferencesForm.data.theme === 'light'} onChange={e => preferencesForm.setData('theme', e.target.value)} className="sr-only" />
+                                                        <span className="text-sm font-medium text-neutral-900">{preferencesForm.data.language === 'id' ? 'Terang' : 'Light'}</span>
+                                                    </label>
+                                                    <label className={`flex items-center justify-center gap-2 p-3 border rounded-lg cursor-pointer transition-colors ${preferencesForm.data.theme === 'dark' ? 'border-primary-600 bg-primary-50' : 'border-neutral-200 hover:bg-neutral-50'}`}>
+                                                        <input type="radio" name="theme" value="dark" checked={preferencesForm.data.theme === 'dark'} onChange={e => preferencesForm.setData('theme', e.target.value)} className="sr-only" />
+                                                        <span className="text-sm font-medium text-neutral-900">{preferencesForm.data.language === 'id' ? 'Gelap' : 'Dark'}</span>
+                                                    </label>
+                                                    <label className={`flex items-center justify-center gap-2 p-3 border rounded-lg cursor-pointer transition-colors ${preferencesForm.data.theme === 'system' ? 'border-primary-600 bg-primary-50' : 'border-neutral-200 hover:bg-neutral-50'}`}>
+                                                        <input type="radio" name="theme" value="system" checked={preferencesForm.data.theme === 'system'} onChange={e => preferencesForm.setData('theme', e.target.value)} className="sr-only" />
+                                                        <span className="text-sm font-medium text-neutral-900">Sistem</span>
+                                                    </label>
+                                                </div>
+                                            </div>
+
                                             {/* Notification Preference */}
                                             <div className="space-y-3">
                                                 <h3 className="text-sm font-medium text-neutral-900 border-b border-neutral-100 pb-2">{t('notificationPref')}</h3>
@@ -495,6 +520,11 @@ export default function ProfileEdit({ user, recentActivity }) {
                                                     {recentActivity.map((activity) => (
                                                         <div key={activity.id} className="relative pl-6">
                                                             <div className="absolute -left-1.5 top-1.5 h-3 w-3 rounded-full bg-neutral-200 border-2 border-white ring-1 ring-neutral-200"></div>
+                                                            <div className="flex items-center gap-2 mb-1">
+                                                                <span className={`inline-flex items-center h-5 px-2 rounded text-[10px] font-semibold uppercase tracking-wider ${getActionColor(activity.action)}`}>
+                                                                    {actionLabels[activity.action] || activity.action}
+                                                                </span>
+                                                            </div>
                                                             <p className="text-sm font-medium text-neutral-900">{activity.description}</p>
                                                             <div className="mt-1 flex items-center gap-2 text-xs text-neutral-500">
                                                                 <Clock className="h-3 w-3" />

@@ -3,8 +3,10 @@ import AppLayout from '../../../../layouts/AppLayout';
 import Card from '../../../../components/ui/Card';
 import { Badge } from '../../../../components/ui/Badge';
 import { ArrowLeft, Send, User, Clock, CheckCircle2, XCircle, Mail } from 'lucide-react';
+import { useLanguage } from '../../../../contexts/LanguageContext';
 
 export default function BroadcastShow({ broadcast, logs }) {
+    const { t } = useLanguage();
     const statusColor = {
         completed: 'bg-emerald-100 text-emerald-700',
         draft: 'bg-neutral-100 text-neutral-700',
@@ -28,7 +30,7 @@ export default function BroadcastShow({ broadcast, logs }) {
                 </Link>
                 <div className="flex-1">
                     <h1 className="text-2xl font-bold text-primary-900">{broadcast.title}</h1>
-                    <p className="text-sm text-neutral-500 mt-1">Broadcast detail and delivery log.</p>
+                    <p className="text-sm text-neutral-500 mt-1">{t('broadcastDetail')}</p>
                 </div>
                 <Badge className={statusColor[broadcast.status] || 'bg-neutral-100 text-neutral-700'}>
                     {broadcast.status}
@@ -39,7 +41,7 @@ export default function BroadcastShow({ broadcast, logs }) {
                 {/* Broadcast Details */}
                 <Card className="lg:col-span-2">
                     <div className="p-5 border-b border-neutral-100">
-                        <h2 className="text-lg font-semibold text-neutral-900">Broadcast Content</h2>
+                        <h2 className="text-lg font-semibold text-neutral-900">{t('broadcastContent')}</h2>
                     </div>
                     <div className="p-5 space-y-4">
                         <div className="bg-neutral-50 rounded-lg p-4 text-sm text-neutral-800 whitespace-pre-wrap leading-relaxed">
@@ -51,20 +53,20 @@ export default function BroadcastShow({ broadcast, logs }) {
                 {/* Metadata */}
                 <Card>
                     <div className="p-5 border-b border-neutral-100">
-                        <h2 className="text-lg font-semibold text-neutral-900">Details</h2>
+                        <h2 className="text-lg font-semibold text-neutral-900">{t('td_details')}</h2>
                     </div>
                     <div className="p-5 space-y-4 text-sm">
                         <div className="flex items-center gap-3">
                             <User className="h-4 w-4 text-neutral-400 flex-shrink-0" />
                             <div>
-                                <p className="text-neutral-500">Created by</p>
+                                <p className="text-neutral-500">{t('creator')}</p>
                                 <p className="font-medium text-neutral-900">{broadcast.creator}</p>
                             </div>
                         </div>
                         <div className="flex items-center gap-3">
                             <Clock className="h-4 w-4 text-neutral-400 flex-shrink-0" />
                             <div>
-                                <p className="text-neutral-500">Created at</p>
+                                <p className="text-neutral-500">{t('td_created')}</p>
                                 <p className="font-medium text-neutral-900">{broadcast.created_at}</p>
                             </div>
                         </div>
@@ -72,7 +74,7 @@ export default function BroadcastShow({ broadcast, logs }) {
                             <div className="flex items-center gap-3">
                                 <Send className="h-4 w-4 text-neutral-400 flex-shrink-0" />
                                 <div>
-                                    <p className="text-neutral-500">Sent at</p>
+                                    <p className="text-neutral-500">{t('sentAt')}</p>
                                     <p className="font-medium text-neutral-900">{broadcast.sent_at}</p>
                                 </div>
                             </div>
@@ -80,7 +82,7 @@ export default function BroadcastShow({ broadcast, logs }) {
                         <hr className="border-neutral-100" />
                         <div className="flex items-center gap-3">
                             <div>
-                                <p className="text-neutral-500">Type</p>
+                                <p className="text-neutral-500">{t('type')}</p>
                                 <Badge className={typeColor[broadcast.type] || 'bg-neutral-100 text-neutral-700'}>
                                     {broadcast.type}
                                 </Badge>
@@ -88,15 +90,15 @@ export default function BroadcastShow({ broadcast, logs }) {
                         </div>
                         <div className="flex items-center gap-3">
                             <div>
-                                <p className="text-neutral-500">Audience</p>
+                                <p className="text-neutral-500">{t('audience')}</p>
                                 <p className="font-medium text-neutral-900 capitalize">
-                                    {broadcast.target_audience?.type || 'All Users'}
+                                    {broadcast.target_audience?.type || t('allUsers')}
                                 </p>
                             </div>
                         </div>
                         <div className="flex items-center gap-3">
                             <div>
-                                <p className="text-neutral-500">Channels</p>
+                                <p className="text-neutral-500">{t('channel')}</p>
                                 <div className="flex gap-1 mt-1">
                                     {(broadcast.channels || []).map(ch => (
                                         <Badge key={ch} className="bg-primary-50 text-primary-700">{ch}</Badge>
@@ -111,18 +113,18 @@ export default function BroadcastShow({ broadcast, logs }) {
             {/* Delivery Logs */}
             <Card className="mt-6">
                 <div className="p-5 border-b border-neutral-100 flex items-center justify-between">
-                    <h2 className="text-lg font-semibold text-neutral-900">Delivery Log</h2>
-                    <span className="text-sm text-neutral-500">{logs.length} recipients</span>
+                    <h2 className="text-lg font-semibold text-neutral-900">{t('deliveryLog')}</h2>
+                    <span className="text-sm text-neutral-500">{logs.length} {t('recipients')}</span>
                 </div>
                 <div className="p-0 overflow-x-auto">
                     <table className="w-full text-left border-collapse">
                         <thead>
                             <tr className="bg-neutral-50 border-b border-neutral-200">
-                                <th className="py-3 px-5 text-xs font-semibold text-neutral-600">User</th>
-                                <th className="py-3 px-5 text-xs font-semibold text-neutral-600">Channel</th>
-                                <th className="py-3 px-5 text-xs font-semibold text-neutral-600">Status</th>
-                                <th className="py-3 px-5 text-xs font-semibold text-neutral-600">Sent At</th>
-                                <th className="py-3 px-5 text-xs font-semibold text-neutral-600">Read At</th>
+                                <th className="py-3 px-5 text-xs font-semibold text-neutral-600">{t('user')}</th>
+                                <th className="py-3 px-5 text-xs font-semibold text-neutral-600">{t('channel')}</th>
+                                <th className="py-3 px-5 text-xs font-semibold text-neutral-600">{t('status')}</th>
+                                <th className="py-3 px-5 text-xs font-semibold text-neutral-600">{t('sentAt')}</th>
+                                <th className="py-3 px-5 text-xs font-semibold text-neutral-600">{t('readAt')}</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -135,11 +137,11 @@ export default function BroadcastShow({ broadcast, logs }) {
                                     <td className="py-3 px-5">
                                         {log.status === 'sent' ? (
                                             <span className="inline-flex items-center gap-1 text-emerald-600 text-sm">
-                                                <CheckCircle2 className="h-4 w-4" /> Sent
+                                                <CheckCircle2 className="h-4 w-4" /> {t('delivered')}
                                             </span>
                                         ) : (
                                             <span className="inline-flex items-center gap-1 text-rose-600 text-sm">
-                                                <XCircle className="h-4 w-4" /> Failed
+                                                <XCircle className="h-4 w-4" /> {t('failed')}
                                             </span>
                                         )}
                                     </td>
@@ -149,7 +151,7 @@ export default function BroadcastShow({ broadcast, logs }) {
                             )) : (
                                 <tr>
                                     <td colSpan="5" className="py-8 text-center text-sm text-neutral-500">
-                                        No delivery logs available.
+                                        {t('noDeliveryLogs')}
                                     </td>
                                 </tr>
                             )}

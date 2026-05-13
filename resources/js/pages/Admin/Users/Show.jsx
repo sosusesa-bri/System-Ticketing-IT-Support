@@ -14,6 +14,7 @@ import {
     Activity, Clock, UserCircle, ChevronLeft, Ticket,
     Lock, AlertTriangle, Trash2, CheckCircle2, X, MessageSquare, Settings
 } from 'lucide-react';
+import { actionLabels, getActionColor } from '../../../utils/audit';
 
 // ─── Small helper sub-components ────────────────────────────────────────────
 
@@ -385,6 +386,11 @@ export default function UserShow({ profileUser, recentActivity }) {
                                                 {recentActivity.map((activity) => (
                                                     <div key={activity.id} className="relative pl-6">
                                                         <div className="absolute -left-1.5 top-1.5 h-3 w-3 rounded-full bg-neutral-200 border-2 border-white ring-1 ring-neutral-200" />
+                                                        <div className="flex items-center gap-2 mb-1">
+                                                            <span className={`inline-flex items-center h-5 px-2 rounded text-[10px] font-semibold uppercase tracking-wider ${getActionColor(activity.action)}`}>
+                                                                {actionLabels[activity.action] || activity.action}
+                                                            </span>
+                                                        </div>
                                                         <p className="text-sm font-medium text-neutral-900">{activity.description}</p>
                                                         <div className="mt-1 flex items-center gap-2 text-xs text-neutral-500">
                                                             <Clock className="h-3 w-3" />

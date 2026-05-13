@@ -1,12 +1,21 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Head, usePage } from '@inertiajs/react';
 import Sidebar from '../components/layout/Sidebar';
 import TopBar from '../components/layout/TopBar';
 import { ToastProvider } from '../components/ui/Toast';
+import { useTheme } from '../contexts/ThemeContext';
 
 export default function AppLayout({ children, title }) {
     const [sidebarOpen, setSidebarOpen] = useState(false);
     const { auth } = usePage().props;
+    const { syncTheme } = useTheme();
+
+    // Sync theme from user's DB preference on mount
+    useEffect(() => {
+        if (auth?.user?.theme) {
+            syncTheme(auth.user.theme);
+        }
+    }, []);
 
     return (
         <ToastProvider>

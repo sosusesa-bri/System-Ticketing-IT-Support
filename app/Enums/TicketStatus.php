@@ -8,6 +8,7 @@ enum TicketStatus: string
     case ON_PROCESS = 'on_process';
     case CLOSED = 'closed';
     case REOPENED = 'reopened';
+    case DRAFT = 'draft';
 
     public function label(): string
     {
@@ -16,6 +17,7 @@ enum TicketStatus: string
             self::ON_PROCESS => 'In Progress',
             self::CLOSED => 'Closed',
             self::REOPENED => 'Reopened',
+            self::DRAFT => 'Draft',
         };
     }
 
@@ -26,6 +28,7 @@ enum TicketStatus: string
             self::ON_PROCESS => 'warning',
             self::CLOSED => 'success',
             self::REOPENED => 'info',
+            self::DRAFT => 'neutral',
         };
     }
 
@@ -41,6 +44,7 @@ enum TicketStatus: string
             self::ON_PROCESS => [self::CLOSED, self::OPEN],
             self::CLOSED => [self::REOPENED, self::OPEN],
             self::REOPENED => [self::ON_PROCESS, self::CLOSED, self::OPEN],
+            self::DRAFT => [self::OPEN],
         };
     }
 

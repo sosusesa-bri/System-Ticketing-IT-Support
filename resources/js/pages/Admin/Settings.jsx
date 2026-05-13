@@ -5,7 +5,7 @@ import AppLayout from '../../layouts/AppLayout';
 import Card from '../../components/ui/Card';
 import Input from '../../components/ui/Input';
 import Button from '../../components/ui/Button';
-import { Settings as SettingsIcon, Tag, Plus, Check, X, MessageSquareText } from 'lucide-react';
+import { Settings as SettingsIcon, Tag, Plus, Check, X, MessageSquareText, Trash2 } from 'lucide-react';
 import { Badge } from '../../components/ui/Badge';
 
 export default function Settings({ categories, macros = [] }) {
@@ -42,6 +42,18 @@ export default function Settings({ categories, macros = [] }) {
 
     const toggleMacro = (macroId) => {
         router.put(`/admin/settings/macros/${macroId}/toggle`, {}, { preserveScroll: true });
+    };
+
+    const deleteCategory = (categoryId) => {
+        if (confirm(t('confirmDeleteCategory') || 'Are you sure you want to delete this category?')) {
+            router.delete(`/admin/settings/categories/${categoryId}`, { preserveScroll: true });
+        }
+    };
+
+    const deleteMacro = (macroId) => {
+        if (confirm(t('confirmDeleteMacro') || 'Are you sure you want to delete this template?')) {
+            router.delete(`/admin/settings/macros/${macroId}`, { preserveScroll: true });
+        }
     };
 
     return (
@@ -146,20 +158,29 @@ export default function Settings({ categories, macros = [] }) {
                                                         )}
                                                     </td>
                                                     <td className="py-3 px-5 text-right">
-                                                        <button
-                                                            onClick={() => toggleCategory(category.id)}
-                                                            className={`text-xs font-medium px-3 py-1.5 rounded-md flex items-center inline-flex ml-auto transition-colors ${
-                                                                category.is_active 
-                                                                    ? 'text-rose-700 bg-rose-50 hover:bg-rose-100' 
-                                                                    : 'text-emerald-700 bg-emerald-50 hover:bg-emerald-100'
-                                                            }`}
-                                                        >
-                                                            {category.is_active ? (
-                                                                <><X className="h-3 w-3 mr-1" /> {t('disable')}</>
-                                                            ) : (
-                                                                <><Check className="h-3 w-3 mr-1" /> {t('enable')}</>
-                                                            )}
-                                                        </button>
+                                                        <div className="flex justify-end gap-2">
+                                                            <button
+                                                                onClick={() => toggleCategory(category.id)}
+                                                                className={`text-xs font-medium px-3 py-1.5 rounded-md flex items-center inline-flex transition-colors ${
+                                                                    category.is_active 
+                                                                        ? 'text-amber-700 bg-amber-50 hover:bg-amber-100' 
+                                                                        : 'text-emerald-700 bg-emerald-50 hover:bg-emerald-100'
+                                                                }`}
+                                                            >
+                                                                {category.is_active ? (
+                                                                    <><X className="h-3 w-3 mr-1" /> {t('disable')}</>
+                                                                ) : (
+                                                                    <><Check className="h-3 w-3 mr-1" /> {t('enable')}</>
+                                                                )}
+                                                            </button>
+                                                            <button
+                                                                onClick={() => deleteCategory(category.id)}
+                                                                className="text-xs font-medium px-3 py-1.5 rounded-md flex items-center inline-flex transition-colors text-rose-700 bg-rose-50 hover:bg-rose-100"
+                                                                title="Delete Category"
+                                                            >
+                                                                <Trash2 className="h-3 w-3" />
+                                                            </button>
+                                                        </div>
                                                     </td>
                                                 </tr>
                                             )) : (
@@ -241,20 +262,29 @@ export default function Settings({ categories, macros = [] }) {
                                                         )}
                                                     </td>
                                                     <td className="py-3 px-5 text-right">
-                                                        <button
-                                                            onClick={() => toggleMacro(macro.id)}
-                                                            className={`text-xs font-medium px-3 py-1.5 rounded-md flex items-center inline-flex ml-auto transition-colors ${
-                                                                macro.is_active 
-                                                                    ? 'text-rose-700 bg-rose-50 hover:bg-rose-100' 
-                                                                    : 'text-emerald-700 bg-emerald-50 hover:bg-emerald-100'
-                                                            }`}
-                                                        >
-                                                            {macro.is_active ? (
-                                                                <><X className="h-3 w-3 mr-1" /> {t('disable')}</>
-                                                            ) : (
-                                                                <><Check className="h-3 w-3 mr-1" /> {t('enable')}</>
-                                                            )}
-                                                        </button>
+                                                        <div className="flex justify-end gap-2">
+                                                            <button
+                                                                onClick={() => toggleMacro(macro.id)}
+                                                                className={`text-xs font-medium px-3 py-1.5 rounded-md flex items-center inline-flex transition-colors ${
+                                                                    macro.is_active 
+                                                                        ? 'text-amber-700 bg-amber-50 hover:bg-amber-100' 
+                                                                        : 'text-emerald-700 bg-emerald-50 hover:bg-emerald-100'
+                                                                }`}
+                                                            >
+                                                                {macro.is_active ? (
+                                                                    <><X className="h-3 w-3 mr-1" /> {t('disable')}</>
+                                                                ) : (
+                                                                    <><Check className="h-3 w-3 mr-1" /> {t('enable')}</>
+                                                                )}
+                                                            </button>
+                                                            <button
+                                                                onClick={() => deleteMacro(macro.id)}
+                                                                className="text-xs font-medium px-3 py-1.5 rounded-md flex items-center inline-flex transition-colors text-rose-700 bg-rose-50 hover:bg-rose-100"
+                                                                title="Delete Template"
+                                                            >
+                                                                <Trash2 className="h-3 w-3" />
+                                                            </button>
+                                                        </div>
                                                     </td>
                                                 </tr>
                                             )) : (

@@ -23,8 +23,15 @@ class StoreTicketRequest extends FormRequest
             'category_id' => ['required', 'exists:ticket_categories,id'],
             'priority' => ['required', Rule::enum(TicketPriority::class)],
             'description' => ['required', 'string', 'min:10'],
-            'attachments' => ['nullable', 'array', 'max:5'],
-            'attachments.*' => ['file', 'max:10240'],
+            'status' => ['sometimes', 'required', 'string', 'in:open,draft'],
+            'attachments' => ['nullable', 'array'],
+            'attachments.*' => [
+                'nullable',
+                'file',
+                'max:102400',
+                'mimes:jpeg,jpg,png,gif,webp,pdf,doc,docx,xls,xlsx,ppt,pptx,zip,csv,txt,md',
+                'mimetypes:image/jpeg,image/png,image/gif,image/webp,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-powerpoint,application/vnd.openxmlformats-officedocument.presentationml.presentation,application/zip,application/x-zip-compressed,text/csv,text/plain,text/markdown,application/octet-stream',
+            ],
         ];
     }
 
@@ -35,7 +42,7 @@ class StoreTicketRequest extends FormRequest
     {
         return [
             'description.min' => 'Please provide at least 10 characters describing the issue.',
-            'attachments.*.max' => 'Each file must be less than 10MB.',
+            'attachments.*.max' => 'Each file must be less than 100MB.',
         ];
     }
 }

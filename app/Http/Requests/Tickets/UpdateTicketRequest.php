@@ -27,6 +27,16 @@ class UpdateTicketRequest extends FormRequest
             'status' => ['sometimes', 'required', Rule::enum(TicketStatus::class)],
             'assigned_to' => ['sometimes', 'nullable', 'exists:users,id'],
             'solution_notes' => ['sometimes', 'nullable', 'string'],
+            'attachments' => ['nullable', 'array'],
+            'attachments.*' => [
+                'nullable',
+                'file',
+                'max:102400',
+                'mimes:jpeg,jpg,png,gif,webp,pdf,doc,docx,xls,xlsx,ppt,pptx,zip,csv,txt,md',
+                'mimetypes:image/jpeg,image/png,image/gif,image/webp,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-powerpoint,application/vnd.openxmlformats-officedocument.presentationml.presentation,application/zip,application/x-zip-compressed,text/csv,text/plain,text/markdown,application/octet-stream',
+            ],
+            'remove_attachments' => ['nullable', 'array'],
+            'remove_attachments.*' => ['integer', 'exists:ticket_attachments,id'],
         ];
     }
 }

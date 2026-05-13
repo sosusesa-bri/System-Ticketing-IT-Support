@@ -43,6 +43,6 @@ class TicketCommentController extends Controller
             ['comment_id' => $comment->id, 'is_internal' => $isInternal],
         );
 
-        return back()->with('success', 'Comment posted.');
+        return back()->with('success', 'td_commentPosted');
     }
 }

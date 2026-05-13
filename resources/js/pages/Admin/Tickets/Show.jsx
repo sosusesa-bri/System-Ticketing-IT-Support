@@ -1,4 +1,4 @@
-import { useForm, Link, router } from '@inertiajs/react';
+import { useForm, Link, router, usePage } from '@inertiajs/react';
 import AppLayout from '../../../layouts/AppLayout';
 import { StatusBadge, PriorityBadge } from '../../../components/ui/Badge';
 import Button from '../../../components/ui/Button';
@@ -34,6 +34,7 @@ const getFileIcon = (mimeType) => {
 
 export default function AdminTicketShow({ ticket, activityLogs, admins, macros }) {
     const { t, language } = useLanguage();
+    const { auth } = usePage().props;
     const commentForm = useForm({ body: '', is_internal: false });
     const statusForm = useForm({ status: ticket.status, solution_notes: ticket.solution_notes || '' });
     const assignForm = useForm({ assigned_to: ticket.assignee?.id || '', notes: '' });
@@ -175,8 +176,12 @@ export default function AdminTicketShow({ ticket, activityLogs, admins, macros }
                         <div className="space-y-4 mb-6">
                             {ticket.comments.map((comment) => (
                                 <div key={comment.id} className={`flex gap-3 ${comment.is_internal ? 'bg-warning-50 -mx-2 px-2 py-2 rounded-md' : ''}`}>
-                                    <div className="h-8 w-8 rounded-full bg-primary-100 flex items-center justify-center shrink-0">
-                                        <span className="text-xs font-semibold text-primary-700">{comment.user.name.charAt(0).toUpperCase()}</span>
+                                    <div className="h-8 w-8 rounded-full bg-primary-100 flex items-center justify-center shrink-0 overflow-hidden">
+                                        {comment.user.avatar_path ? (
+                                            <img src={`/storage/${comment.user.avatar_path}`} alt={comment.user.name} className="h-full w-full object-cover" />
+                                        ) : (
+                                            <span className="text-xs font-semibold text-primary-700">{comment.user.name.charAt(0).toUpperCase()}</span>
+                                        )}
                                     </div>
                                     <div className="flex-1 min-w-0">
                                         <div className="flex items-center gap-2">
@@ -207,8 +212,12 @@ export default function AdminTicketShow({ ticket, activityLogs, admins, macros }
 
                             {activityLogs.map((log) => (
                                 <div key={log.id} className="flex items-start gap-3">
-                                    <div className="h-8 w-8 rounded-full bg-neutral-100 flex items-center justify-center shrink-0">
-                                        <Clock className="h-4 w-4 text-neutral-400" />
+                                    <div className="h-8 w-8 rounded-full bg-neutral-100 flex items-center justify-center shrink-0 overflow-hidden">
+                                        {log.avatar_path ? (
+                                            <img src={`/storage/${log.avatar_path}`} alt={log.user} className="h-full w-full object-cover" />
+                                        ) : (
+                                            <Clock className="h-4 w-4 text-neutral-400" />
+                                        )}
                                     </div>
                                     <div>
                                         <p className="text-sm text-neutral-600">{log.description}</p>
@@ -247,7 +256,16 @@ export default function AdminTicketShow({ ticket, activityLogs, admins, macros }
                                     </select>
                                 </div>
                             )}
-                            <textarea
+                            <div className="flex gap-3">
+                                <div className="h-8 w-8 rounded-full bg-primary-100 flex items-center justify-center shrink-0 overflow-hidden">
+                                    {auth?.user?.avatar_path ? (
+                                        <img src={`/storage/${auth.user.avatar_path}`} alt={auth.user.name} className="h-full w-full object-cover" />
+                                    ) : (
+                                        <span className="text-xs font-semibold text-primary-700">{auth?.user?.name?.charAt(0).toUpperCase()}</span>
+                                    )}
+                                </div>
+                                <div className="flex-1">
+                                    <textarea
                                 value={commentForm.data.body}
                                 onChange={(e) => commentForm.setData('body', e.target.value)}
                                 placeholder={t('td_writeCommentAdmin')}
@@ -260,9 +278,11 @@ export default function AdminTicketShow({ ticket, activityLogs, admins, macros }
                                     <span className="text-xs text-neutral-500">{t('td_internalNoteDesc')}</span>
                                 </label>
                                 <Button type="submit" size="sm" loading={commentForm.processing}>
-                                    <Send className="h-3.5 w-3.5" />
+                                    <Send className="h-3.5 w-3.5 mr-1" />
                                     {t('td_post')}
                                 </Button>
+                            </div>
+                            </div>
                             </div>
                         </form>
                     </Card>
@@ -316,17 +336,15 @@ export default function AdminTicketShow({ ticket, activityLogs, admins, macros }
                                     <dd className="text-sm text-neutral-950">{ticket.created_at}</dd>
                                 </div>
                             </div>
-                            {ticket.due_at && (
-                                <div className="flex items-center gap-3">
-                                    <Clock className={`h-4 w-4 shrink-0 ${ticket.status !== 'closed' && new Date(ticket.due_at) < new Date() ? 'text-rose-500' : 'text-neutral-400'}`} />
-                                    <div>
-                                        <dt className="text-xs text-neutral-500">{t('td_slaDeadline')}</dt>
-                                        <dd className={`text-sm ${ticket.status !== 'closed' && new Date(ticket.due_at) < new Date() ? 'text-rose-600 font-semibold' : 'text-neutral-950'}`}>
-                                            {ticket.due_at}
-                                        </dd>
-                                    </div>
+                            <div className="flex items-center gap-3">
+                                <Clock className={`h-4 w-4 shrink-0 ${ticket.status !== 'closed' && ticket.due_at && new Date(ticket.due_at) < new Date() ? 'text-rose-500' : 'text-neutral-400'}`} />
+                                <div>
+                                    <dt className="text-xs text-neutral-500">{t('td_slaDeadline')}</dt>
+                                    <dd className={`text-sm ${ticket.status !== 'closed' && ticket.due_at && new Date(ticket.due_at) < new Date() ? 'text-rose-600 font-semibold' : 'text-neutral-950'}`}>
+                                        {ticket.due_at || '-'}
+                                    </dd>
                                 </div>
-                            )}
+                            </div>
                             {ticket.closed_at && (
                                 <div className="flex items-center gap-3">
                                     <Calendar className="h-4 w-4 text-neutral-400 shrink-0" />
@@ -366,12 +384,13 @@ export default function AdminTicketShow({ ticket, activityLogs, admins, macros }
                         <form onSubmit={handleStatusUpdate} className="space-y-3">
                             <div className="space-y-1">
                                 <label className="block text-xs font-medium text-neutral-500">{t('status')}</label>
-                                <select value={statusForm.data.status} onChange={(e) => statusForm.setData('status', e.target.value)} className="h-10 w-full rounded-md border border-neutral-200 bg-white px-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary-700">
+                                <select value={statusForm.data.status} onChange={(e) => statusForm.setData('status', e.target.value)} className={`h-10 w-full rounded-md border ${statusForm.errors.status ? 'border-rose-500 ring-rose-500' : 'border-neutral-200'} bg-white px-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary-700`}>
                                     <option value="open">{t('open')}</option>
                                     <option value="on_process">{t('inProgress')}</option>
                                     <option value="closed">{t('closed')}</option>
-                                    <option value="reopened">Reopened</option>
+                                    <option value="reopened">{t('reopened')}</option>
                                 </select>
+                                {statusForm.errors.status && <p className="text-xs text-rose-500 mt-1">{t(statusForm.errors.status) || statusForm.errors.status}</p>}
                             </div>
                             <div className="space-y-1">
                                 <label className="block text-xs font-medium text-neutral-500">{t('td_solutionNotes')}</label>
@@ -416,7 +435,7 @@ export default function AdminTicketShow({ ticket, activityLogs, admins, macros }
                             <form onSubmit={handleEscalate} className="space-y-3">
                                 <div className="space-y-1">
                                     <label className="block text-xs font-medium text-neutral-500">{t('td_escalationReason')}</label>
-                                    <input type="text" value={escalateForm.data.reason} onChange={(e) => escalateForm.setData('reason', e.target.value)} placeholder="Reason for escalation..." className="h-10 w-full rounded-md border border-neutral-200 bg-white px-3 text-sm placeholder:text-neutral-400 focus:outline-none focus:ring-2 focus:ring-primary-700" required />
+                                    <input type="text" value={escalateForm.data.reason} onChange={(e) => escalateForm.setData('reason', e.target.value)} placeholder={t('td_escalationReasonPlaceholder') || 'Reason for escalation...'} className="h-10 w-full rounded-md border border-neutral-200 bg-white px-3 text-sm placeholder:text-neutral-400 focus:outline-none focus:ring-2 focus:ring-primary-700" required />
                                 </div>
                                 <Button type="submit" size="sm" variant={ticket.is_escalated ? 'secondary' : 'danger'} className="w-full" loading={escalateForm.processing}>
                                     {ticket.is_escalated ? t('td_escalateFurther') : t('td_escalateTicket')}

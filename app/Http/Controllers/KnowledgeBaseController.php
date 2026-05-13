@@ -59,16 +59,18 @@ class KnowledgeBaseController extends Controller
     /**
      * Show a single knowledge base article.
      */
-    public function show(KnowledgeBaseArticle $article): Response
+    public function show(Request $request, KnowledgeBaseArticle $article): Response
     {
         if (! $article->is_published) {
             abort(404);
         }
 
-        // Increment views
-        $article->increment('views');
+        // Record unique view per user
+        if ($request->user()) {
+            $article->recordView($request->user()->id);
+        }
 
-        $article->load('author:id,name');
+        $article->load(['author:id,name', 'attachments']);
 
         // Get related articles in the same category
         $related = KnowledgeBaseArticle::published()
@@ -97,6 +99,13 @@ class KnowledgeBaseController extends Controller
                 'author' => $article->author?->name ?? 'System',
                 'created_at' => $article->created_at->format('d M Y'),
                 'updated_at' => $article->updated_at->format('d M Y'),
+                'attachments' => $article->attachments->map(fn ($a) => [
+                    'id' => $a->id,
+                    'original_name' => $a->original_name,
+                    'mime_type' => $a->mime_type,
+                    'file_size' => $a->file_size,
+                    'url' => asset('storage/' . $a->file_path),
+                ]),
             ],
             'related' => $related,
         ]);

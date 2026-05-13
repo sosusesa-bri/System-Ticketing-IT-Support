@@ -62,6 +62,17 @@ export default function TicketShow({ ticket, activityLogs }) {
         });
     };
 
+    const submitDraftForm = useForm({ status: 'open' });
+    const handleSubmitDraft = (e) => {
+        e.preventDefault();
+        submitDraftForm.put(`/tickets/${ticket.id}`, {
+            preserveScroll: true,
+            onSuccess: () => {
+                // optional success message
+            }
+        });
+    };
+
     return (
         <AppLayout title={`${t('ticket')} ${ticket.ticket_number}`}>
             {/* Breadcrumb */}
@@ -90,6 +101,26 @@ export default function TicketShow({ ticket, activityLogs }) {
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 {/* Main content — 2 columns */}
                 <div className="lg:col-span-2 space-y-6">
+                    {ticket.status === 'draft' && (
+                        <Card className="bg-primary-50 border-primary-100 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                            <div>
+                                <h3 className="text-sm font-bold text-primary-900">{t('td_draftNotice')}</h3>
+                                <p className="text-xs text-primary-700 mt-1">{t('td_draftNoticeDesc')}</p>
+                            </div>
+                            <div className="flex items-center gap-2">
+                                <Link href={`/tickets/${ticket.id}/edit`}>
+                                    <Button variant="secondary" size="sm">
+                                        {t('td_editDraft')}
+                                    </Button>
+                                </Link>
+                                <Button onClick={handleSubmitDraft} loading={submitDraftForm.processing} size="sm">
+                                    <Send className="h-4 w-4 mr-1.5" />
+                                    {t('td_submitDraft')}
+                                </Button>
+                            </div>
+                        </Card>
+                    )}
+
                     {/* Description */}
                     <Card>
                         <h2 className="text-base font-semibold text-neutral-950 mb-3">{t('td_description')}</h2>
@@ -178,10 +209,14 @@ export default function TicketShow({ ticket, activityLogs }) {
                             {/* Comments */}
                             {ticket.comments.map((comment) => (
                                 <div key={comment.id} className={`flex gap-3 ${comment.is_internal ? 'bg-warning-50 -mx-2 px-2 py-2 rounded-md' : ''}`}>
-                                    <div className="h-8 w-8 rounded-full bg-primary-100 flex items-center justify-center shrink-0">
-                                        <span className="text-xs font-semibold text-primary-700">
-                                            {comment.user.name.charAt(0).toUpperCase()}
-                                        </span>
+                                    <div className="h-8 w-8 rounded-full bg-primary-100 flex items-center justify-center shrink-0 overflow-hidden">
+                                        {comment.user.avatar_path ? (
+                                            <img src={`/storage/${comment.user.avatar_path}`} alt={comment.user.name} className="h-full w-full object-cover" />
+                                        ) : (
+                                            <span className="text-xs font-semibold text-primary-700">
+                                                {comment.user.name.charAt(0).toUpperCase()}
+                                            </span>
+                                        )}
                                     </div>
                                     <div className="flex-1 min-w-0">
                                         <div className="flex items-center gap-2">
@@ -199,8 +234,12 @@ export default function TicketShow({ ticket, activityLogs }) {
                             {/* Audit logs */}
                             {activityLogs.map((log) => (
                                 <div key={log.id} className="flex items-start gap-3">
-                                    <div className="h-8 w-8 rounded-full bg-neutral-100 flex items-center justify-center shrink-0">
-                                        <Clock className="h-4 w-4 text-neutral-400" />
+                                    <div className="h-8 w-8 rounded-full bg-neutral-100 flex items-center justify-center shrink-0 overflow-hidden">
+                                        {log.avatar_path ? (
+                                            <img src={`/storage/${log.avatar_path}`} alt={log.user} className="h-full w-full object-cover" />
+                                        ) : (
+                                            <Clock className="h-4 w-4 text-neutral-400" />
+                                        )}
                                     </div>
                                     <div>
                                         <p className="text-sm text-neutral-600">{log.description}</p>
@@ -216,13 +255,22 @@ export default function TicketShow({ ticket, activityLogs }) {
 
                         {/* Add comment form */}
                         <form onSubmit={handleCommentSubmit} className="border-t border-neutral-200 pt-4">
-                            <textarea
-                                value={commentForm.data.body}
-                                onChange={(e) => commentForm.setData('body', e.target.value)}
-                                placeholder={t('td_writeComment')}
-                                className="w-full min-h-[80px] rounded-md border border-neutral-200 bg-white px-3 py-2 text-sm placeholder:text-neutral-400 focus:outline-none focus:ring-2 focus:ring-primary-700 resize-y"
-                                required
-                            />
+                            <div className="flex gap-3">
+                                <div className="h-8 w-8 rounded-full bg-primary-100 flex items-center justify-center shrink-0 overflow-hidden">
+                                    {auth?.user?.avatar_path ? (
+                                        <img src={`/storage/${auth.user.avatar_path}`} alt={auth.user.name} className="h-full w-full object-cover" />
+                                    ) : (
+                                        <span className="text-xs font-semibold text-primary-700">{auth?.user?.name?.charAt(0).toUpperCase()}</span>
+                                    )}
+                                </div>
+                                <div className="flex-1">
+                                    <textarea
+                                        value={commentForm.data.body}
+                                        onChange={(e) => commentForm.setData('body', e.target.value)}
+                                        placeholder={t('td_writeComment')}
+                                        className="w-full min-h-[80px] rounded-md border border-neutral-200 bg-white px-3 py-2 text-sm placeholder:text-neutral-400 focus:outline-none focus:ring-2 focus:ring-primary-700 resize-y"
+                                        required
+                                    />
                             {commentForm.errors.body && (
                                 <p className="text-xs text-danger-600 mt-1">{commentForm.errors.body}</p>
                             )}
@@ -247,6 +295,8 @@ export default function TicketShow({ ticket, activityLogs }) {
                                     <Send className="h-3.5 w-3.5" />
                                     {t('td_postComment')}
                                 </Button>
+                            </div>
+                            </div>
                             </div>
                         </form>
                     </Card>
@@ -285,12 +335,12 @@ export default function TicketShow({ ticket, activityLogs }) {
                                     <dd className="text-sm text-neutral-950">{ticket.created_at}</dd>
                                 </div>
                             </div>
-                            {ticket.response_due_at && !ticket.first_responded_at && (
+                            {!ticket.first_responded_at && (
                                 <div className="flex items-center gap-3">
                                     <Clock className="h-4 w-4 text-warning-500 shrink-0" />
                                     <div>
                                         <dt className="text-xs text-neutral-500">{t('td_responseDeadline')}</dt>
-                                        <dd className="text-sm font-medium text-warning-700">{ticket.response_due_at}</dd>
+                                        <dd className="text-sm font-medium text-warning-700">{ticket.response_due_at || '-'}</dd>
                                     </div>
                                 </div>
                             )}
@@ -303,15 +353,13 @@ export default function TicketShow({ ticket, activityLogs }) {
                                     </div>
                                 </div>
                             )}
-                            {ticket.due_at && (
-                                <div className="flex items-center gap-3">
-                                    <Clock className="h-4 w-4 text-neutral-400 shrink-0" />
-                                    <div>
-                                        <dt className="text-xs text-neutral-500">{t('td_estimatedResolution')}</dt>
-                                        <dd className="text-sm text-neutral-950">{ticket.due_at}</dd>
-                                    </div>
+                            <div className="flex items-center gap-3">
+                                <Clock className="h-4 w-4 text-neutral-400 shrink-0" />
+                                <div>
+                                    <dt className="text-xs text-neutral-500">{t('td_estimatedResolution')}</dt>
+                                    <dd className="text-sm text-neutral-950">{ticket.due_at || '-'}</dd>
                                 </div>
-                            )}
+                            </div>
                             {ticket.is_escalated && (
                                 <div className="flex items-center gap-3">
                                     <AlertTriangle className="h-4 w-4 text-danger-500 shrink-0" />

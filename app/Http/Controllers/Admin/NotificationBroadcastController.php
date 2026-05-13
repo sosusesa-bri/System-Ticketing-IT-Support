@@ -70,18 +70,20 @@ class NotificationBroadcastController extends Controller
                 'values' => $validated['target_values'] ?? [],
             ],
             'channels' => $validated['channels'],
-            'status' => empty($validated['scheduled_at']) ? 'draft' : 'scheduled',
+            'status' => empty($validated['scheduled_at']) ? 'sending' : 'scheduled',
             'template_id' => $validated['template_id'],
             'created_by' => auth()->id(),
             'scheduled_at' => $validated['scheduled_at'] ?? null,
         ]);
 
         // Process immediately if not scheduled
-        if (empty($validated['scheduled_at'])) {
+        if ($broadcast->status === 'sending') {
             $this->notificationService->dispatchBroadcast($broadcast);
+            \App\Services\AuditService::log('broadcast_sent', "Broadcast sent: {$broadcast->title}", $broadcast);
             return redirect()->route('admin.notifications.broadcasts.index')->with('success', 'Broadcast sent successfully!');
         }
 
+        \App\Services\AuditService::log('broadcast_scheduled', "Broadcast scheduled: {$broadcast->title}", $broadcast);
         return redirect()->route('admin.notifications.broadcasts.index')->with('success', 'Broadcast scheduled successfully!');
     }
 

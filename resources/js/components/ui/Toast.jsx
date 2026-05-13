@@ -3,6 +3,7 @@ import { usePage } from '@inertiajs/react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { CheckCircle, AlertTriangle, XCircle, X } from 'lucide-react';
 import { cn } from '../../lib/utils';
+import { useLanguage } from '../../contexts/LanguageContext';
 
 const ToastContext = createContext(null);
 
@@ -18,7 +19,7 @@ const borderColors = {
     warning: 'border-l-warning-600',
 };
 
-function ToastItem({ toast, onDismiss }) {
+function ToastItem({ toast, onDismiss, t }) {
     const Icon = icons[toast.type] || CheckCircle;
 
     useEffect(() => {
@@ -38,7 +39,7 @@ function ToastItem({ toast, onDismiss }) {
             )}
         >
             <Icon className="h-5 w-5 shrink-0 mt-0.5" />
-            <p className="text-sm text-neutral-950 flex-1">{toast.message}</p>
+            <p className="text-sm text-neutral-950 flex-1">{t(toast.message)}</p>
             <button
                 onClick={() => onDismiss(toast.id)}
                 className="text-neutral-400 hover:text-neutral-600 shrink-0"
@@ -53,6 +54,7 @@ function ToastItem({ toast, onDismiss }) {
 export function ToastProvider({ children }) {
     const [toasts, setToasts] = useState([]);
     const { flash } = usePage().props;
+    const { t } = useLanguage();
 
     const addToast = useCallback((type, message) => {
         const id = Date.now();
@@ -75,7 +77,7 @@ export function ToastProvider({ children }) {
             <div className="fixed top-4 right-4 z-50 flex flex-col gap-2">
                 <AnimatePresence>
                     {toasts.map((toast) => (
-                        <ToastItem key={toast.id} toast={toast} onDismiss={dismissToast} />
+                        <ToastItem key={toast.id} toast={toast} onDismiss={dismissToast} t={t} />
                     ))}
                 </AnimatePresence>
             </div>

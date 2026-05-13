@@ -18,13 +18,16 @@ class AuditService
         ?Model $subject = null,
         ?array $properties = null,
     ): ActivityLog {
+        $props = $properties ?? [];
+        $props['user_agent'] = Request::userAgent();
+
         return ActivityLog::create([
             'action' => $action,
             'description' => $description,
             'user_id' => Auth::id(),
             'subject_type' => $subject ? get_class($subject) : null,
             'subject_id' => $subject?->getKey(),
-            'properties' => $properties,
+            'properties' => $props,
             'ip_address' => Request::ip(),
             'created_at' => now(),
         ]);

@@ -28,7 +28,7 @@ function getTypeConfig(type) {
 }
 
 export default function NotificationIndex({ notifications, stats, filter }) {
-    const { t } = useLanguage();
+    const { language, t } = useLanguage();
     const [expandedId, setExpandedId] = useState(null);
     const [deleteConfirm, setDeleteConfirm] = useState(null);
 
@@ -179,7 +179,7 @@ export default function NotificationIndex({ notifications, stats, filter }) {
                                                             'text-sm leading-snug',
                                                             notification.read_at ? 'text-neutral-600' : 'text-neutral-950 font-medium',
                                                         )}>
-                                                            {data.message || data.title || `${notification.type}`}
+                                                            {data[`message_${language}`] || data.message || data.title || `${notification.type}`}
                                                         </p>
                                                         <div className="flex items-center gap-3 mt-1">
                                                             {data.ticket_number && (
@@ -223,10 +223,10 @@ export default function NotificationIndex({ notifications, stats, filter }) {
                                                                     <span className="text-neutral-900 font-medium">{data.title}</span>
                                                                 </div>
                                                             )}
-                                                            {data.message && (
+                                                            {(data[`message_${language}`] || data.message) && (
                                                                 <div className="flex items-start gap-2 text-sm">
                                                                     <span className="text-neutral-400 w-20 shrink-0">{t('nf_message')}</span>
-                                                                    <span className="text-neutral-700">{data.message}</span>
+                                                                    <span className="text-neutral-700">{data[`message_${language}`] || data.message}</span>
                                                                 </div>
                                                             )}
                                                             {data.ticket_number && (

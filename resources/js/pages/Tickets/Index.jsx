@@ -1,14 +1,18 @@
-import { Link, router } from '@inertiajs/react';
+    import { Link, router } from '@inertiajs/react';
 import { useState } from 'react';
 import AppLayout from '../../layouts/AppLayout';
 import { StatusBadge, PriorityBadge } from '../../components/ui/Badge';
 import Button from '../../components/ui/Button';
-import { Plus, Search, Tickets, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Plus, Search, Tickets, ChevronLeft, ChevronRight, Edit, Trash2, AlertTriangle } from 'lucide-react';
 import { useLanguage } from '../../contexts/LanguageContext';
+import { motion, AnimatePresence } from 'framer-motion';
+import * as Dialog from '@radix-ui/react-dialog';
 
 export default function TicketIndex({ tickets, filters }) {
-    const { t } = useLanguage();
+    const { t, language } = useLanguage();
     const [search, setSearch] = useState(filters.search || '');
+    const [deleteTarget, setDeleteTarget] = useState(null);
+    const [isDeleting, setIsDeleting] = useState(false);
 
     const applyFilter = (key, value) => {
         router.get('/tickets', {
@@ -20,6 +24,17 @@ export default function TicketIndex({ tickets, filters }) {
     const handleSearch = (e) => {
         e.preventDefault();
         applyFilter('search', search);
+    };
+
+    const handleDeleteDraft = () => {
+        if (!deleteTarget) return;
+        setIsDeleting(true);
+        router.delete(`/tickets/${deleteTarget.id}`, {
+            onFinish: () => {
+                setIsDeleting(false);
+                setDeleteTarget(null);
+            },
+        });
     };
 
     return (
@@ -60,6 +75,7 @@ export default function TicketIndex({ tickets, filters }) {
                         className="h-10 rounded-md border border-neutral-200 bg-white px-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary-700"
                     >
                         <option value="">{t('allStatus')}</option>
+                        <option value="draft">{t('draft')}</option>
                         <option value="open">{t('open')}</option>
                         <option value="on_process">{t('inProgress')}</option>
                         <option value="closed">{t('closed')}</option>
@@ -94,6 +110,7 @@ export default function TicketIndex({ tickets, filters }) {
                                         <th className="text-left text-xs font-medium text-neutral-500 px-6 py-3">{t('status')}</th>
                                         <th className="text-left text-xs font-medium text-neutral-500 px-6 py-3">{t('priority')}</th>
                                         <th className="text-left text-xs font-medium text-neutral-500 px-6 py-3">{t('date')}</th>
+                                        <th className="text-right text-xs font-medium text-neutral-500 px-6 py-3">{language === 'id' ? 'Aksi' : 'Actions'}</th>
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-neutral-200">
@@ -111,6 +128,26 @@ export default function TicketIndex({ tickets, filters }) {
                                             <td className="px-6 py-3"><StatusBadge status={ticket.status} /></td>
                                             <td className="px-6 py-3"><PriorityBadge priority={ticket.priority} /></td>
                                             <td className="px-6 py-3 text-sm text-neutral-500">{ticket.created_at}</td>
+                                            <td className="px-6 py-3 text-right">
+                                                {ticket.status === 'draft' && (
+                                                    <div className="flex items-center justify-end gap-1">
+                                                        <Link
+                                                            href={`/tickets/${ticket.id}/edit`}
+                                                            className="p-1.5 rounded-md hover:bg-primary-50 text-neutral-400 hover:text-primary-700 transition-colors"
+                                                            title={language === 'id' ? 'Edit Draf' : 'Edit Draft'}
+                                                        >
+                                                            <Edit className="h-4 w-4" />
+                                                        </Link>
+                                                        <button
+                                                            onClick={() => setDeleteTarget(ticket)}
+                                                            className="p-1.5 rounded-md hover:bg-danger-50 text-neutral-400 hover:text-danger-600 transition-colors"
+                                                            title={language === 'id' ? 'Hapus Draf' : 'Delete Draft'}
+                                                        >
+                                                            <Trash2 className="h-4 w-4" />
+                                                        </button>
+                                                    </div>
+                                                )}
+                                            </td>
                                         </tr>
                                     ))}
                                 </tbody>
@@ -150,6 +187,76 @@ export default function TicketIndex({ tickets, filters }) {
                     </div>
                 )}
             </div>
+
+            {/* Delete Draft Confirmation Modal */}
+            <Dialog.Root open={!!deleteTarget} onOpenChange={(open) => { if (!open) setDeleteTarget(null); }}>
+                <AnimatePresence>
+                    {deleteTarget && (
+                        <Dialog.Portal forceMount>
+                            <Dialog.Overlay asChild>
+                                <motion.div
+                                    initial={{ opacity: 0 }}
+                                    animate={{ opacity: 1 }}
+                                    exit={{ opacity: 0 }}
+                                    transition={{ duration: 0.2 }}
+                                    className="fixed inset-0 bg-neutral-950/40 backdrop-blur-sm z-50"
+                                />
+                            </Dialog.Overlay>
+                            <Dialog.Content asChild>
+                                <motion.div
+                                    initial={{ opacity: 0, scale: 0.95, y: 10 }}
+                                    animate={{ opacity: 1, scale: 1, y: 0 }}
+                                    exit={{ opacity: 0, scale: 0.95, y: 10 }}
+                                    transition={{ duration: 0.3, type: 'spring', bounce: 0.3 }}
+                                    className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-md bg-white rounded-2xl shadow-xl border border-neutral-200 z-50 overflow-hidden"
+                                >
+                                    <div className="px-6 pt-6 pb-5">
+                                        <div className="w-12 h-12 rounded-full bg-danger-50 flex items-center justify-center mb-4">
+                                            <AlertTriangle className="h-6 w-6 text-danger-600" strokeWidth={1.5} />
+                                        </div>
+                                        <Dialog.Title className="text-xl font-bold text-neutral-900 mb-2">
+                                            {language === 'id' ? 'Hapus Draf Tiket' : 'Delete Draft Ticket'}
+                                        </Dialog.Title>
+                                        <Dialog.Description className="text-sm text-neutral-500 leading-relaxed">
+                                            {language === 'id'
+                                                ? `Apakah Anda yakin ingin menghapus draf tiket "${deleteTarget?.title}"? Tindakan ini tidak dapat dibatalkan.`
+                                                : `Are you sure you want to delete the draft ticket "${deleteTarget?.title}"? This action cannot be undone.`}
+                                        </Dialog.Description>
+                                    </div>
+                                    <div className="px-6 py-4 bg-neutral-50 border-t border-neutral-100 flex items-center justify-end gap-3">
+                                        <Dialog.Close asChild>
+                                            <motion.button
+                                                whileHover={{ scale: 1.02 }}
+                                                whileTap={{ scale: 0.98 }}
+                                                className="px-4 py-2 text-sm font-medium text-neutral-700 bg-white border border-neutral-200 rounded-lg shadow-sm hover:bg-neutral-50 transition-colors"
+                                            >
+                                                {language === 'id' ? 'Batal' : 'Cancel'}
+                                            </motion.button>
+                                        </Dialog.Close>
+                                        <motion.button
+                                            whileHover={{ scale: 1.02 }}
+                                            whileTap={{ scale: 0.98 }}
+                                            onClick={handleDeleteDraft}
+                                            disabled={isDeleting}
+                                            className="px-4 py-2 text-sm font-medium text-white bg-danger-600 rounded-lg shadow-sm hover:bg-red-700 transition-colors disabled:opacity-70 flex items-center gap-2"
+                                        >
+                                            {isDeleting && (
+                                                <svg className="animate-spin h-4 w-4 text-white" viewBox="0 0 24 24" fill="none">
+                                                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                                                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                                                </svg>
+                                            )}
+                                            {isDeleting
+                                                ? (language === 'id' ? 'Menghapus...' : 'Deleting...')
+                                                : (language === 'id' ? 'Hapus Draf' : 'Delete Draft')}
+                                        </motion.button>
+                                    </div>
+                                </motion.div>
+                            </Dialog.Content>
+                        </Dialog.Portal>
+                    )}
+                </AnimatePresence>
+            </Dialog.Root>
         </AppLayout>
     );
 }

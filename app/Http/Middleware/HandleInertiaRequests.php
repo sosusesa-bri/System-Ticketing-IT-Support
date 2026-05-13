@@ -45,6 +45,7 @@ class HandleInertiaRequests extends Middleware
                     'role' => $request->user()->role,
                     'department' => $request->user()->department,
                     'avatar_path' => $request->user()->avatar_path,
+                    'theme' => $request->user()->theme ?? 'light',
                 ] : null,
             ],
             'flash' => [

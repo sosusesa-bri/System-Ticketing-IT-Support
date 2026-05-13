@@ -49,17 +49,17 @@ class ReportService
             ->whereDate('closed_at', today())
             ->count();
 
-        $overdueTickets = Ticket::whereIn('status', [TicketStatus::OPEN, TicketStatus::ON_PROCESS, TicketStatus::REOPENED])
+        $overdueTickets = Ticket::where('status', '!=', TicketStatus::DRAFT)->whereIn('status', [TicketStatus::OPEN, TicketStatus::ON_PROCESS, TicketStatus::REOPENED])
             ->where('due_at', '<', now())
             ->count();
 
         // Average resolution time in hours
-        $avgResolution = Ticket::whereNotNull('closed_at')
+        $avgResolution = Ticket::where('status', '!=', TicketStatus::DRAFT)->whereNotNull('closed_at')
             ->whereBetween('created_at', [$this->from, $this->to])
             ->selectRaw('AVG(CAST((JULIANDAY(closed_at) - JULIANDAY(created_at)) * 24 AS REAL)) as avg_hours')
             ->first();
 
-        $prevAvgResolution = Ticket::whereNotNull('closed_at')
+        $prevAvgResolution = Ticket::where('status', '!=', TicketStatus::DRAFT)->whereNotNull('closed_at')
             ->whereBetween('created_at', [$this->prevFrom, $this->prevTo])
             ->selectRaw('AVG(CAST((JULIANDAY(closed_at) - JULIANDAY(created_at)) * 24 AS REAL)) as avg_hours')
             ->first();
@@ -101,14 +101,14 @@ class ReportService
      */
     public function getTicketVolumeTrend(): array
     {
-        $current = Ticket::select(DB::raw('DATE(created_at) as date'), DB::raw('count(*) as count'))
+        $current = Ticket::where('status', '!=', TicketStatus::DRAFT)->select(DB::raw('DATE(created_at) as date'), DB::raw('count(*) as count'))
             ->whereBetween('created_at', [$this->from, $this->to])
             ->groupBy('date')
             ->orderBy('date')
             ->get()
             ->keyBy('date');
 
-        $previous = Ticket::select(DB::raw('DATE(created_at) as date'), DB::raw('count(*) as count'))
+        $previous = Ticket::where('status', '!=', TicketStatus::DRAFT)->select(DB::raw('DATE(created_at) as date'), DB::raw('count(*) as count'))
             ->whereBetween('created_at', [$this->prevFrom, $this->prevTo])
             ->groupBy('date')
             ->orderBy('date')
@@ -140,14 +140,14 @@ class ReportService
      */
     public function getOpenVsResolvedTrend(): array
     {
-        $opened = Ticket::select(DB::raw('DATE(created_at) as date'), DB::raw('count(*) as count'))
+        $opened = Ticket::where('status', '!=', TicketStatus::DRAFT)->select(DB::raw('DATE(created_at) as date'), DB::raw('count(*) as count'))
             ->whereBetween('created_at', [$this->from, $this->to])
             ->groupBy('date')
             ->orderBy('date')
             ->get()
             ->keyBy('date');
 
-        $resolved = Ticket::select(DB::raw('DATE(closed_at) as date'), DB::raw('count(*) as count'))
+        $resolved = Ticket::where('status', '!=', TicketStatus::DRAFT)->select(DB::raw('DATE(closed_at) as date'), DB::raw('count(*) as count'))
             ->whereNotNull('closed_at')
             ->whereBetween('closed_at', [$this->from, $this->to])
             ->groupBy('date')
@@ -176,7 +176,7 @@ class ReportService
      */
     public function getStatusDistribution(): array
     {
-        return Ticket::select('status', DB::raw('count(*) as count'))
+        return Ticket::where('status', '!=', TicketStatus::DRAFT)->select('status', DB::raw('count(*) as count'))
             ->whereBetween('created_at', [$this->from, $this->to])
             ->groupBy('status')
             ->get()
@@ -193,7 +193,7 @@ class ReportService
      */
     public function getPriorityDistribution(): array
     {
-        return Ticket::select('priority', DB::raw('count(*) as count'))
+        return Ticket::where('status', '!=', TicketStatus::DRAFT)->select('priority', DB::raw('count(*) as count'))
             ->whereBetween('created_at', [$this->from, $this->to])
             ->groupBy('priority')
             ->get()
@@ -210,7 +210,7 @@ class ReportService
      */
     public function getCategoryDistribution(): array
     {
-        return Ticket::select('category_id', DB::raw('count(*) as count'))
+        return Ticket::where('status', '!=', TicketStatus::DRAFT)->select('category_id', DB::raw('count(*) as count'))
             ->whereBetween('created_at', [$this->from, $this->to])
             ->groupBy('category_id')
             ->with('category:id,name')
@@ -229,7 +229,7 @@ class ReportService
      */
     public function getResolutionTimeTrend(): array
     {
-        $data = Ticket::select(
+        $data = Ticket::where('status', '!=', TicketStatus::DRAFT)->select(
                 DB::raw('DATE(closed_at) as date'),
                 DB::raw('AVG(CAST((JULIANDAY(closed_at) - JULIANDAY(created_at)) * 24 AS REAL)) as avg_hours'),
                 DB::raw('count(*) as count')
@@ -253,7 +253,7 @@ class ReportService
      */
     public function getTechnicianPerformance(): array
     {
-        return Ticket::select(
+        return Ticket::where('status', '!=', TicketStatus::DRAFT)->select(
                 'assigned_to',
                 DB::raw('count(*) as total'),
                 DB::raw("SUM(CASE WHEN status = 'closed' THEN 1 ELSE 0 END) as resolved"),
@@ -283,7 +283,7 @@ class ReportService
      */
     public function getActivityHeatmap(): array
     {
-        $raw = Ticket::select(
+        $raw = Ticket::where('status', '!=', TicketStatus::DRAFT)->select(
                 DB::raw("CAST(strftime('%w', created_at) AS INTEGER) as day_of_week"),
                 DB::raw("CAST(strftime('%H', created_at) AS INTEGER) as hour"),
                 DB::raw('count(*) as count')
@@ -332,14 +332,14 @@ class ReportService
      */
     public function getSatisfactionAnalytics(): array
     {
-        $ratings = Ticket::select('rating', DB::raw('count(*) as count'))
+        $ratings = Ticket::where('status', '!=', TicketStatus::DRAFT)->select('rating', DB::raw('count(*) as count'))
             ->whereNotNull('rating')
             ->whereBetween('created_at', [$this->from, $this->to])
             ->groupBy('rating')
             ->orderBy('rating')
             ->get();
 
-        $avgRating = Ticket::whereNotNull('rating')
+        $avgRating = Ticket::where('status', '!=', TicketStatus::DRAFT)->whereNotNull('rating')
             ->whereBetween('created_at', [$this->from, $this->to])
             ->avg('rating');
 
@@ -376,7 +376,7 @@ class ReportService
      */
     public function getSlaTrend(): array
     {
-        $data = Ticket::select(
+        $data = Ticket::where('status', '!=', TicketStatus::DRAFT)->select(
                 DB::raw('DATE(created_at) as date'),
                 DB::raw('count(*) as total'),
                 DB::raw("SUM(CASE WHEN due_at IS NOT NULL AND (
@@ -403,11 +403,13 @@ class ReportService
 
     protected function periodQuery()
     {
-        return Ticket::whereBetween('created_at', [$this->from, $this->to]);
+        return Ticket::where('status', '!=', TicketStatus::DRAFT)
+            ->whereBetween('created_at', [$this->from, $this->to]);
     }
 
     protected function previousPeriodQuery()
     {
-        return Ticket::whereBetween('created_at', [$this->prevFrom, $this->prevTo]);
+        return Ticket::where('status', '!=', TicketStatus::DRAFT)
+            ->whereBetween('created_at', [$this->prevFrom, $this->prevTo]);
     }
 }

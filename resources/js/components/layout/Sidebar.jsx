@@ -30,22 +30,29 @@ function NavLink({ item, active }) {
             )}
         >
             <item.icon className="h-5 w-5 shrink-0" strokeWidth={1.75} />
-            <span>{item.name}</span>
+            <span className="flex-1">{item.name}</span>
+            {item.badge != null && item.badge > 0 && (
+                <span className="h-5 min-w-5 flex items-center justify-center rounded-full bg-red-500 text-white text-[10px] font-bold px-1.5 shrink-0">
+                    {item.badge > 99 ? '99+' : item.badge}
+                </span>
+            )}
         </Link>
     );
 }
 
 export default function Sidebar({ open, onClose, user }) {
     const { url } = usePage();
+    const { notifications } = usePage().props;
     const { t } = useLanguage();
     const isAdmin = user?.role === 'admin';
+    const unreadCount = notifications?.unread_count || 0;
     
     const userNavItems = [
         { name: t('dashboard'), href: '/dashboard', icon: LayoutDashboard },
         { name: t('createTicket'), href: '/tickets/create', icon: TicketPlus },
         { name: t('myTickets'), href: '/tickets', icon: Tickets },
         { name: t('knowledgeBase'), href: '/knowledge-base', icon: BookOpen },
-        { name: t('notifications'), href: '/notifications', icon: Bell },
+        { name: t('notifications'), href: '/notifications', icon: Bell, badge: unreadCount },
         { name: t('profile'), href: '/profile', icon: User },
     ];
 
@@ -55,7 +62,7 @@ export default function Sidebar({ open, onClose, user }) {
         { name: t('users'), href: '/admin/users', icon: Users },
         { name: t('reports'), href: '/admin/reports', icon: BarChart3 },
         { name: t('knowledgeBase'), href: '/admin/knowledge-base', icon: BookOpen },
-        { name: t('broadcast'), href: '/admin/notifications/dashboard', icon: Bell },
+        { name: t('broadcast'), href: '/admin/notifications/dashboard', icon: Bell, badge: unreadCount },
         { name: t('auditLog'), href: '/admin/audit-log', icon: FileText },
         { name: t('documentation'), href: '/admin/documentation', icon: HelpCircle },
         { name: t('settings'), href: '/admin/settings', icon: Settings },

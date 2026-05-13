@@ -52,7 +52,7 @@ class DashboardService
     {
         return [
             'stats' => [
-                'total' => Ticket::count(),
+                'total' => Ticket::where('status', '!=', 'draft')->count(),
                 'open' => Ticket::where('status', TicketStatus::OPEN)->count(),
                 'in_progress' => Ticket::where('status', TicketStatus::ON_PROCESS)->count(),
                 'closed' => Ticket::where('status', TicketStatus::CLOSED)->count(),

@@ -78,6 +78,7 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile/cover', [ProfileController::class, 'destroyCover'])->name('profile.cover.destroy');
     Route::put('/profile/password', [ProfileController::class, 'updatePassword'])->name('profile.password');
     Route::put('/profile/preferences', [ProfileController::class, 'updatePreferences'])->name('profile.preferences');
+    Route::post('/profile/theme', [ProfileController::class, 'updateTheme'])->name('profile.theme');
 
     // Notifications
     Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');
@@ -113,8 +114,9 @@ Route::middleware('auth')->group(function () {
         // Reports
         Route::get('/reports', [ReportController::class, 'index'])->name('reports.index');
 
-        // Audit log
-        Route::get('/audit-log', [AuditLogController::class, 'index'])->name('auditLog.index');
+        // Audit Logs
+        Route::get('/audit-log', [App\Http\Controllers\Admin\AuditLogController::class, 'index'])->name('audit-log');
+        Route::get('/export/audit-logs', [App\Http\Controllers\Admin\AuditLogController::class, 'export'])->name('audit-log.export');
 
         // Documentation
         Route::get('/documentation', [\App\Http\Controllers\Admin\DocumentationController::class, 'index'])->name('documentation.index');
@@ -131,14 +133,18 @@ Route::middleware('auth')->group(function () {
         Route::get('/settings', [SettingsController::class, 'index'])->name('settings.index');
         Route::post('/settings/categories', [SettingsController::class, 'storeCategory'])->name('settings.storeCategory');
         Route::put('/settings/categories/{category}/toggle', [SettingsController::class, 'toggleCategory'])->name('settings.toggleCategory');
+        Route::delete('/settings/categories/{category}', [SettingsController::class, 'destroyCategory'])->name('settings.destroyCategory');
         Route::post('/settings/macros', [SettingsController::class, 'storeMacro'])->name('settings.storeMacro');
         Route::put('/settings/macros/{macro}/toggle', [SettingsController::class, 'toggleMacro'])->name('settings.toggleMacro');
+        Route::delete('/settings/macros/{macro}', [SettingsController::class, 'destroyMacro'])->name('settings.destroyMacro');
 
         // Exports
         Route::get('/export/tickets', [ExportController::class, 'exportTickets'])->name('export.tickets');
         Route::get('/export/audit-logs', [ExportController::class, 'exportAuditLogs'])->name('export.auditLogs');
 
         // Knowledge Base Management
-        Route::resource('knowledge-base', KnowledgeBaseAdminController::class)->names('knowledgeBase');
+        Route::resource('knowledge-base', KnowledgeBaseAdminController::class)
+            ->parameters(['knowledge-base' => 'article'])
+            ->names('knowledgeBase');
     });
 });

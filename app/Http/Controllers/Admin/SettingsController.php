@@ -96,4 +96,35 @@ class SettingsController extends Controller
 
         return back()->with('success', "Macro '{$macro->title}' {$state}.");
     }
+
+    /**
+     * Delete a category.
+     */
+    public function destroyCategory(TicketCategory $category): RedirectResponse
+    {
+        // Check if category is used by tickets
+        if ($category->tickets()->exists()) {
+            return back()->with('error', "Category '{$category->name}' cannot be deleted because it is used by existing tickets.");
+        }
+
+        $categoryName = $category->name;
+        $category->delete();
+
+        AuditService::log('category_deleted', "Category '{$categoryName}' deleted");
+
+        return back()->with('success', "Category '{$categoryName}' deleted successfully.");
+    }
+
+    /**
+     * Delete a macro.
+     */
+    public function destroyMacro(\App\Models\CannedResponse $macro): RedirectResponse
+    {
+        $macroTitle = $macro->title;
+        $macro->delete();
+
+        AuditService::log('macro_deleted', "Macro '{$macroTitle}' deleted");
+
+        return back()->with('success', "Macro '{$macroTitle}' deleted successfully.");
+    }
 }

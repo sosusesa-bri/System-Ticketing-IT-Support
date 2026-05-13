@@ -1,17 +1,29 @@
 import { useState } from 'react';
 import { Link, router, usePage } from '@inertiajs/react';
-import { Menu, Bell, LogOut, User, Globe, Settings, ChevronDown } from 'lucide-react';
+import { Menu, Bell, LogOut, User, Globe, Settings, ChevronDown, Moon, Sun, Monitor } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu';
 import * as Dialog from '@radix-ui/react-dialog';
 import { useLanguage } from '../../contexts/LanguageContext';
+import { useTheme } from '../../contexts/ThemeContext';
 
 export default function TopBar({ onMenuClick }) {
     const { auth, notifications } = usePage().props;
     const { language, setLanguage, t } = useLanguage();
+    const { theme, setTheme } = useTheme();
     const unreadCount = notifications?.unread_count || 0;
     const [logoutOpen, setLogoutOpen] = useState(false);
     const [dropdownOpen, setDropdownOpen] = useState(false);
+
+    const handleThemeChange = (newTheme) => {
+        setTheme(newTheme);
+        if (auth?.user) {
+            router.post('/profile/theme', { theme: newTheme }, {
+                preserveScroll: true,
+                preserveState: true,
+            });
+        }
+    };
     const [isLoggingOut, setIsLoggingOut] = useState(false);
 
     const handleLogout = () => {
@@ -24,34 +36,37 @@ export default function TopBar({ onMenuClick }) {
     return (
         <>
             <header className="sticky top-0 z-20 h-16 bg-white/80 backdrop-blur-lg border-b border-neutral-200">
-                <div className="flex items-center justify-between h-full px-4 sm:px-6 lg:px-8">
-                    {/* Left: Hamburger & Logo (Mobile) */}
-                    <div className="flex items-center gap-4">
+                <div className="flex items-center h-full px-4 sm:px-6 lg:px-8">
+                    {/* Left: Hamburger & Logo (Mobile only) */}
+                    <div className="flex items-center gap-4 lg:hidden">
                         <motion.button
                             whileTap={{ scale: 0.95 }}
                             onClick={onMenuClick}
-                            className="lg:hidden text-neutral-500 hover:text-neutral-900 focus:outline-none focus:ring-2 focus:ring-primary-500 rounded-md p-1"
+                            className="text-neutral-500 hover:text-neutral-900 focus:outline-none focus:ring-2 focus:ring-primary-500 rounded-md p-1"
                             aria-label="Open sidebar"
                         >
                             <Menu className="h-5 w-5" strokeWidth={1.75} />
                         </motion.button>
                         
-                        <div className="lg:hidden flex items-center">
+                        <div className="flex items-center">
                             <img src="/images/Logo_POLMIND.png" alt="POLMIND" className="h-8 w-auto" />
                         </div>
                     </div>
 
-                    {/* Right: actions */}
-                    <div className="flex items-center gap-2 sm:gap-4 ml-auto">
+                    {/* Spacer to push right content to the end */}
+                    <div className="flex-1" />
+
+                    {/* Right: actions — fixed position via ml-auto removed, flex-1 spacer used instead */}
+                    <div className="flex items-center gap-2 sm:gap-4 shrink-0">
                         {/* Notifications */}
                         <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
                             <Link
                                 href="/notifications"
-                                className="relative flex items-center justify-center p-2 text-neutral-500 hover:text-neutral-900 rounded-full hover:bg-neutral-100 transition-colors"
+                                className="relative flex items-center justify-center h-10 w-10 text-neutral-500 hover:text-neutral-900 rounded-full hover:bg-neutral-100 transition-colors"
                             >
                                 <Bell className="h-5 w-5" strokeWidth={1.75} />
                                 {unreadCount > 0 && (
-                                    <span className="absolute top-1 right-1 h-4 min-w-4 flex items-center justify-center rounded-full bg-danger-500 text-white text-[10px] font-bold px-1 ring-2 ring-white">
+                                    <span className="absolute -top-0.5 -right-0.5 h-[18px] min-w-[18px] flex items-center justify-center rounded-full bg-red-500 text-white text-[10px] font-bold px-1 ring-2 ring-white">
                                         {unreadCount > 99 ? '99+' : unreadCount}
                                     </span>
                                 )}
@@ -111,6 +126,34 @@ export default function TopBar({ onMenuClick }) {
                                             </DropdownMenu.Item>
 
                                             <DropdownMenu.Separator className="h-px bg-neutral-100 my-1" />
+
+                                            <DropdownMenu.Sub>
+                                                <DropdownMenu.SubTrigger className="flex items-center justify-between px-3 py-2 text-sm text-neutral-700 font-medium rounded-md hover:bg-neutral-50 outline-none cursor-pointer transition-colors data-[state=open]:bg-neutral-50">
+                                                    <div className="flex items-center gap-2.5">
+                                                        {theme === 'dark' ? <Moon className="h-4 w-4" /> : theme === 'light' ? <Sun className="h-4 w-4" /> : <Monitor className="h-4 w-4" />}
+                                                        {t('theme') || (language === 'id' ? 'Tampilan' : 'Theme')}
+                                                    </div>
+                                                    <span className="text-xs text-neutral-400 font-semibold capitalize">{theme}</span>
+                                                </DropdownMenu.SubTrigger>
+                                                <DropdownMenu.Portal>
+                                                    <DropdownMenu.SubContent sideOffset={4} asChild>
+                                                        <motion.div initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} className="w-36 bg-white rounded-lg shadow-lg border border-neutral-200 p-1 z-50">
+                                                            <DropdownMenu.Item onClick={() => handleThemeChange('light')} className="flex items-center gap-2 px-3 py-2 text-sm text-neutral-700 font-medium rounded-md hover:bg-neutral-50 outline-none cursor-pointer transition-colors">
+                                                                <Sun className="h-4 w-4" /> {language === 'id' ? 'Terang' : 'Light'}
+                                                                {theme === 'light' && <div className="ml-auto w-1.5 h-1.5 rounded-full bg-primary-600"></div>}
+                                                            </DropdownMenu.Item>
+                                                            <DropdownMenu.Item onClick={() => handleThemeChange('dark')} className="flex items-center gap-2 px-3 py-2 text-sm text-neutral-700 font-medium rounded-md hover:bg-neutral-50 outline-none cursor-pointer transition-colors">
+                                                                <Moon className="h-4 w-4" /> {language === 'id' ? 'Gelap' : 'Dark'}
+                                                                {theme === 'dark' && <div className="ml-auto w-1.5 h-1.5 rounded-full bg-primary-600"></div>}
+                                                            </DropdownMenu.Item>
+                                                            <DropdownMenu.Item onClick={() => handleThemeChange('system')} className="flex items-center gap-2 px-3 py-2 text-sm text-neutral-700 font-medium rounded-md hover:bg-neutral-50 outline-none cursor-pointer transition-colors">
+                                                                <Monitor className="h-4 w-4" /> Sistem
+                                                                {theme === 'system' && <div className="ml-auto w-1.5 h-1.5 rounded-full bg-primary-600"></div>}
+                                                            </DropdownMenu.Item>
+                                                        </motion.div>
+                                                    </DropdownMenu.SubContent>
+                                                </DropdownMenu.Portal>
+                                            </DropdownMenu.Sub>
 
                                             <DropdownMenu.Sub>
                                                 <DropdownMenu.SubTrigger className="flex items-center justify-between px-3 py-2 text-sm text-neutral-700 font-medium rounded-md hover:bg-neutral-50 outline-none cursor-pointer transition-colors data-[state=open]:bg-neutral-50">

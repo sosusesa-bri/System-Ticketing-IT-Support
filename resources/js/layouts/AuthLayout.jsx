@@ -47,7 +47,7 @@ export default function AuthLayout({ children, title }) {
                 {/* ─────────────────────────────────────────────────── */}
                 {/*  LEFT PANEL - Premium Institutional Branding       */}
                 {/* ─────────────────────────────────────────────────── */}
-                <div className="hidden lg:flex lg:w-1/2 bg-primary-900 relative overflow-hidden" style={{ fontFamily: "'Plus Jakarta Sans', 'Inter', sans-serif" }}>
+                <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden" style={{ backgroundColor: '#0F2A5F', fontFamily: "'Plus Jakarta Sans', 'Inter', sans-serif" }}>
 
                     {/* Background Image — dominant, full-bleed */}
                     <motion.div

@@ -1,6 +1,8 @@
 import { cn } from '../../lib/utils';
+import { useLanguage } from '../../contexts/LanguageContext';
 
 const statusConfig = {
+    draft: { bg: 'bg-neutral-100', text: 'text-neutral-500', label: 'Draft' },
     open: { bg: 'bg-info-100', text: 'text-info-600', label: 'Open' },
     on_process: { bg: 'bg-warning-100', text: 'text-warning-600', label: 'In Progress' },
     closed: { bg: 'bg-success-100', text: 'text-success-600', label: 'Closed' },
@@ -35,19 +37,22 @@ export function Badge({ children, variant = 'default', className = '' }) {
 }
 
 export function StatusBadge({ status }) {
+    const { t } = useLanguage();
     const config = statusConfig[status] || statusConfig.open;
+    const translationKey = status === 'on_process' ? 'inProgress' : status;
     return (
         <Badge className={cn(config.bg, config.text)}>
-            {config.label}
+            {t(translationKey) || config.label}
         </Badge>
     );
 }
 
 export function PriorityBadge({ priority }) {
+    const { t } = useLanguage();
     const config = priorityConfig[priority] || priorityConfig.medium;
     return (
         <Badge className={cn(config.bg, config.text)}>
-            {config.label}
+            {t(priority) || config.label}
         </Badge>
     );
 }

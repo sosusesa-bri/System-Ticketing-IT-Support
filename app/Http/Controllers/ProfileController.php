@@ -28,6 +28,7 @@ class ProfileController extends Controller
                 'cover_path'               => $request->user()->cover_path,
                 'role'                     => $request->user()->role->value,
                 'language'                 => $request->user()->language,
+                'theme'                    => $request->user()->theme ?? 'light',
                 'notification_preferences' => $request->user()->notification_preferences ?? [],
                 'created_at'               => $request->user()->created_at?->toIso8601String(),
                 'last_login_at'            => $request->user()->last_login_at?->toIso8601String(),
@@ -51,7 +52,7 @@ class ProfileController extends Controller
 
         AuditService::log('profile_updated', 'Profile information updated', $request->user());
 
-        return back()->with('success', 'Profile updated successfully.');
+        return back()->with('success', 'td_profileUpdated');
     }
 
     /**
@@ -70,7 +71,7 @@ class ProfileController extends Controller
 
         AuditService::log('password_changed', 'Password was changed', $request->user());
 
-        return back()->with('success', 'Password changed successfully.');
+        return back()->with('success', 'td_passwordChanged');
     }
 
     /**
@@ -90,7 +91,7 @@ class ProfileController extends Controller
             AuditService::log('profile_photo_updated', 'Profile photo updated', $user);
         }
 
-        return back()->with('success', 'Profile photo updated successfully.');
+        return back()->with('success', 'td_photoUpdated');
     }
 
     /**
@@ -102,7 +103,7 @@ class ProfileController extends Controller
         $user->update(['avatar_path' => null]);
         AuditService::log('profile_photo_removed', 'Profile photo removed', $user);
 
-        return back()->with('success', 'Profile photo removed successfully.');
+        return back()->with('success', 'td_photoRemoved');
     }
 
     /**
@@ -122,7 +123,7 @@ class ProfileController extends Controller
             AuditService::log('profile_cover_updated', 'Profile cover photo updated', $user);
         }
 
-        return back()->with('success', 'Cover photo updated successfully.');
+        return back()->with('success', 'td_coverUpdated');
     }
 
     /**
@@ -134,7 +135,7 @@ class ProfileController extends Controller
         $user->update(['cover_path' => null]);
         AuditService::log('profile_cover_removed', 'Profile cover photo removed', $user);
 
-        return back()->with('success', 'Cover photo removed.');
+        return back()->with('success', 'td_coverRemoved');
     }
 
     /**
@@ -144,17 +145,35 @@ class ProfileController extends Controller
     {
         $validated = $request->validate([
             'language'                 => ['required', 'in:en,id'],
+            'theme'                    => ['required', 'in:light,dark,system'],
             'notification_preferences' => ['nullable', 'array'],
         ]);
 
         $user = $request->user();
         $user->update([
             'language'                 => $validated['language'],
+            'theme'                    => $validated['theme'],
             'notification_preferences' => $validated['notification_preferences'] ?? [],
         ]);
 
         AuditService::log('preferences_updated', 'Profile preferences updated', $user);
 
-        return back()->with('success', 'Preferences updated successfully.');
+        return back()->with('success', 'td_preferencesUpdated');
+    }
+
+    /**
+     * Update user theme specifically (called from TopBar).
+     */
+    public function updateTheme(Request $request): RedirectResponse
+    {
+        $validated = $request->validate([
+            'theme' => ['required', 'in:light,dark,system'],
+        ]);
+
+        $request->user()->update([
+            'theme' => $validated['theme'],
+        ]);
+
+        return back();
     }
 }

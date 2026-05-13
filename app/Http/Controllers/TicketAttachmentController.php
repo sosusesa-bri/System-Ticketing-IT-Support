@@ -21,7 +21,7 @@ class TicketAttachmentController extends Controller
         $ticket = $attachment->ticket;
 
         // Authorization: user must own the ticket or be admin
-        if ($user->id !== $ticket->user_id && $user->role !== 'admin') {
+        if ($user->id !== $ticket->user_id && !$user->isAdmin()) {
             abort(403);
         }
 

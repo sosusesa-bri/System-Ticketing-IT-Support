@@ -2,6 +2,7 @@ import { createInertiaApp } from '@inertiajs/react';
 import { createRoot } from 'react-dom/client';
 import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers';
 import { LanguageProvider } from './contexts/LanguageContext';
+import { ThemeProvider } from './contexts/ThemeContext';
 import 'flag-icons/css/flag-icons.min.css';
 
 const appName = import.meta.env.VITE_APP_NAME || 'IT Support';
@@ -17,7 +18,9 @@ createInertiaApp({
         const root = createRoot(el);
         root.render(
             <LanguageProvider>
-                <App {...props} />
+                <ThemeProvider>
+                    <App {...props} />
+                </ThemeProvider>
             </LanguageProvider>
         );
     },

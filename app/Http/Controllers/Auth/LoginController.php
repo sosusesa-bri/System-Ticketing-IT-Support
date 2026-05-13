@@ -31,6 +31,32 @@ class LoginController extends Controller
         $remember = $request->boolean('remember');
 
         if (! Auth::attempt($credentials, $remember)) {
+            $failedUser = \App\Models\User::where('email', $credentials['email'])->first();
+            if ($failedUser) {
+                // Temporarily log in as the user just for the audit log, then logout, or just create ActivityLog directly to set user_id manually.
+                // Wait, it's easier to use AuditService but we can't inject user_id. Let's just create ActivityLog directly.
+                \App\Models\ActivityLog::create([
+                    'action' => 'login_failed',
+                    'description' => 'Failed login attempt',
+                    'user_id' => $failedUser->id,
+                    'subject_type' => get_class($failedUser),
+                    'subject_id' => $failedUser->id,
+                    'properties' => ['user_agent' => $request->userAgent()],
+                    'ip_address' => $request->ip(),
+                    'created_at' => now(),
+                ]);
+            } else {
+                // Log failed attempt for non-existent user
+                \App\Models\ActivityLog::create([
+                    'action' => 'login_failed',
+                    'description' => "Failed login attempt for non-existent email: {$credentials['email']}",
+                    'user_id' => null,
+                    'properties' => ['user_agent' => $request->userAgent()],
+                    'ip_address' => $request->ip(),
+                    'created_at' => now(),
+                ]);
+            }
+
             return back()->withErrors([
                 'email' => 'The provided credentials do not match our records.',
             ])->onlyInput('email');
@@ -39,8 +65,6 @@ class LoginController extends Controller
         $request->session()->regenerate();
 
         $user = Auth::user();
-        $user->last_login_at = now();
-        $user->save();
 
         AuditService::log('login', 'User logged in', $user);
 

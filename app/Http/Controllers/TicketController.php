@@ -73,6 +73,41 @@ class TicketController extends Controller
     }
 
     /**
+     * Show the edit form for a draft ticket.
+     */
+    public function edit(Ticket $ticket): Response
+    {
+        $this->authorize('update', $ticket);
+
+        // Only allow editing drafts
+        if ($ticket->status->value !== 'draft') {
+            abort(403, 'Only draft tickets can be edited.');
+        }
+
+        $ticket->load(['category', 'attachments']);
+
+        return Inertia::render('Tickets/Edit', [
+            'ticket' => [
+                'id' => $ticket->id,
+                'ticket_number' => $ticket->ticket_number,
+                'title' => $ticket->title,
+                'description' => $ticket->description,
+                'priority' => $ticket->priority->value,
+                'category_id' => $ticket->category_id,
+                'status' => $ticket->status->value,
+                'attachments' => $ticket->attachments->map(fn ($a) => [
+                    'id' => $a->id,
+                    'original_name' => $a->original_name,
+                    'mime_type' => $a->mime_type,
+                    'formatted_size' => $a->formatted_size,
+                    'url' => route('attachments.show', $a->id),
+                ]),
+            ],
+            'categories' => TicketCategory::active()->get(['id', 'name']),
+        ]);
+    }
+
+    /**
      * Check for duplicate/similar open tickets.
      */
     public function checkDuplicates(Request $request)
@@ -126,7 +161,7 @@ class TicketController extends Controller
 
         return redirect()
             ->route('tickets.show', $ticket)
-            ->with('success', "Ticket {$ticket->ticket_number} created successfully.");
+            ->with('success', 'td_ticketCreatedSuccess');
     }
 
     /**
@@ -155,6 +190,7 @@ class TicketController extends Controller
                 'action' => $log->action,
                 'description' => $log->description,
                 'user' => $log->user?->name ?? 'System',
+                'avatar_path' => $log->user?->avatar_path,
                 'properties' => $log->properties,
                 'created_at' => $log->created_at->diffForHumans(),
             ]);
@@ -179,14 +215,14 @@ class TicketController extends Controller
                 'feedback_notes' => $ticket->feedback_notes,
                 'created_at' => $ticket->created_at->format('d M Y, H:i'),
                 'closed_at' => $ticket->closed_at?->format('d M Y, H:i'),
-                'user' => ['id' => $ticket->user->id, 'name' => $ticket->user->name],
+                'user' => ['id' => $ticket->user->id, 'name' => $ticket->user->name, 'avatar_path' => $ticket->user->avatar_path],
                 'category' => $ticket->category ? ['id' => $ticket->category->id, 'name' => $ticket->category->name] : null,
                 'assignee' => $ticket->assignee ? ['id' => $ticket->assignee->id, 'name' => $ticket->assignee->name] : null,
                 'comments' => $ticket->comments->map(fn ($c) => [
                     'id' => $c->id,
                     'body' => $c->body,
                     'is_internal' => $c->is_internal,
-                    'user' => ['id' => $c->user->id, 'name' => $c->user->name, 'role' => $c->user->role],
+                    'user' => ['id' => $c->user->id, 'name' => $c->user->name, 'role' => $c->user->role, 'avatar_path' => $c->user->avatar_path],
                     'created_at' => $c->created_at->diffForHumans(),
                 ]),
                 'attachments' => $ticket->attachments->map(fn ($a) => [
@@ -208,9 +244,33 @@ class TicketController extends Controller
     {
         $this->authorize('update', $ticket);
 
-        $action->execute($ticket, $request->validated());
+        $validated = $request->validated();
 
-        return back()->with('success', 'Ticket updated successfully.');
+        // Remove attachments if requested
+        if (!empty($validated['remove_attachments'])) {
+            $ticket->attachments()
+                ->whereIn('id', $validated['remove_attachments'])
+                ->delete();
+            unset($validated['remove_attachments']);
+        }
+
+        // Add new attachments
+        if ($request->hasFile('attachments')) {
+            foreach ($request->file('attachments') as $file) {
+                $path = $file->store('ticket-attachments', 'public');
+                \App\Models\TicketAttachment::create([
+                    'ticket_id' => $ticket->id,
+                    'file_path' => $path,
+                    'original_name' => $file->getClientOriginalName(),
+                    'mime_type' => $file->getMimeType(),
+                    'file_size' => $file->getSize(),
+                ]);
+            }
+            unset($validated['attachments']);
+        }
+
+        $action->execute($ticket, $validated);
+        return back()->with('success', 'td_ticketUpdatedSuccess');
     }
 
     /**
@@ -218,11 +278,11 @@ class TicketController extends Controller
      */
     public function reopen(Ticket $ticket, ReopenTicketAction $action): RedirectResponse
     {
-        $this->authorize('update', $ticket);
+        $this->authorize('reopen', $ticket);
 
         $action->execute($ticket);
 
-        return back()->with('success', 'Ticket reopened successfully.');
+        return back()->with('success', 'td_ticketReopenedSuccess');
     }
 
     /**
@@ -233,7 +293,7 @@ class TicketController extends Controller
         $this->authorize('rate', $ticket);
 
         if ($ticket->status->value !== 'closed') {
-            return back()->with('error', 'You can only rate closed tickets.');
+            return back()->with('error', 'td_rateClosedOnly');
         }
 
         $validated = $request->validate([
@@ -248,7 +308,7 @@ class TicketController extends Controller
 
         \App\Services\AuditService::log('ticket_rated', "User rated ticket {$ticket->ticket_number} with {$validated['rating']} stars", $ticket);
 
-        return back()->with('success', 'Thank you for your feedback!');
+        return back()->with('success', 'td_feedbackThanks');
     }
 
     /**
@@ -258,10 +318,12 @@ class TicketController extends Controller
     {
         $this->authorize('delete', $ticket);
 
+        \App\Services\AuditService::log('ticket_deleted', "Ticket {$ticket->ticket_number} deleted", $ticket);
+
         $ticket->delete();
 
         return redirect()
             ->route('tickets.index')
-            ->with('success', 'Ticket deleted.');
+            ->with('success', 'td_ticketDeletedSuccess');
     }
 }

@@ -27,6 +27,8 @@ class AdminTicketController extends Controller
 
         if ($request->filled('status')) {
             $query->where('status', $request->status);
+        } else {
+            $query->where('status', '!=', 'draft');
         }
 
         if ($request->filled('priority')) {
@@ -102,6 +104,7 @@ class AdminTicketController extends Controller
                 'action' => $log->action,
                 'description' => $log->description,
                 'user' => $log->user?->name ?? 'System',
+                'avatar_path' => $log->user?->avatar_path,
                 'properties' => $log->properties,
                 'created_at' => $log->created_at->diffForHumans(),
             ]);
@@ -126,14 +129,14 @@ class AdminTicketController extends Controller
                 'feedback_notes' => $ticket->feedback_notes,
                 'created_at' => $ticket->created_at->format('d M Y, H:i'),
                 'closed_at' => $ticket->closed_at?->format('d M Y, H:i'),
-                'user' => ['id' => $ticket->user->id, 'name' => $ticket->user->name, 'email' => $ticket->user->email, 'department' => $ticket->user->department],
+                'user' => ['id' => $ticket->user->id, 'name' => $ticket->user->name, 'email' => $ticket->user->email, 'department' => $ticket->user->department, 'avatar_path' => $ticket->user->avatar_path],
                 'category' => $ticket->category ? ['id' => $ticket->category->id, 'name' => $ticket->category->name] : null,
                 'assignee' => $ticket->assignee ? ['id' => $ticket->assignee->id, 'name' => $ticket->assignee->name] : null,
                 'comments' => $ticket->comments->map(fn ($c) => [
                     'id' => $c->id,
                     'body' => $c->body,
                     'is_internal' => $c->is_internal,
-                    'user' => ['id' => $c->user->id, 'name' => $c->user->name, 'role' => $c->user->role],
+                    'user' => ['id' => $c->user->id, 'name' => $c->user->name, 'role' => $c->user->role, 'avatar_path' => $c->user->avatar_path],
                     'created_at' => $c->created_at->diffForHumans(),
                 ]),
                 'attachments' => $ticket->attachments->map(fn ($a) => [
@@ -163,8 +166,7 @@ class AdminTicketController extends Controller
     public function update(UpdateTicketRequest $request, Ticket $ticket, UpdateTicketAction $action): RedirectResponse
     {
         $action->execute($ticket, $request->validated());
-
-        return back()->with('success', 'Ticket updated successfully.');
+        return back()->with('success', 'td_ticketUpdatedSuccess');
     }
 
     /**
@@ -193,7 +195,7 @@ class AdminTicketController extends Controller
             ['assigned_to' => $validated['assigned_to']],
         );
 
-        return back()->with('success', 'Ticket assigned successfully.');
+        return back()->with('success', 'td_ticketAssignedSuccess');
     }
 
     /**
@@ -207,6 +209,6 @@ class AdminTicketController extends Controller
 
         $action->execute($ticket, $validated['reason']);
 
-        return back()->with('success', 'Ticket escalated successfully.');
+        return back()->with('success', 'td_ticketEscalatedSuccess');
     }
 }

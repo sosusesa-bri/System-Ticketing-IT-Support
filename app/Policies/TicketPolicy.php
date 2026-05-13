@@ -21,7 +21,7 @@ class TicketPolicy
      */
     public function view(User $user, Ticket $ticket): bool
     {
-        return $user->isAdmin() || $ticket->user_id === $user->id;
+        return $user->isAdmin() || $ticket->user_id == $user->id;
     }
 
     /**
@@ -41,15 +41,19 @@ class TicketPolicy
             return true;
         }
 
-        return $ticket->user_id === $user->id && $ticket->status->value !== 'closed';
+        return $ticket->user_id == $user->id && $ticket->status->value !== 'closed';
     }
 
     /**
-     * Only admins can delete tickets.
+     * Users can delete their own draft tickets. Admins can delete any.
      */
     public function delete(User $user, Ticket $ticket): bool
     {
-        return $user->isAdmin();
+        if ($user->isAdmin()) {
+            return true;
+        }
+
+        return $ticket->user_id == $user->id && $ticket->status->value === 'draft';
     }
 
     /**
@@ -73,6 +77,14 @@ class TicketPolicy
      */
     public function rate(User $user, Ticket $ticket): bool
     {
-        return $ticket->user_id === $user->id && $ticket->status->value === 'closed';
+        return $ticket->user_id == $user->id && $ticket->status->value === 'closed';
+    }
+
+    /**
+     * Ticket owners can reopen their own closed tickets.
+     */
+    public function reopen(User $user, Ticket $ticket): bool
+    {
+        return ($user->isAdmin() || $ticket->user_id == $user->id) && $ticket->status->value === 'closed';
     }
 }

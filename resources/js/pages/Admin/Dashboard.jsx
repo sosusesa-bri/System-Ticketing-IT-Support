@@ -18,6 +18,7 @@ import {
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useLanguage } from '../../contexts/LanguageContext';
+import { actionLabels, getActionColor } from '../../utils/audit';
 
 export default function AdminDashboard({ stats, priorityQueue, recentActivity, workload }) {
     const { t, language } = useLanguage();
@@ -212,6 +213,11 @@ export default function AdminDashboard({ stats, priorityQueue, recentActivity, w
                             <div className="divide-y divide-neutral-100">
                                 {recentActivity.map((log) => (
                                     <div key={log.id} className="px-6 py-4 hover:bg-neutral-50/50 transition-colors">
+                                        <div className="flex items-center gap-2 mb-1">
+                                            <span className={`inline-flex items-center h-5 px-2 rounded text-[10px] font-semibold uppercase tracking-wider ${getActionColor(log.action)}`}>
+                                                {actionLabels[log.action] || log.action}
+                                            </span>
+                                        </div>
                                         <p className="text-sm text-neutral-800 leading-snug">{log.description}</p>
                                         <p className="text-xs text-neutral-500 mt-1.5 flex items-center gap-2">
                                             <span className="font-medium">{log.user}</span>

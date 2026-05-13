@@ -68,7 +68,7 @@ class NotificationController extends Controller
     {
         $request->user()->unreadNotifications->markAsRead();
 
-        return back()->with('success', 'All notifications marked as read.');
+        return back()->with('success', 'td_allNotificationsRead');
     }
 
     /**
@@ -78,7 +78,7 @@ class NotificationController extends Controller
     {
         $request->user()->notifications()->findOrFail($id)->delete();
 
-        return back()->with('success', 'Notification deleted.');
+        return back()->with('success', 'td_notificationDeleted');
     }
 
     /**
@@ -88,6 +88,6 @@ class NotificationController extends Controller
     {
         $request->user()->notifications()->whereNotNull('read_at')->delete();
 
-        return back()->with('success', 'Read notifications cleared.');
+        return back()->with('success', 'td_readNotificationsCleared');
     }
 }

@@ -13,37 +13,37 @@ import { useLanguage } from '../../contexts/LanguageContext';
 import axios from 'axios';
 import { AnimatePresence, motion } from 'framer-motion';
 
-export default function TicketCreate({ categories }) {
+export default function TicketEdit({ ticket, categories }) {
     const { t } = useLanguage();
     
-    // Check if we have a saved draft
-    const getInitialDraft = () => {
-        try {
-            const saved = localStorage.getItem('ticket_draft');
-            if (saved) return JSON.parse(saved);
-        } catch (e) {
-            console.error('Failed to load draft', e);
-        }
-        return {
-            title: '',
-            category_id: '',
-            priority: 'medium',
-            description: '',
-            dynamic_fields: {}
-        };
+    const initialData = {
+        title: ticket.title || '',
+        category_id: ticket.category_id || '',
+        priority: ticket.priority || 'medium',
+        description: ticket.description || '',
+        dynamic_fields: ticket.dynamic_fields || {}
     };
-
-    const initialData = getInitialDraft();
     
     const { data, setData, post, processing, errors, transform } = useForm({
+        _method: 'PUT',
         title: initialData.title,
         category_id: initialData.category_id,
         priority: initialData.priority,
         description: initialData.description,
         dynamic_fields: initialData.dynamic_fields || {},
         attachments: [],
-        status: 'open',
+        remove_attachments: [],
+        status: ticket.status || 'draft',
     });
+    const [removeAttachmentIds, setRemoveAttachmentIds] = useState([]);
+    const existingAttachments = (ticket.attachments || []).filter(
+        (a) => !removeAttachmentIds.includes(a.id)
+    );
+    const removeExistingAttachment = (id) => {
+        const updated = [...removeAttachmentIds, id];
+        setRemoveAttachmentIds(updated);
+        setData('remove_attachments', updated);
+    };
 
     const [similarTickets, setSimilarTickets] = useState([]);
     const [isSearching, setIsSearching] = useState(false);
@@ -60,13 +60,7 @@ export default function TicketCreate({ categories }) {
     useEffect(() => {
         const timer = setTimeout(() => {
             if (data.title || data.description) {
-                localStorage.setItem('ticket_draft', JSON.stringify({
-                    title: data.title,
-                    category_id: data.category_id,
-                    priority: data.priority,
-                    description: data.description,
-                    dynamic_fields: data.dynamic_fields
-                }));
+                
             }
         }, 1000);
         return () => clearTimeout(timer);
@@ -148,31 +142,16 @@ export default function TicketCreate({ categories }) {
         return () => clearTimeout(timer);
     }, [data.title, data.category_id]);
 
-    // Allowed MIME types & extensions
-    const ALLOWED_MIME_TYPES = [
-        'image/jpeg', 'image/png', 'image/gif', 'image/webp',
-        'application/pdf',
-        'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-        'application/vnd.ms-excel', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-        'application/vnd.ms-powerpoint', 'application/vnd.openxmlformats-officedocument.presentationml.presentation',
-        'application/zip', 'application/x-zip-compressed',
-        'text/csv', 'text/plain', 'text/markdown',
-    ];
-
-    const ALLOWED_EXTENSIONS = ['jpg','jpeg','png','gif','webp','pdf','doc','docx','xls','xlsx','ppt','pptx','zip','csv','txt','md'];
-
-    const FILE_ACCEPT = '.jpg,.jpeg,.png,.gif,.webp,.pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.zip,.csv,.txt,.md,image/*,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-powerpoint,application/vnd.openxmlformats-officedocument.presentationml.presentation';
-
     // Handle File Uploads
     const handleFiles = (files) => {
         const newFiles = Array.from(files);
-
-        // Validate each file: size + type/extension
-        const validFiles = newFiles.filter(f => {
-            if (f.size > 100 * 1024 * 1024) return false;
-            const ext = f.name.split('.').pop()?.toLowerCase();
-            return ALLOWED_MIME_TYPES.includes(f.type) || ALLOWED_EXTENSIONS.includes(ext);
-        });
+        // Validation: max 5 files, 10MB each
+        const validFiles = newFiles.filter(f => f.size <= 10 * 1024 * 1024);
+        
+        if (validFiles.length + data.attachments.length > 5) {
+            alert(t('tc_maxFiles'));
+            return;
+        }
 
         const updatedAttachments = [...data.attachments, ...validFiles];
         setData('attachments', updatedAttachments);
@@ -229,10 +208,10 @@ export default function TicketCreate({ categories }) {
             ...currentData,
             status: 'open' // ensure normal submit sets status back to open
         }));
-        post('/tickets', {
+        post(`/tickets/${ticket.id}`, {
             forceFormData: true,
             onSuccess: (page) => {
-                localStorage.removeItem('ticket_draft');
+                
                 setCreatedTicketId(page.props.flash?.success_id || 'TCK-NEW');
                 setShowSuccess(true);
             }
@@ -258,7 +237,7 @@ export default function TicketCreate({ categories }) {
 
 
     return (
-        <AppLayout title={t('createTicket')}>
+        <AppLayout title={`${t('td_editDraft')} - ${ticket.ticket_number}`}>
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
                 
                 {/* Header */}
@@ -268,9 +247,9 @@ export default function TicketCreate({ categories }) {
                         <ChevronRight className="h-4 w-4" />
                         <Link href="/tickets" className="hover:text-primary-700 transition-colors">{t('tickets')}</Link>
                         <ChevronRight className="h-4 w-4" />
-                        <span className="text-neutral-900 font-medium">{t('createTicket')}</span>
+                        <span className="text-neutral-900 font-medium">{t('td_editDraft')}</span>
                     </nav>
-                    <h1 className="text-3xl font-bold text-neutral-900 tracking-tight">{t('createTicket')}</h1>
+                    <h1 className="text-3xl font-bold text-neutral-900 tracking-tight">{t('td_editDraft')} - {ticket.ticket_number}</h1>
                     <p className="mt-2 text-neutral-500 max-w-2xl text-lg">
                         {t('tc_issueInfo')}
                     </p>
@@ -482,7 +461,6 @@ export default function TicketCreate({ categories }) {
                                         <input
                                             type="file"
                                             multiple
-                                            accept={FILE_ACCEPT}
                                             ref={fileInputRef}
                                             onChange={(e) => handleFiles(e.target.files)}
                                             className="hidden"
@@ -545,10 +523,10 @@ export default function TicketCreate({ categories }) {
                                             ...currentData,
                                             status: 'draft'
                                         }));
-                                        post('/tickets', {
+                                        post(`/tickets/${ticket.id}`, {
                                             forceFormData: true,
                                             onSuccess: () => {
-                                                localStorage.removeItem('ticket_draft');
+                                                
                                                 window.location.href = '/tickets'; // Redirect to My Tickets
                                             }
                                         });

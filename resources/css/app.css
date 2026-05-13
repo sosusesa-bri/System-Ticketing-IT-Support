@@ -18,9 +18,11 @@
     --color-primary-100: #DBEAFE;
     --color-primary-50: #EFF6FF;
 
-    /* Neutral Colors */
+    /* Neutral Colors — full scale for dark mode override support */
     --color-neutral-950: #0F172A;
+    --color-neutral-900: #111827;
     --color-neutral-800: #1E293B;
+    --color-neutral-700: #334155;
     --color-neutral-600: #475569;
     --color-neutral-500: #64748B;
     --color-neutral-400: #94A3B8;
@@ -51,7 +53,11 @@
     --color-info-text: #1E40AF;
 }
 
-/* Base styles */
+@custom-variant dark (&:is(.dark *));
+
+/* ============================================
+   BASE STYLES
+   ============================================ */
 body {
     font-family: 'Inter', ui-sans-serif, system-ui, sans-serif;
     color: #0F172A;
@@ -62,26 +68,120 @@ body {
     -moz-osx-font-smoothing: grayscale;
 }
 
-/* Focus ring consistent with DESIGN.md */
+/* Focus ring */
 *:focus-visible {
     outline: 2px solid #1D4ED8;
     outline-offset: 2px;
 }
 
-/* Scrollbar styling */
-::-webkit-scrollbar {
-    width: 6px;
+/* Scrollbar */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: #F1F5F9; }
+::-webkit-scrollbar-thumb { background: #CBD5E1; border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: #94A3B8; }
+
+/* ============================================
+   DARK MODE
+   Override theme tokens so ALL Tailwind
+   utilities automatically adapt.
+   ============================================ */
+html.dark {
+    color-scheme: dark;
+
+    /* Neutral — inverted for dark surfaces / light text */
+    --color-neutral-950: #F8FAFC;
+    --color-neutral-900: #F1F5F9;
+    --color-neutral-800: #E2E8F0;
+    --color-neutral-700: #CBD5E1;
+    --color-neutral-600: #94A3B8;
+    --color-neutral-500: #94A3B8;
+    --color-neutral-400: #64748B;
+    --color-neutral-300: #475569;
+    --color-neutral-200: #334155;
+    --color-neutral-100: #1E293B;
+    --color-neutral-50: #0F172A;
+
+    /* Primary — brighter for dark backgrounds */
+    --color-primary-900: #93C5FD;
+    --color-primary-700: #60A5FA;
+    --color-primary-600: #3B82F6;
+    --color-primary-100: #1E3A5F;
+    --color-primary-50: #172554;
+
+    /* Status — adjusted for dark backgrounds */
+    --color-success-600: #22C55E;
+    --color-success-100: #052E16;
+    --color-success-50: #052E16;
+    --color-success-text: #4ADE80;
+
+    --color-warning-600: #F59E0B;
+    --color-warning-100: #422006;
+    --color-warning-50: #422006;
+    --color-warning-text: #FCD34D;
+
+    --color-danger-600: #EF4444;
+    --color-danger-100: #450A0A;
+    --color-danger-50: #450A0A;
+    --color-danger-text: #FCA5A5;
+
+    --color-info-600: #3B82F6;
+    --color-info-100: #1E3A5F;
+    --color-info-50: #172554;
+    --color-info-text: #93C5FD;
 }
 
-::-webkit-scrollbar-track {
-    background: #F1F5F9;
+/* Body dark */
+.dark body {
+    color: #F1F5F9;
+    background-color: #0F172A;
 }
 
-::-webkit-scrollbar-thumb {
-    background: #CBD5E1;
-    border-radius: 3px;
+/* Scrollbar dark */
+.dark ::-webkit-scrollbar-track { background: #1E293B; }
+.dark ::-webkit-scrollbar-thumb { background: #475569; }
+.dark ::-webkit-scrollbar-thumb:hover { background: #64748B; }
+
+/* -----------------------------------------------
+   bg-white override — cards, surfaces, inputs
+   Tailwind's bg-white uses the CSS keyword `white`,
+   NOT a custom property, so we must override it.
+   ----------------------------------------------- */
+.dark .bg-white {
+    background-color: #1E293B !important;
 }
 
-::-webkit-scrollbar-thumb:hover {
-    background: #94A3B8;
+/* bg-white/80 (TopBar backdrop) */
+.dark .bg-white\/80 {
+    background-color: rgba(30, 41, 59, 0.8) !important;
+}
+
+/* Shadow adjustments for dark mode */
+.dark .shadow-sm,
+.dark .shadow-lg,
+.dark .shadow-xl,
+.dark [class*="shadow-["] {
+    --tw-shadow-color: rgba(0, 0, 0, 0.4);
+}
+
+/* Ring-white on notification badges */
+.dark .ring-white {
+    --tw-ring-color: #1E293B;
+}
+
+/* Placeholder text in dark mode */
+.dark input::placeholder,
+.dark textarea::placeholder {
+    color: #64748B;
+}
+
+/* Select elements */
+.dark select {
+    background-color: #1E293B;
+    color: #F1F5F9;
+    border-color: #334155;
+}
+
+/* Radix dropdown portals (they render outside main tree) */
+.dark [data-radix-popper-content-wrapper] .bg-white {
+    background-color: #1E293B !important;
 }
