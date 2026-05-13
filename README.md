@@ -101,7 +101,7 @@ The application provides:
 - forgot-password flow using Laravel's password reset link mechanism
 - role-aware post-login redirects to `/dashboard` or `/admin/dashboard`
 
-** Dummy Account **
+#### Dummy Account
 - Admin Account: `admin@politekmitra.ac.id` || `password`
 - User Account: `budi@politekmitra.ac.id` || `password`
 
