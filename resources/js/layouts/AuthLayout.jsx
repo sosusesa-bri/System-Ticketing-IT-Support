@@ -2,40 +2,89 @@ import { Head } from '@inertiajs/react';
 import { motion } from 'framer-motion';
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu';
 import { useLanguage } from '../contexts/LanguageContext';
-import { Headset, ShieldCheck, Zap, BarChart3 } from 'lucide-react';
+import { useTheme } from '../contexts/ThemeContext';
+import { Headset, ShieldCheck, Zap, BarChart3, Sun, Moon, Monitor } from 'lucide-react';
 
 export default function AuthLayout({ children, title }) {
     const { language, setLanguage } = useLanguage();
+    const { theme, setTheme } = useTheme();
+
+    const themeLabel = theme === 'dark'
+        ? (language === 'id' ? 'Gelap' : 'Dark')
+        : theme === 'system'
+            ? 'System'
+            : (language === 'id' ? 'Terang' : 'Light');
+
+    const ThemeIcon = theme === 'dark' ? Moon : theme === 'system' ? Monitor : Sun;
 
     return (
         <>
             <Head title={title} />
-            <div className="min-h-screen flex bg-neutral-50 overflow-hidden relative">
-                {/* Language Switcher */}
-                <div className="absolute top-6 right-6 z-50">
+            <div className="min-h-screen flex bg-neutral-50 dark:bg-neutral-950 overflow-hidden relative transition-colors duration-300">
+                {/* Top-right controls */}
+                <div className="absolute top-6 right-6 z-50 flex items-center gap-2">
+                    {/* Theme Switcher */}
                     <DropdownMenu.Root>
                         <DropdownMenu.Trigger asChild>
                             <motion.button
                                 whileHover={{ scale: 1.05 }}
                                 whileTap={{ scale: 0.95 }}
-                                className="flex items-center gap-2 px-3 py-1.5 bg-white/80 backdrop-blur-md border border-neutral-200 rounded-full shadow-sm hover:bg-white text-sm font-medium text-neutral-700 transition-colors focus:outline-none focus:ring-2 focus:ring-primary-500"
+                                className="flex items-center gap-2 px-3 py-1.5 bg-white/80 dark:bg-neutral-800/80 backdrop-blur-md border border-neutral-200 dark:border-neutral-700 rounded-full shadow-sm hover:bg-white dark:hover:bg-neutral-700 text-sm font-medium text-neutral-700 dark:text-neutral-200 transition-colors focus:outline-none focus:ring-2 focus:ring-primary-500"
+                            >
+                                <ThemeIcon className="h-4 w-4" />
+                            </motion.button>
+                        </DropdownMenu.Trigger>
+                        <DropdownMenu.Portal>
+                            <DropdownMenu.Content align="end" sideOffset={8} className="w-40 bg-white dark:bg-neutral-800 rounded-xl shadow-lg border border-neutral-200 dark:border-neutral-700 p-1 z-50">
+                                <DropdownMenu.Item
+                                    onClick={() => setTheme('light')}
+                                    className="flex items-center gap-2 px-3 py-2 text-sm text-neutral-700 dark:text-neutral-200 font-medium rounded-md hover:bg-neutral-50 dark:hover:bg-neutral-700 outline-none cursor-pointer transition-colors"
+                                >
+                                    <Sun className="h-4 w-4" /> {language === 'id' ? 'Terang' : 'Light'}
+                                    {theme === 'light' && <div className="ml-auto w-1.5 h-1.5 rounded-full bg-primary-600"></div>}
+                                </DropdownMenu.Item>
+                                <DropdownMenu.Item
+                                    onClick={() => setTheme('dark')}
+                                    className="flex items-center gap-2 px-3 py-2 text-sm text-neutral-700 dark:text-neutral-200 font-medium rounded-md hover:bg-neutral-50 dark:hover:bg-neutral-700 outline-none cursor-pointer transition-colors"
+                                >
+                                    <Moon className="h-4 w-4" /> {language === 'id' ? 'Gelap' : 'Dark'}
+                                    {theme === 'dark' && <div className="ml-auto w-1.5 h-1.5 rounded-full bg-primary-600"></div>}
+                                </DropdownMenu.Item>
+                                <DropdownMenu.Item
+                                    onClick={() => setTheme('system')}
+                                    className="flex items-center gap-2 px-3 py-2 text-sm text-neutral-700 dark:text-neutral-200 font-medium rounded-md hover:bg-neutral-50 dark:hover:bg-neutral-700 outline-none cursor-pointer transition-colors"
+                                >
+                                    <Monitor className="h-4 w-4" /> {language === 'id' ? 'Sistem' : 'System'}
+                                    {theme === 'system' && <div className="ml-auto w-1.5 h-1.5 rounded-full bg-primary-600"></div>}
+                                </DropdownMenu.Item>
+                            </DropdownMenu.Content>
+                        </DropdownMenu.Portal>
+                    </DropdownMenu.Root>
+
+                    {/* Language Switcher */}
+                    <DropdownMenu.Root>
+                        <DropdownMenu.Trigger asChild>
+                            <motion.button
+                                whileHover={{ scale: 1.05 }}
+                                whileTap={{ scale: 0.95 }}
+                                className="flex items-center gap-2 px-3 py-1.5 bg-white/80 dark:bg-neutral-800/80 backdrop-blur-md border border-neutral-200 dark:border-neutral-700 rounded-full shadow-sm hover:bg-white dark:hover:bg-neutral-700 text-sm font-medium text-neutral-700 dark:text-neutral-200 transition-colors focus:outline-none focus:ring-2 focus:ring-primary-500"
                             >
                                 <span className={`fi fi-${language === 'en' ? 'gb' : 'id'} rounded-sm text-base leading-none`} />
                                 {language.toUpperCase()}
                             </motion.button>
                         </DropdownMenu.Trigger>
                         <DropdownMenu.Portal>
-                            <DropdownMenu.Content align="end" sideOffset={8} className="w-32 bg-white rounded-xl shadow-lg border border-neutral-200 p-1 z-50">
+                            <DropdownMenu.Content align="end" sideOffset={8} className="w-32 bg-white dark:bg-neutral-800 rounded-xl shadow-lg border border-neutral-200 dark:border-neutral-700 p-1 z-50">
                                 <DropdownMenu.Item
                                     onClick={() => setLanguage('id')}
-                                    className="flex items-center gap-2 px-3 py-2 text-sm text-neutral-700 font-medium rounded-md hover:bg-neutral-50 outline-none cursor-pointer transition-colors"
+                                    className="flex items-center gap-2 px-3 py-2 text-sm text-neutral-700 dark:text-neutral-200 font-medium rounded-md hover:bg-neutral-50 dark:hover:bg-neutral-700 outline-none cursor-pointer transition-colors"
                                 >
                                     <span className="fi fi-id text-lg leading-none rounded-sm shadow-sm" /> ID
                                     {language === 'id' && <div className="ml-auto w-1.5 h-1.5 rounded-full bg-primary-600"></div>}
                                 </DropdownMenu.Item>
                                 <DropdownMenu.Item
                                     onClick={() => setLanguage('en')}
-                                    className="flex items-center gap-2 px-3 py-2 text-sm text-neutral-700 font-medium rounded-md hover:bg-neutral-50 outline-none cursor-pointer transition-colors"
+                                    className="flex items-center gap-2 px-3 py-2 text-sm text-neutral-700 dark:text-neutral-200 font-medium rounded-md hover:bg-neutral-50 dark:hover:bg-neutral-700 outline-none cursor-pointer transition-colors"
                                 >
                                     <span className="fi fi-gb text-lg leading-none rounded-sm shadow-sm" /> EN
                                     {language === 'en' && <div className="ml-auto w-1.5 h-1.5 rounded-full bg-primary-600"></div>}
@@ -180,7 +229,7 @@ export default function AuthLayout({ children, title }) {
                 {/* ─────────────────────────────────────────────────── */}
                 {/*  RIGHT PANEL - Form                                */}
                 {/* ─────────────────────────────────────────────────── */}
-                <div className="w-full lg:w-1/2 flex flex-col justify-center bg-white px-6 sm:px-12 lg:px-20 py-4 relative overflow-hidden">
+                <div className="w-full lg:w-1/2 flex flex-col justify-center bg-white px-6 sm:px-12 lg:px-20 py-4 relative overflow-hidden transition-colors duration-300">
 
                     {/* Ambient Animated Background */}
                     <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden">

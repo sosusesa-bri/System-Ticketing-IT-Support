@@ -4,6 +4,8 @@ import AppLayout from '../../layouts/AppLayout';
 import { StatusBadge, PriorityBadge } from '../../components/ui/Badge';
 import Button from '../../components/ui/Button';
 import Card from '../../components/ui/Card';
+import SlaIndicator from '../../components/shared/SlaIndicator';
+import TicketTimeline from '../../components/shared/TicketTimeline';
 import { useLanguage } from '../../contexts/LanguageContext';
 import {
     ChevronRight,
@@ -20,6 +22,7 @@ import {
     FileSpreadsheet,
     Image as ImageIcon,
     AlertTriangle,
+    Printer,
 } from 'lucide-react';
 
 const getFileIcon = (mimeType) => {
@@ -94,8 +97,15 @@ export default function TicketShow({ ticket, activityLogs }) {
                         <span className="text-sm text-neutral-500">{ticket.ticket_number}</span>
                         <StatusBadge status={ticket.status} />
                         <PriorityBadge priority={ticket.priority} />
+                        <SlaIndicator dueAt={ticket.due_at} isClosed={ticket.status === 'closed'} />
                     </div>
                 </div>
+                <button
+                    onClick={() => window.print()}
+                    className="inline-flex items-center gap-2 text-sm font-medium text-neutral-600 hover:text-primary-700 border border-neutral-200 rounded-lg px-3 py-2 hover:bg-neutral-50 transition-colors print:hidden"
+                >
+                    <Printer className="h-4 w-4" /> Print
+                </button>
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -252,6 +262,14 @@ export default function TicketShow({ ticket, activityLogs }) {
                                 <p className="text-sm text-neutral-400 text-center py-4">{t('td_noActivity')}</p>
                             )}
                         </div>
+
+                        {/* Visual Timeline */}
+                        {activityLogs.length > 0 && (
+                            <div className="border-t border-neutral-200 pt-4">
+                                <h3 className="text-sm font-semibold text-neutral-700 mb-4">Timeline</h3>
+                                <TicketTimeline logs={activityLogs} />
+                            </div>
+                        )}
 
                         {/* Add comment form */}
                         <form onSubmit={handleCommentSubmit} className="border-t border-neutral-200 pt-4">

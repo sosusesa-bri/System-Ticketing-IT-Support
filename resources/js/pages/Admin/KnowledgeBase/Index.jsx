@@ -200,27 +200,27 @@ export default function AdminKnowledgeBaseIndex({ articles, filters }) {
                                     animate={{ opacity: 1, scale: 1, y: 0 }}
                                     exit={{ opacity: 0, scale: 0.95, y: 10 }}
                                     transition={{ duration: 0.3, type: 'spring', bounce: 0.3 }}
-                                    className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-md bg-white rounded-2xl shadow-xl border border-neutral-200 z-50 overflow-hidden"
+                                    className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-md bg-white dark:bg-neutral-900 dark:backdrop-blur-xl rounded-2xl shadow-xl border border-neutral-200 dark:border-neutral-800 z-50 overflow-hidden"
                                 >
                                     <div className="px-6 pt-6 pb-5">
-                                        <div className="w-12 h-12 rounded-full bg-danger-50 flex items-center justify-center mb-4">
-                                            <AlertTriangle className="h-6 w-6 text-danger-600" strokeWidth={1.5} />
+                                        <div className="w-12 h-12 rounded-full bg-danger-50 dark:bg-danger-500/10 flex items-center justify-center mb-4">
+                                            <AlertTriangle className="h-6 w-6 text-danger-600 dark:text-danger-500" strokeWidth={1.5} />
                                         </div>
-                                        <Dialog.Title className="text-xl font-bold text-neutral-900 mb-2">
+                                        <Dialog.Title className="text-xl font-bold text-neutral-900 dark:text-white mb-2">
                                             {language === 'id' ? 'Hapus Artikel' : 'Delete Article'}
                                         </Dialog.Title>
-                                        <Dialog.Description className="text-sm text-neutral-500 leading-relaxed">
+                                        <Dialog.Description className="text-sm text-neutral-500 dark:text-neutral-400 leading-relaxed">
                                             {language === 'id'
                                                 ? `Apakah Anda yakin ingin menghapus artikel "${deleteTarget?.title_id || deleteTarget?.title_en}"? Tindakan ini tidak dapat dibatalkan.`
                                                 : `Are you sure you want to delete "${deleteTarget?.title_en || deleteTarget?.title_id}"? This action cannot be undone.`}
                                         </Dialog.Description>
                                     </div>
-                                    <div className="px-6 py-4 bg-neutral-50 border-t border-neutral-100 flex items-center justify-end gap-3">
+                                    <div className="px-6 py-4 bg-neutral-50 dark:bg-neutral-800 border-t border-neutral-100 dark:border-neutral-700 flex items-center justify-end gap-3">
                                         <Dialog.Close asChild>
                                             <motion.button
                                                 whileHover={{ scale: 1.02 }}
                                                 whileTap={{ scale: 0.98 }}
-                                                className="px-4 py-2 text-sm font-medium text-neutral-700 bg-white border border-neutral-200 rounded-lg shadow-sm hover:bg-neutral-50 transition-colors"
+                                                className="px-4 py-2 text-sm font-medium text-neutral-700 dark:text-neutral-300 bg-white dark:bg-neutral-700 border border-neutral-200 dark:border-neutral-600 rounded-lg shadow-sm hover:bg-neutral-50 dark:hover:bg-neutral-700 transition-colors"
                                             >
                                                 {language === 'id' ? 'Batal' : 'Cancel'}
                                             </motion.button>

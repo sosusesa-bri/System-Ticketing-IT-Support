@@ -39,6 +39,7 @@ const getNodes = (lang) => {
         { id: 'uc4', type: 'useCase', position: { x: 350, y: 350 }, data: { label: d ? 'Tambah Komentar ke Tiket' : 'Add Comment to Ticket' } },
         { id: 'uc5', type: 'useCase', position: { x: 350, y: 450 }, data: { label: d ? 'Buka Ulang Tiket Tertutup' : 'Reopen Closed Ticket' } },
         { id: 'uc6', type: 'useCase', position: { x: 350, y: 550 }, data: { label: d ? 'Kelola Profil & Bahasa' : 'Manage Profile & Language' } },
+        { id: 'uc7', type: 'useCase', position: { x: 350, y: 650 }, data: { label: d ? 'Berikan Rating & Ulasan' : 'Provide Rating & Feedback' } },
         { id: 'uc_upload', type: 'useCase', position: { x: 700, y: 250 }, data: { label: d ? 'Unggah Lampiran' : 'Upload Attachment' } },
         { id: 'uc_notif', type: 'useCase', position: { x: 700, y: 150 }, data: { label: d ? 'Kirim Notifikasi' : 'Send Notification' } },
     ];
@@ -51,6 +52,7 @@ const initialEdges = [
     { id: 'e4', source: 'actor_user', target: 'uc4' },
     { id: 'e5', source: 'actor_user', target: 'uc5' },
     { id: 'e6', source: 'actor_user', target: 'uc6' },
+    { id: 'e7', source: 'actor_user', target: 'uc7' },
     { id: 'e-inc-notif', source: 'uc2', target: 'uc_notif', animated: true, style: { stroke: '#f59e0b', strokeWidth: 2, strokeDasharray: '5 5' }, label: '<<include>>', labelStyle: { fill: '#f59e0b', fontWeight: 600, fontSize: 11 }, labelBgStyle: { fill: '#f8fafc', fillOpacity: 0.8 } },
     { id: 'e-ext-upload1', source: 'uc_upload', sourceHandle: 'source-left', target: 'uc2', targetHandle: 'target-right', animated: true, style: { stroke: '#3b82f6', strokeWidth: 2, strokeDasharray: '5 5' }, label: '<<extend>>', labelStyle: { fill: '#3b82f6', fontWeight: 600, fontSize: 11 }, labelBgStyle: { fill: '#f8fafc', fillOpacity: 0.8 } },
     { id: 'e-ext-upload2', source: 'uc_upload', sourceHandle: 'source-left', target: 'uc4', targetHandle: 'target-right', animated: true, style: { stroke: '#3b82f6', strokeWidth: 2, strokeDasharray: '5 5' }, label: '<<extend>>', labelStyle: { fill: '#3b82f6', fontWeight: 600, fontSize: 11 }, labelBgStyle: { fill: '#f8fafc', fillOpacity: 0.8 } },
@@ -76,7 +78,7 @@ export default function UseCaseUser() {
                     <p className="text-xs sm:text-sm text-neutral-500">{isId ? 'Kemampuan yang tersedia untuk karyawan.' : 'Capabilities available to standard employees.'}</p>
                 </div>
                 <button onClick={onDownload} className="flex items-center gap-2 px-3 py-1.5 bg-primary-50 text-primary-700 hover:bg-primary-100 rounded-md text-sm font-medium transition-colors border border-primary-200 self-start sm:self-auto">
-                    <Download className="h-4 w-4" />Export PNG
+                    <Download className="h-4 w-4" />{isId ? 'Unduh PNG' : 'Export PNG'}
                 </button>
             </div>
             <div className="flex-1 w-full h-full min-h-[400px] sm:min-h-[500px]">

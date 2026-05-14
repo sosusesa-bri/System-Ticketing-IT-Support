@@ -54,6 +54,7 @@ class TicketController extends Controller
                 'category' => $ticket->category?->name,
                 'assigned_to' => $ticket->assignee?->name,
                 'created_at' => $ticket->created_at->format('d M Y'),
+                'due_at' => $ticket->due_at?->toISOString(),
             ]);
 
         return Inertia::render('Tickets/Index', [
@@ -325,5 +326,35 @@ class TicketController extends Controller
         return redirect()
             ->route('tickets.index')
             ->with('success', 'td_ticketDeletedSuccess');
+    }
+
+    /**
+     * Auto-suggest tickets by title or ticket number.
+     */
+    public function autoSuggest(Request $request)
+    {
+        $search = $request->input('q', '');
+
+        if (strlen($search) < 2) {
+            return response()->json([]);
+        }
+
+        $tickets = Ticket::where('user_id', $request->user()->id)
+            ->where(function ($q) use ($search) {
+                $q->where('ticket_number', 'like', "%{$search}%")
+                    ->orWhere('title', 'like', "%{$search}%");
+            })
+            ->latest()
+            ->take(5)
+            ->get(['id', 'ticket_number', 'title', 'status', 'priority'])
+            ->map(fn ($t) => [
+                'id' => $t->id,
+                'ticket_number' => $t->ticket_number,
+                'title' => $t->title,
+                'status' => $t->status->value,
+                'priority' => $t->priority->value,
+            ]);
+
+        return response()->json($tickets);
     }
 }

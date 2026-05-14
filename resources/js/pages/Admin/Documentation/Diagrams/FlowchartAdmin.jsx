@@ -91,7 +91,7 @@ export default function FlowchartAdmin() {
                     <p className="text-xs sm:text-sm text-neutral-500">{isId ? 'Bagaimana IT Support menangani tiket dari peninjauan hingga penutupan.' : 'How IT Support handles a ticket from review to closure.'}</p>
                 </div>
                 <button onClick={onDownload} className="flex items-center gap-2 px-3 py-1.5 bg-primary-50 text-primary-700 hover:bg-primary-100 rounded-md text-sm font-medium transition-colors border border-primary-200 self-start sm:self-auto">
-                    <Download className="h-4 w-4" />Export PNG
+                    <Download className="h-4 w-4" />{isId ? 'Unduh PNG' : 'Export PNG'}
                 </button>
             </div>
             <div className="flex-1 w-full h-full min-h-[400px] sm:min-h-[500px]">

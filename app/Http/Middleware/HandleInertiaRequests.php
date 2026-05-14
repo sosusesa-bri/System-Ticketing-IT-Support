@@ -59,6 +59,13 @@ class HandleInertiaRequests extends Middleware
                     ? $request->user()->unreadNotifications()->count()
                     : 0,
             ],
+            'sidebar_stats' => fn () => $request->user()?->isAdmin()
+                ? [
+                    'urgent' => \App\Models\Ticket::urgent()->active()->count(),
+                    'unassigned' => \App\Models\Ticket::whereNull('assigned_to')->active()->count(),
+                    'overdue' => \App\Models\Ticket::active()->where('due_at', '<', now())->count(),
+                ]
+                : null,
         ];
     }
 }

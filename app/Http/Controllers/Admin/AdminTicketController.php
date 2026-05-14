@@ -6,11 +6,13 @@ use App\Actions\Tickets\UpdateTicketAction;
 use App\Enums\UserRole;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Tickets\UpdateTicketRequest;
+use App\Models\Tag;
 use App\Models\Ticket;
 use App\Models\TicketAssignment;
 use App\Models\TicketCategory;
 use App\Models\User;
 use App\Services\AuditService;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -69,7 +71,10 @@ class AdminTicketController extends Controller
             'requester' => $ticket->user->name,
             'category' => $ticket->category?->name,
             'assigned_to' => $ticket->assignee?->name,
+            'assigned_to_id' => $ticket->assigned_to,
             'created_at' => $ticket->created_at->format('d M Y'),
+            'due_at' => $ticket->due_at?->toISOString(),
+            'response_due_at' => $ticket->response_due_at?->toISOString(),
         ]);
 
         return Inertia::render('Admin/Tickets/Index', [
@@ -93,6 +98,7 @@ class AdminTicketController extends Controller
             'attachments',
             'assignments.assigner',
             'assignments.assignee',
+            'tags',
         ]);
 
         $activityLogs = $ticket->activityLogs()
@@ -153,10 +159,16 @@ class AdminTicketController extends Controller
                     'notes' => $a->notes,
                     'created_at' => $a->created_at->diffForHumans(),
                 ]),
+                'tags' => $ticket->tags->map(fn ($t) => [
+                    'id' => $t->id,
+                    'name' => $t->name,
+                    'color' => $t->color,
+                ]),
             ],
             'activityLogs' => $activityLogs,
             'admins' => User::where('role', UserRole::ADMIN)->get(['id', 'name']),
             'macros' => \App\Models\CannedResponse::where('is_active', true)->get(['id', 'title_en', 'title_id', 'body_en', 'body_id']),
+            'allTags' => Tag::orderBy('name')->get(['id', 'name', 'color']),
         ]);
     }
 
@@ -210,5 +222,68 @@ class AdminTicketController extends Controller
         $action->execute($ticket, $validated['reason']);
 
         return back()->with('success', 'td_ticketEscalatedSuccess');
+    }
+
+    /**
+     * Bulk update tickets (assign, change status, change priority).
+     */
+    public function bulkAction(Request $request): RedirectResponse
+    {
+        $validated = $request->validate([
+            'ticket_ids' => ['required', 'array', 'min:1'],
+            'ticket_ids.*' => ['integer', 'exists:tickets,id'],
+            'action' => ['required', 'in:assign,status,priority,close'],
+            'value' => ['nullable', 'string'],
+        ]);
+
+        $tickets = Ticket::whereIn('id', $validated['ticket_ids'])->get();
+        $action = $validated['action'];
+        $value = $validated['value'];
+
+        foreach ($tickets as $ticket) {
+            match ($action) {
+                'assign' => $ticket->update(['assigned_to' => $value ?: null]),
+                'status' => $ticket->update(['status' => $value]),
+                'priority' => $ticket->update(['priority' => $value]),
+                'close' => $ticket->update(['status' => 'closed', 'closed_at' => now()]),
+                default => null,
+            };
+        }
+
+        AuditService::log(
+            'bulk_ticket_action',
+            "Bulk {$action} on " . count($tickets) . " tickets",
+            null,
+            ['ticket_ids' => $validated['ticket_ids'], 'action' => $action, 'value' => $value],
+        );
+
+        return back()->with('success', 'Bulk action completed successfully.');
+    }
+
+    /**
+     * Sync tags for a ticket.
+     */
+    public function syncTags(Request $request, Ticket $ticket): RedirectResponse
+    {
+        $validated = $request->validate([
+            'tag_ids' => ['array'],
+            'tag_ids.*' => ['integer', 'exists:tags,id'],
+        ]);
+
+        $ticket->tags()->sync($validated['tag_ids'] ?? []);
+
+        return back()->with('success', 'Tags updated successfully.');
+    }
+
+    /**
+     * Export ticket to PDF.
+     */
+    public function exportPdf(Ticket $ticket)
+    {
+        $ticket->load(['user', 'assignee', 'category', 'comments.user', 'assignments', 'activityLogs', 'tags']);
+
+        $pdf = Pdf::loadView('pdf.ticket', compact('ticket'));
+
+        return $pdf->download("ticket-{$ticket->ticket_number}.pdf");
     }
 }

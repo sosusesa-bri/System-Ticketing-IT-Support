@@ -7,21 +7,26 @@ use App\Http\Controllers\Admin\AdminDashboardController;
 use App\Http\Controllers\Admin\AdminTicketController;
 use App\Http\Controllers\Admin\AuditLogController;
 use App\Http\Controllers\Admin\ExportController;
+use App\Http\Controllers\Admin\FaqAdminController;
 use App\Http\Controllers\Admin\KnowledgeBaseAdminController;
 use App\Http\Controllers\Admin\ReportController;
 use App\Http\Controllers\Admin\SettingsController;
+use App\Http\Controllers\Admin\SystemHealthController;
+use App\Http\Controllers\Admin\TagController;
 use App\Http\Controllers\Admin\UserManagementController;
 use App\Http\Controllers\Admin\NotificationDashboardController;
 use App\Http\Controllers\Admin\NotificationBroadcastController;
 use App\Http\Controllers\Admin\NotificationTemplateController;
 use App\Http\Controllers\Admin\NotificationAutomationController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\FaqController;
 use App\Http\Controllers\KnowledgeBaseController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\TicketController;
 use App\Http\Controllers\TicketAttachmentController;
 use App\Http\Controllers\TicketCommentController;
+use App\Http\Controllers\UserActivityController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -62,6 +67,7 @@ Route::middleware('auth')->group(function () {
     // Ticket routes
     Route::resource('tickets', TicketController::class);
     Route::get('/tickets-search/duplicates', [TicketController::class, 'checkDuplicates'])->name('tickets.checkDuplicates');
+    Route::get('/tickets-search/suggest', [TicketController::class, 'autoSuggest'])->name('tickets.autoSuggest');
     Route::post('/tickets/{ticket}/reopen', [TicketController::class, 'reopen'])->name('tickets.reopen');
     Route::post('/tickets/{ticket}/rate', [TicketController::class, 'rate'])->name('tickets.rate');
     Route::post('/tickets/{ticket}/comments', [TicketCommentController::class, 'store'])->name('tickets.comments.store');
@@ -91,6 +97,12 @@ Route::middleware('auth')->group(function () {
     Route::get('/knowledge-base', [KnowledgeBaseController::class, 'index'])->name('knowledgeBase.index');
     Route::get('/knowledge-base/{article}', [KnowledgeBaseController::class, 'show'])->name('knowledgeBase.show');
 
+    // FAQ (public-facing for all authenticated users)
+    Route::get('/faq', [FaqController::class, 'index'])->name('faq.index');
+
+    // My Activity
+    Route::get('/my-activity', [UserActivityController::class, 'index'])->name('activity.index');
+
     // Admin routes
     Route::prefix('admin')->middleware('admin')->name('admin.')->group(function () {
         Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('dashboard');
@@ -101,6 +113,9 @@ Route::middleware('auth')->group(function () {
         Route::put('/tickets/{ticket}', [AdminTicketController::class, 'update'])->name('tickets.update');
         Route::post('/tickets/{ticket}/assign', [AdminTicketController::class, 'assign'])->name('tickets.assign');
         Route::post('/tickets/{ticket}/escalate', [AdminTicketController::class, 'escalate'])->name('tickets.escalate');
+        Route::post('/tickets/{ticket}/tags', [AdminTicketController::class, 'syncTags'])->name('tickets.syncTags');
+        Route::get('/tickets/{ticket}/pdf', [AdminTicketController::class, 'exportPdf'])->name('tickets.exportPdf');
+        Route::post('/tickets/bulk-action', [AdminTicketController::class, 'bulkAction'])->name('tickets.bulkAction');
 
         // User management
         Route::get('/users', [UserManagementController::class, 'index'])->name('users.index');
@@ -115,8 +130,8 @@ Route::middleware('auth')->group(function () {
         Route::get('/reports', [ReportController::class, 'index'])->name('reports.index');
 
         // Audit Logs
-        Route::get('/audit-log', [App\Http\Controllers\Admin\AuditLogController::class, 'index'])->name('audit-log');
-        Route::get('/export/audit-logs', [App\Http\Controllers\Admin\AuditLogController::class, 'export'])->name('audit-log.export');
+        Route::get('/audit-log', [AuditLogController::class, 'index'])->name('audit-log');
+        Route::get('/export/audit-logs', [AuditLogController::class, 'export'])->name('audit-log.export');
 
         // Documentation
         Route::get('/documentation', [\App\Http\Controllers\Admin\DocumentationController::class, 'index'])->name('documentation.index');
@@ -137,6 +152,22 @@ Route::middleware('auth')->group(function () {
         Route::post('/settings/macros', [SettingsController::class, 'storeMacro'])->name('settings.storeMacro');
         Route::put('/settings/macros/{macro}/toggle', [SettingsController::class, 'toggleMacro'])->name('settings.toggleMacro');
         Route::delete('/settings/macros/{macro}', [SettingsController::class, 'destroyMacro'])->name('settings.destroyMacro');
+
+        // Tags
+        Route::get('/tags', [TagController::class, 'index'])->name('tags.index');
+        Route::post('/tags', [TagController::class, 'store'])->name('tags.store');
+        Route::delete('/tags/{tag}', [TagController::class, 'destroy'])->name('tags.destroy');
+
+        // FAQ Management
+        Route::get('/faq', [FaqAdminController::class, 'index'])->name('faq.index');
+        Route::post('/faq', [FaqAdminController::class, 'store'])->name('faq.store');
+        Route::put('/faq/{faq}', [FaqAdminController::class, 'update'])->name('faq.update');
+        Route::delete('/faq/{faq}', [FaqAdminController::class, 'destroy'])->name('faq.destroy');
+        Route::put('/faq/{faq}/toggle', [FaqAdminController::class, 'toggleActive'])->name('faq.toggle');
+        Route::delete('/faq/attachments/{attachment}', [FaqAdminController::class, 'destroyAttachment'])->name('faq.attachment.destroy');
+
+        // System Health
+        Route::get('/system-health', [SystemHealthController::class, 'index'])->name('systemHealth.index');
 
         // Exports
         Route::get('/export/tickets', [ExportController::class, 'exportTickets'])->name('export.tickets');

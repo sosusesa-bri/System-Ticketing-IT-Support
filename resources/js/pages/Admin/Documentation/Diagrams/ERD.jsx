@@ -12,6 +12,7 @@ import {
 import '@xyflow/react/dist/style.css';
 import { Database, Download, ZoomIn } from 'lucide-react';
 import { toPng } from 'html-to-image';
+import { useLanguage } from '../../../../contexts/LanguageContext';
 
 // Custom Node for ERD Tables
 const TableNode = ({ data }) => {
@@ -73,7 +74,7 @@ const initialNodes = [
     {
         id: 'ticket_categories',
         type: 'table',
-        position: { x: 50, y: 450 },
+        position: { x: 50, y: 500 },
         data: {
             label: 'ticket_categories',
             columns: [
@@ -98,14 +99,20 @@ const initialNodes = [
                 { name: 'assigned_to', type: 'bigint', isFk: true },
                 { name: 'status', type: 'enum' },
                 { name: 'priority', type: 'enum' },
+                { name: 'rating', type: 'integer' },
+                { name: 'feedback_notes', type: 'text' },
+                { name: 'first_responded_at', type: 'timestamp' },
                 { name: 'due_at', type: 'timestamp' },
+                { name: 'response_due_at', type: 'timestamp' },
+                { name: 'is_escalated', type: 'boolean' },
+                { name: 'escalation_level', type: 'integer' },
             ],
         },
     },
     {
         id: 'ticket_comments',
         type: 'table',
-        position: { x: 400, y: 400 },
+        position: { x: 400, y: 580 },
         data: {
             label: 'ticket_comments',
             columns: [
@@ -119,7 +126,7 @@ const initialNodes = [
     {
         id: 'ticket_attachments',
         type: 'table',
-        position: { x: 400, y: 600 },
+        position: { x: 400, y: 780 },
         data: {
             label: 'ticket_attachments',
             columns: [
@@ -127,6 +134,64 @@ const initialNodes = [
                 { name: 'ticket_id', type: 'bigint', isFk: true },
                 { name: 'file_path', type: 'string' },
                 { name: 'file_type', type: 'string' },
+            ],
+        },
+    },
+    {
+        id: 'tags',
+        type: 'table',
+        position: { x: 50, y: 700 },
+        data: {
+            label: 'tags',
+            columns: [
+                { name: 'id', type: 'bigint', isPk: true },
+                { name: 'name', type: 'string' },
+                { name: 'color', type: 'string' },
+            ],
+        },
+    },
+    {
+        id: 'ticket_tag',
+        type: 'table',
+        position: { x: 400, y: 950 },
+        data: {
+            label: 'ticket_tag',
+            columns: [
+                { name: 'id', type: 'bigint', isPk: true },
+                { name: 'ticket_id', type: 'bigint', isFk: true },
+                { name: 'tag_id', type: 'bigint', isFk: true },
+            ],
+        },
+    },
+    {
+        id: 'faqs',
+        type: 'table',
+        position: { x: 800, y: 550 },
+        data: {
+            label: 'faqs',
+            columns: [
+                { name: 'id', type: 'bigint', isPk: true },
+                { name: 'question', type: 'string' },
+                { name: 'answer', type: 'text' },
+                { name: 'category', type: 'string' },
+                { name: 'sort_order', type: 'integer' },
+                { name: 'is_active', type: 'boolean' },
+            ],
+        },
+    },
+    {
+        id: 'faq_attachments',
+        type: 'table',
+        position: { x: 800, y: 800 },
+        data: {
+            label: 'faq_attachments',
+            columns: [
+                { name: 'id', type: 'bigint', isPk: true },
+                { name: 'faq_id', type: 'bigint', isFk: true },
+                { name: 'file_name', type: 'string' },
+                { name: 'file_path', type: 'string' },
+                { name: 'file_type', type: 'string' },
+                { name: 'file_size', type: 'integer' },
             ],
         },
     },
@@ -200,6 +265,9 @@ const initialEdges = [
     { id: 'e-cat-ticket', source: 'ticket_categories', target: 'tickets', sourceHandle: 'id-out', targetHandle: 'category_id-in', animated: false, style: { stroke: '#94a3b8', strokeWidth: 2 } },
     { id: 'e-ticket-comment', source: 'tickets', target: 'ticket_comments', sourceHandle: 'id-out', targetHandle: 'ticket_id-in', animated: false, style: { stroke: '#94a3b8', strokeWidth: 2 } },
     { id: 'e-ticket-attach', source: 'tickets', target: 'ticket_attachments', sourceHandle: 'id-out', targetHandle: 'ticket_id-in', animated: false, style: { stroke: '#94a3b8', strokeWidth: 2 } },
+    { id: 'e-tag-ticket-tag', source: 'tags', target: 'ticket_tag', sourceHandle: 'id-out', targetHandle: 'tag_id-in', animated: false, style: { stroke: '#94a3b8', strokeWidth: 2 } },
+    { id: 'e-ticket-ticket-tag', source: 'tickets', target: 'ticket_tag', sourceHandle: 'id-out', targetHandle: 'ticket_id-in', animated: false, style: { stroke: '#94a3b8', strokeWidth: 2 } },
+    { id: 'e-faq-attach', source: 'faqs', target: 'faq_attachments', sourceHandle: 'id-out', targetHandle: 'faq_id-in', animated: false, style: { stroke: '#94a3b8', strokeWidth: 2 } },
     { id: 'e-kb-cat-article', source: 'kb_categories', target: 'kb_articles', sourceHandle: 'id-out', targetHandle: 'category_id-in', animated: false, style: { stroke: '#94a3b8', strokeWidth: 2 } },
     { id: 'e-user-kb-article', source: 'users', target: 'kb_articles', sourceHandle: 'id-out', targetHandle: 'author_id-in', animated: false, style: { stroke: '#94a3b8', strokeWidth: 2 } },
     { id: 'e-user-broadcast', source: 'users', target: 'notification_broadcasts', sourceHandle: 'id-out', targetHandle: 'sender_id-in', animated: false, style: { stroke: '#94a3b8', strokeWidth: 2 } },
@@ -207,6 +275,9 @@ const initialEdges = [
 ];
 
 export default function ERD() {
+    const { language } = useLanguage();
+    const isId = language === 'id';
+    
     const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
     const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
 
@@ -227,15 +298,15 @@ export default function ERD() {
         <div className="flex flex-col h-full bg-slate-50">
             <div className="px-6 py-4 border-b border-neutral-200 bg-white flex justify-between items-center">
                 <div>
-                    <h2 className="text-xl font-bold text-neutral-900">Entity Relationship Diagram (ERD)</h2>
-                    <p className="text-sm text-neutral-500">Core database schema mapping for Sistem Ticketing IT Support.</p>
+                    <h2 className="text-xl font-bold text-neutral-900">{isId ? 'Diagram Relasi Entitas (ERD)' : 'Entity Relationship Diagram (ERD)'}</h2>
+                    <p className="text-sm text-neutral-500">{isId ? 'Pemetaan skema database untuk Sistem Ticketing IT Support.' : 'Database schema mapping for Sistem Ticketing IT Support.'}</p>
                 </div>
                 <button 
                     onClick={onDownload}
                     className="flex items-center gap-2 px-3 py-1.5 bg-primary-50 text-primary-700 hover:bg-primary-100 rounded-md text-sm font-medium transition-colors border border-primary-200"
                 >
                     <Download className="h-4 w-4" />
-                    Export PNG
+                    {isId ? 'Unduh PNG' : 'Export PNG'}
                 </button>
             </div>
             <div className="flex-1 w-full h-full min-h-[500px]">

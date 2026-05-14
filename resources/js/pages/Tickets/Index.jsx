@@ -3,6 +3,7 @@ import { useState } from 'react';
 import AppLayout from '../../layouts/AppLayout';
 import { StatusBadge, PriorityBadge } from '../../components/ui/Badge';
 import Button from '../../components/ui/Button';
+import SlaIndicator from '../../components/shared/SlaIndicator';
 import { Plus, Search, Tickets, ChevronLeft, ChevronRight, Edit, Trash2, AlertTriangle } from 'lucide-react';
 import { useLanguage } from '../../contexts/LanguageContext';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -109,6 +110,7 @@ export default function TicketIndex({ tickets, filters }) {
                                         <th className="text-left text-xs font-medium text-neutral-500 px-6 py-3">{t('category')}</th>
                                         <th className="text-left text-xs font-medium text-neutral-500 px-6 py-3">{t('status')}</th>
                                         <th className="text-left text-xs font-medium text-neutral-500 px-6 py-3">{t('priority')}</th>
+                                        <th className="text-left text-xs font-medium text-neutral-500 px-6 py-3">SLA</th>
                                         <th className="text-left text-xs font-medium text-neutral-500 px-6 py-3">{t('date')}</th>
                                         <th className="text-right text-xs font-medium text-neutral-500 px-6 py-3">{language === 'id' ? 'Aksi' : 'Actions'}</th>
                                     </tr>
@@ -127,6 +129,9 @@ export default function TicketIndex({ tickets, filters }) {
                                             <td className="px-6 py-3 text-sm text-neutral-500">{ticket.category || '-'}</td>
                                             <td className="px-6 py-3"><StatusBadge status={ticket.status} /></td>
                                             <td className="px-6 py-3"><PriorityBadge priority={ticket.priority} /></td>
+                                            <td className="px-6 py-3">
+                                                <SlaIndicator dueAt={ticket.due_at} isClosed={ticket.status === 'closed'} />
+                                            </td>
                                             <td className="px-6 py-3 text-sm text-neutral-500">{ticket.created_at}</td>
                                             <td className="px-6 py-3 text-right">
                                                 {ticket.status === 'draft' && (

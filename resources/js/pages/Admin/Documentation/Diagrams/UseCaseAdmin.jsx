@@ -40,7 +40,7 @@ const getNodes = (lang) => {
         { id: 'uc5', type: 'useCase', position: { x: 350, y: 450 }, data: { label: d ? 'Lihat Laporan & Analitik' : 'View Reports & Analytics' } },
         { id: 'uc6', type: 'useCase', position: { x: 350, y: 550 }, data: { label: d ? 'Kelola Pengguna & Peran' : 'Manage Users & Roles' } },
         { id: 'uc7', type: 'useCase', position: { x: 350, y: 650 }, data: { label: d ? 'Kirim Notifikasi Broadcast' : 'Send Broadcast Notifications' } },
-        { id: 'uc8', type: 'useCase', position: { x: 350, y: 750 }, data: { label: d ? 'Lihat Log Audit' : 'View Audit Logs' } },
+        { id: 'uc8', type: 'useCase', position: { x: 350, y: 750 }, data: { label: d ? 'Kelola FAQ & Tag' : 'Manage FAQ & Tags' } },
         { id: 'uc_search', type: 'useCase', position: { x: 700, y: 50 }, data: { label: d ? 'Cari & Filter Tiket' : 'Search & Filter Tickets' } },
         { id: 'uc_export', type: 'useCase', position: { x: 700, y: 450 }, data: { label: d ? 'Ekspor Laporan' : 'Export Reports' } },
         { id: 'uc_template', type: 'useCase', position: { x: 700, y: 650 }, data: { label: d ? 'Pilih Template Notifikasi' : 'Select Notification Template' } },
@@ -81,7 +81,7 @@ export default function UseCaseAdmin() {
                     <p className="text-xs sm:text-sm text-neutral-500">{isId ? 'Kemampuan yang tersedia untuk administrator IT Support.' : 'Capabilities available to IT Support administrators.'}</p>
                 </div>
                 <button onClick={onDownload} className="flex items-center gap-2 px-3 py-1.5 bg-primary-50 text-primary-700 hover:bg-primary-100 rounded-md text-sm font-medium transition-colors border border-primary-200 self-start sm:self-auto">
-                    <Download className="h-4 w-4" />Export PNG
+                    <Download className="h-4 w-4" />{isId ? 'Unduh PNG' : 'Export PNG'}
                 </button>
             </div>
             <div className="flex-1 w-full h-full min-h-[400px] sm:min-h-[500px]">

@@ -55,6 +55,10 @@ export const translations = {
         'documentation': 'Documentation',
         'knowledgeBase': 'Knowledge Base',
         'users': 'Users',
+        'myActivity': 'My Activity',
+        'faq': 'FAQ',
+        'systemHealth': 'System Health',
+        'searchTickets': 'Search tickets...',
         
         // Dashboard
         'totalTickets': 'Total Tickets',
@@ -712,6 +716,10 @@ export const translations = {
         'documentation': 'Dokumentasi',
         'knowledgeBase': 'Basis Pengetahuan',
         'users': 'Pengguna',
+        'myActivity': 'Aktivitas Saya',
+        'faq': 'FAQ',
+        'systemHealth': 'Kesehatan Sistem',
+        'searchTickets': 'Cari tiket...',
         'notifications': 'Notifikasi',
         
         // Dashboard

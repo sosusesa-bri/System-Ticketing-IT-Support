@@ -19,8 +19,8 @@ import { actionLabels, getActionColor } from '../../utils/audit';
 import { useTheme } from '../../contexts/ThemeContext';
 
 export default function ProfileEdit({ user, recentActivity }) {
-    const { t, setLanguage } = useLanguage();
-    const { setTheme } = useTheme();
+    const { language, t, setLanguage } = useLanguage();
+    const { theme: currentTheme, setTheme } = useTheme();
     const [activeTab, setActiveTab] = useState('profile');
     
     // Forms
@@ -36,8 +36,8 @@ export default function ProfileEdit({ user, recentActivity }) {
     });
 
     const preferencesForm = useForm({
-        language: user.language || 'en',
-        theme: user.theme || 'light',
+        language: language || user.language || 'en',
+        theme: currentTheme || user.theme || 'light',
         notification_preferences: user.notification_preferences || {
             email: true,
             in_app: true
@@ -420,19 +420,19 @@ export default function ProfileEdit({ user, recentActivity }) {
 
                                             {/* Theme Preference */}
                                             <div className="space-y-3">
-                                                <h3 className="text-sm font-medium text-neutral-900 border-b border-neutral-100 pb-2">{t('theme') || (preferencesForm.data.language === 'id' ? 'Tampilan' : 'Theme')}</h3>
+                                                <h3 className="text-sm font-medium text-neutral-900 border-b border-neutral-100 pb-2">{t('theme')}</h3>
                                                 <div className="grid grid-cols-3 gap-3">
                                                     <label className={`flex items-center justify-center gap-2 p-3 border rounded-lg cursor-pointer transition-colors ${preferencesForm.data.theme === 'light' ? 'border-primary-600 bg-primary-50' : 'border-neutral-200 hover:bg-neutral-50'}`}>
                                                         <input type="radio" name="theme" value="light" checked={preferencesForm.data.theme === 'light'} onChange={e => preferencesForm.setData('theme', e.target.value)} className="sr-only" />
-                                                        <span className="text-sm font-medium text-neutral-900">{preferencesForm.data.language === 'id' ? 'Terang' : 'Light'}</span>
+                                                        <span className="text-sm font-medium text-neutral-900">{language === 'id' ? 'Terang' : 'Light'}</span>
                                                     </label>
                                                     <label className={`flex items-center justify-center gap-2 p-3 border rounded-lg cursor-pointer transition-colors ${preferencesForm.data.theme === 'dark' ? 'border-primary-600 bg-primary-50' : 'border-neutral-200 hover:bg-neutral-50'}`}>
                                                         <input type="radio" name="theme" value="dark" checked={preferencesForm.data.theme === 'dark'} onChange={e => preferencesForm.setData('theme', e.target.value)} className="sr-only" />
-                                                        <span className="text-sm font-medium text-neutral-900">{preferencesForm.data.language === 'id' ? 'Gelap' : 'Dark'}</span>
+                                                        <span className="text-sm font-medium text-neutral-900">{language === 'id' ? 'Gelap' : 'Dark'}</span>
                                                     </label>
                                                     <label className={`flex items-center justify-center gap-2 p-3 border rounded-lg cursor-pointer transition-colors ${preferencesForm.data.theme === 'system' ? 'border-primary-600 bg-primary-50' : 'border-neutral-200 hover:bg-neutral-50'}`}>
                                                         <input type="radio" name="theme" value="system" checked={preferencesForm.data.theme === 'system'} onChange={e => preferencesForm.setData('theme', e.target.value)} className="sr-only" />
-                                                        <span className="text-sm font-medium text-neutral-900">Sistem</span>
+                                                        <span className="text-sm font-medium text-neutral-900">{language === 'id' ? 'Sistem' : 'System'}</span>
                                                     </label>
                                                 </div>
                                             </div>

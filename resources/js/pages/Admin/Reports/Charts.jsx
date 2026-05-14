@@ -1,5 +1,6 @@
 import { useMemo } from 'react';
 import { motion } from 'framer-motion';
+import { Star } from 'lucide-react';
 import {
     AreaChart, Area, LineChart, Line, BarChart, Bar, XAxis, YAxis,
     CartesianGrid, Tooltip, ResponsiveContainer, Legend,
@@ -89,10 +90,10 @@ export function StatusDonutChart({ data, t }) {
     if (!data?.length) return <EmptyChart t={t} />;
     const colors = data.map(d => STATUS_COLORS[d.status] || COLORS.slate);
     return (
-        <div className="flex items-center gap-4">
-            <ResponsiveContainer width="50%" height={200}>
+        <div className="flex flex-col sm:flex-row items-center gap-4">
+            <ResponsiveContainer width="100%" height={200} className="sm:w-1/2">
                 <PieChart>
-                    <Pie data={data} dataKey="count" nameKey="label" cx="50%" cy="50%" innerRadius={50} outerRadius={80} paddingAngle={3} strokeWidth={0}>
+                    <Pie data={data} dataKey="count" nameKey="label" cx="50%" cy="50%" innerRadius={45} outerRadius={65} paddingAngle={3} strokeWidth={0}>
                         {data.map((_, i) => <Cell key={i} fill={colors[i]} />)}
                     </Pie>
                     <Tooltip />
@@ -326,6 +327,29 @@ export function SatisfactionChart({ data, t }) {
                     </div>
                 );
             })}
+
+            <div className="mt-6 border-t pt-4">
+                <h4 className="text-sm font-medium text-neutral-900 mb-3">{t('recent_feedback', 'Recent Feedback')}</h4>
+                {data.feedbacks?.length > 0 ? (
+                    <div className="space-y-3 max-h-[160px] overflow-y-auto pr-2 custom-scrollbar">
+                        {data.feedbacks.map((fb, idx) => (
+                            <div key={idx} className="bg-neutral-50 border border-neutral-100 p-3 rounded-lg text-sm">
+                                <div className="flex justify-between items-start mb-1.5">
+                                    <span className="font-semibold text-neutral-800">{fb.user}</span>
+                                    <div className="flex items-center gap-1 text-amber-500 bg-amber-50 px-1.5 py-0.5 rounded text-xs font-medium">
+                                        <Star className="w-3 h-3 fill-current" />
+                                        <span>{fb.rating}</span>
+                                    </div>
+                                </div>
+                                <p className="text-neutral-600 text-xs italic line-clamp-3">"{fb.feedback}"</p>
+                                <p className="text-[10px] text-neutral-400 mt-2 font-mono">{fb.ticket_number} &bull; {fb.date}</p>
+                            </div>
+                        ))}
+                    </div>
+                ) : (
+                    <p className="text-xs text-neutral-500 text-center py-4">{t('no_feedback', 'No detailed feedback available.')}</p>
+                )}
+            </div>
         </div>
     );
 }

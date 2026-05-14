@@ -1,8 +1,11 @@
 import { useForm, Link, router, usePage } from '@inertiajs/react';
+import { useState } from 'react';
 import AppLayout from '../../../layouts/AppLayout';
 import { StatusBadge, PriorityBadge } from '../../../components/ui/Badge';
 import Button from '../../../components/ui/Button';
 import Card from '../../../components/ui/Card';
+import SlaIndicator from '../../../components/shared/SlaIndicator';
+import TicketTimeline from '../../../components/shared/TicketTimeline';
 import { useLanguage } from '../../../contexts/LanguageContext';
 import {
     ChevronRight,
@@ -22,6 +25,7 @@ import {
     FileSpreadsheet,
     Image as ImageIcon,
     AlertTriangle,
+    Printer,
 } from 'lucide-react';
 
 const getFileIcon = (mimeType) => {
@@ -32,9 +36,10 @@ const getFileIcon = (mimeType) => {
     return FileText;
 };
 
-export default function AdminTicketShow({ ticket, activityLogs, admins, macros }) {
+export default function AdminTicketShow({ ticket, activityLogs, admins, macros, allTags }) {
     const { t, language } = useLanguage();
     const { auth } = usePage().props;
+    const [selectedTags, setSelectedTags] = useState(ticket.tags?.map(t => t.id) || []);
     const commentForm = useForm({ body: '', is_internal: false });
     const statusForm = useForm({ status: ticket.status, solution_notes: ticket.solution_notes || '' });
     const assignForm = useForm({ assigned_to: ticket.assignee?.id || '', notes: '' });
@@ -69,6 +74,10 @@ export default function AdminTicketShow({ ticket, activityLogs, admins, macros }
         });
     };
 
+    const handleSyncTags = () => {
+        router.post(`/admin/tickets/${ticket.id}/tags`, { tag_ids: selectedTags }, { preserveScroll: true });
+    };
+
     return (
         <AppLayout title={`${t('ticket')} ${ticket.ticket_number}`}>
             {/* Breadcrumb */}
@@ -88,7 +97,16 @@ export default function AdminTicketShow({ ticket, activityLogs, admins, macros }
                         <span className="text-sm text-neutral-500">{ticket.ticket_number}</span>
                         <StatusBadge status={ticket.status} />
                         <PriorityBadge priority={ticket.priority} />
+                        <SlaIndicator dueAt={ticket.due_at} isClosed={ticket.status === 'closed'} />
                     </div>
+                </div>
+                <div className="flex items-center gap-2">
+                    <a href={`/admin/tickets/${ticket.id}/pdf`} className="inline-flex items-center gap-2 text-sm font-medium text-neutral-600 hover:text-primary-700 border border-neutral-200 rounded-lg px-3 py-2 hover:bg-neutral-50 transition-colors">
+                        <Download className="h-4 w-4" /> PDF
+                    </a>
+                    <button onClick={() => window.print()} className="inline-flex items-center gap-2 text-sm font-medium text-neutral-600 hover:text-primary-700 border border-neutral-200 rounded-lg px-3 py-2 hover:bg-neutral-50 transition-colors print:hidden">
+                        <Printer className="h-4 w-4" /> Print
+                    </button>
                 </div>
             </div>
 
@@ -230,6 +248,14 @@ export default function AdminTicketShow({ ticket, activityLogs, admins, macros }
                                 <p className="text-sm text-neutral-400 text-center py-4">{t('td_noActivity')}</p>
                             )}
                         </div>
+
+                        {/* Visual Timeline */}
+                        {activityLogs.length > 0 && (
+                            <div className="border-t border-neutral-200 pt-4">
+                                <h3 className="text-sm font-semibold text-neutral-700 mb-4">Timeline</h3>
+                                <TicketTimeline logs={activityLogs} />
+                            </div>
+                        )}
 
                         {/* Comment form */}
                         <form onSubmit={handleCommentSubmit} className="border-t border-neutral-200 pt-4">
@@ -443,6 +469,38 @@ export default function AdminTicketShow({ ticket, activityLogs, admins, macros }
                             </form>
                         </Card>
                     )}
+
+                    {/* Tags */}
+                    <Card>
+                        <div className="flex items-center gap-2 mb-4">
+                            <Tag className="h-4 w-4 text-neutral-400" />
+                            <h3 className="text-sm font-semibold text-neutral-950">Tags</h3>
+                        </div>
+                        <div className="flex flex-wrap gap-1.5 mb-3">
+                            {(allTags || []).map((tag) => (
+                                <button
+                                    key={tag.id}
+                                    onClick={() => setSelectedTags((prev) => prev.includes(tag.id) ? prev.filter(i => i !== tag.id) : [...prev, tag.id])}
+                                    className={`text-xs px-2.5 py-1 rounded-full border transition-colors ${
+                                        selectedTags.includes(tag.id)
+                                            ? 'border-transparent text-white'
+                                            : 'border-neutral-200 text-neutral-600 hover:border-neutral-300'
+                                    }`}
+                                    style={selectedTags.includes(tag.id) ? { backgroundColor: tag.color } : {}}
+                                >
+                                    {tag.name}
+                                </button>
+                            ))}
+                            {(!allTags || allTags.length === 0) && (
+                                <p className="text-xs text-neutral-400">No tags available. Create tags in Settings.</p>
+                            )}
+                        </div>
+                        {allTags && allTags.length > 0 && (
+                            <Button onClick={handleSyncTags} size="sm" variant="secondary" className="w-full">
+                                Save Tags
+                            </Button>
+                        )}
+                    </Card>
                 </div>
             </div>
         </AppLayout>

@@ -184,7 +184,7 @@ export default function ERDCore() {
                 </div>
                 <button onClick={onDownload} className="flex items-center gap-2 px-3 py-1.5 bg-primary-50 text-primary-700 hover:bg-primary-100 rounded-md text-sm font-medium transition-colors border border-primary-200 self-start sm:self-auto">
                     <Download className="h-4 w-4" />
-                    Export PNG
+                    {isId ? 'Unduh PNG' : 'Export PNG'}
                 </button>
             </div>
             <div className="flex-1 w-full h-full min-h-[400px] sm:min-h-[500px]">

@@ -345,6 +345,22 @@ class ReportService
 
         $totalRated = $ratings->sum('count');
 
+        $recentFeedbacks = Ticket::with('user:id,name')
+            ->where('status', '!=', TicketStatus::DRAFT)
+            ->whereNotNull('rating')
+            ->whereNotNull('feedback_notes')
+            ->whereBetween('created_at', [$this->from, $this->to])
+            ->orderBy('updated_at', 'desc')
+            ->limit(10)
+            ->get(['id', 'ticket_number', 'user_id', 'rating', 'feedback_notes', 'updated_at'])
+            ->map(fn($ticket) => [
+                'ticket_number' => $ticket->ticket_number,
+                'user' => $ticket->user->name ?? 'Unknown',
+                'rating' => $ticket->rating,
+                'feedback' => $ticket->feedback_notes,
+                'date' => $ticket->updated_at->diffForHumans(),
+            ]);
+
         return [
             'avgRating' => $avgRating ? round($avgRating, 1) : null,
             'totalRated' => $totalRated,
@@ -352,6 +368,7 @@ class ReportService
                 'rating' => $item->rating,
                 'count' => $item->count,
             ])->toArray(),
+            'feedbacks' => $recentFeedbacks->toArray(),
         ];
     }
 
