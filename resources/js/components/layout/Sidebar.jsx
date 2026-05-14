@@ -76,8 +76,8 @@ export default function Sidebar({ open, onClose, user }) {
             <div className="flex items-center justify-between h-16 px-4 border-b border-neutral-200">
                 <Link href={isAdmin ? '/admin/dashboard' : '/dashboard'} className="flex items-center gap-2">
                     <img src="/images/Logo_POLMIND.png" alt="POLMIND" className="h-7 w-auto" />
-                    <span className="text-base font-bold text-primary-900 tracking-tight">
-                        IT Support
+                    <span className="text-sm font-bold text-primary-900 tracking-tight">
+                        POLMIND IT SUPPORT
                     </span>
                 </Link>
                 <button

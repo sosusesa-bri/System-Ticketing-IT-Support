@@ -6,7 +6,7 @@ import { toPng } from 'html-to-image';
 import { useLanguage } from '../../../../contexts/LanguageContext';
 
 const ProcessNode = ({ data }) => (
-    <div className="px-4 py-2 shadow-md rounded-md bg-white border-2 border-blue-500 font-medium text-center text-neutral-800 dark:text-white min-w-[150px]">
+    <div className="px-4 py-2 shadow-md rounded-md bg-white border-2 border-blue-500 font-medium text-center text-neutral-800 min-w-[150px]">
         <Handle type="target" position={Position.Top} className="w-2 h-2" />
         {data.label}
         <Handle type="source" position={Position.Bottom} className="w-2 h-2" />

@@ -179,7 +179,7 @@ const docData_en = {
                         <FeatureListItem text="Role-Based Redirect: Users are routed to /dashboard, Admins to /admin/dashboard." />
                     </ul>
                     <Alert type="info" title="Auth UI Layout">
-                        Authentication screens utilize a split-screen layout. The left panel features institutional branding (deep blue, gold typography), while the right panel houses the functional forms.
+                        Authentication screens utilize a split-screen layout. The left panel features a modern institutional branding design (deep blue background with gradient overlay, prominent typography, and a grid of key features with icons), while the right panel houses the functional forms with an ambient background.
                     </Alert>
                 </section>
                 <section>
@@ -445,7 +445,7 @@ const docData_en = {
                     <div className="space-y-4">
                         <div className="p-4 border rounded-lg bg-white">
                             <h4 className="font-bold text-rose-700 mb-1">Issue: File Attachment Fails</h4>
-                            <p className="text-sm text-neutral-600"><strong>Cause:</strong> File exceeds 10MB limit or storage directory lacks write permissions.<br/><strong>Fix:</strong> Compress file before upload or contact System Admin to verify `storage/app` permissions.</p>
+                            <p className="text-sm text-neutral-600"><strong>Cause:</strong> File exceeds 100MB limit or storage directory lacks write permissions.<br/><strong>Fix:</strong> Ensure file size is below 100MB or contact System Admin to verify `storage/app` permissions.</p>
                         </div>
                         <div className="p-4 border rounded-lg bg-white">
                             <h4 className="font-bold text-rose-700 mb-1">Issue: Not Receiving Notifications</h4>
@@ -673,7 +673,7 @@ const docData_id = {
                         <FeatureListItem text="Pengalihan Berbasis Peran: Pengguna diarahkan ke /dashboard, Admin ke /admin/dashboard." />
                     </ul>
                     <Alert type="info" title="Tata Letak UI Autentikasi">
-                        Layar autentikasi menggunakan tata letak layar terbagi. Panel kiri menampilkan branding institusional (biru tua, tipografi emas), sedangkan panel kanan menampung formulir fungsional.
+                        Layar autentikasi menggunakan tata letak layar terbagi. Panel kiri menampilkan desain branding institusional modern (latar belakang biru tua dengan overlay gradien, tipografi menonjol, dan grid fitur utama beserta ikon), sedangkan panel kanan menampung formulir fungsional dengan latar belakang ambien.
                     </Alert>
                 </section>
                 <section>
@@ -939,7 +939,7 @@ const docData_id = {
                     <div className="space-y-4">
                         <div className="p-4 border rounded-lg bg-white">
                             <h4 className="font-bold text-rose-700 mb-1">Masalah: Lampiran File Gagal</h4>
-                            <p className="text-sm text-neutral-600"><strong>Penyebab:</strong> File melebihi batas 10MB atau direktori penyimpanan tidak memiliki izin tulis.<br/><strong>Solusi:</strong> Kompres file sebelum mengunggah atau hubungi Admin Sistem untuk memverifikasi izin `storage/app`.</p>
+                            <p className="text-sm text-neutral-600"><strong>Penyebab:</strong> File melebihi batas 100MB atau direktori penyimpanan tidak memiliki izin tulis.<br/><strong>Solusi:</strong> Pastikan ukuran file di bawah 100MB atau hubungi Admin Sistem untuk memverifikasi izin `storage/app`.</p>
                         </div>
                         <div className="p-4 border rounded-lg bg-white">
                             <h4 className="font-bold text-rose-700 mb-1">Masalah: Tidak Menerima Notifikasi</h4>

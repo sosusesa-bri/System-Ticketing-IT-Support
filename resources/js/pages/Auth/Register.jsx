@@ -21,15 +21,15 @@ export default function Register() {
 
     return (
         <AuthLayout title={t('createAccount')}>
-            <div className="mb-8 flex flex-col items-center text-center">
-                <img src="/images/Logo_POLMIND.png" alt="POLMIND Logo" className="h-14 w-auto mb-6 hidden lg:block" />
-                <h2 className="text-2xl font-extrabold text-primary-950 mb-2 tracking-tight">{t('createAccount')}</h2>
-                <p className="text-sm text-neutral-500 font-medium">
+            <div className="mb-4 flex flex-col items-center text-center">
+                <img src="/images/Logo_POLMIND.png" alt="POLMIND Logo" className="h-8 w-auto mb-2 hidden lg:block" />
+                <h2 className="text-xl font-extrabold text-primary-950 mb-1 tracking-tight">{t('createAccount')}</h2>
+                <p className="text-xs text-neutral-500 font-medium">
                     {t('registerDesc')}
                 </p>
             </div>
 
-            <form onSubmit={handleSubmit} className="space-y-4">
+            <form onSubmit={handleSubmit} className="space-y-2">
                 <Input
                     id="name"
                     label={t('fullName')}
@@ -37,7 +37,7 @@ export default function Register() {
                     value={data.name}
                     onChange={(e) => setData('name', e.target.value)}
                     error={errors.name}
-                    placeholder={language === 'id' ? "Masukkan nama lengkap Anda" : "Enter your full name"}
+                    placeholder={language === 'id' ? "Masukkan nama lengkap" : "Enter full name"}
                     autoFocus
                     required
                 />
@@ -96,7 +96,7 @@ export default function Register() {
                     type="password"
                     value={data.password_confirmation}
                     onChange={(e) => setData('password_confirmation', e.target.value)}
-                    placeholder={language === 'id' ? "Konfirmasi kata sandi Anda" : "Confirm your password"}
+                    placeholder={language === 'id' ? "Konfirmasi sandi" : "Confirm password"}
                     required
                 />
 
@@ -104,13 +104,13 @@ export default function Register() {
                     type="submit"
                     loading={processing}
                     disabled={processing}
-                    className="w-full"
+                    className="w-full mt-2"
                 >
                     {t('registerHere')}
                 </Button>
             </form>
 
-            <p className="mt-6 text-center text-sm text-neutral-500">
+            <p className="mt-4 text-center text-sm text-neutral-500">
                 {language === 'id' ? 'Sudah memiliki akun?' : 'Already have an account?'} {' '}
                 <Link href="/login" className="text-primary-700 hover:text-primary-900 font-medium">
                     {t('signIn')}

@@ -103,7 +103,6 @@ class KnowledgeBaseAdminController extends Controller
                 'nullable',
                 'file',
                 'max:102400',
-                'mimes:jpeg,jpg,png,gif,webp,pdf,doc,docx,xls,xlsx,ppt,pptx,zip,csv,txt,md',
             ],
         ]);
 
@@ -177,7 +176,6 @@ class KnowledgeBaseAdminController extends Controller
                 'nullable',
                 'file',
                 'max:102400',
-                'mimes:jpeg,jpg,png,gif,webp,pdf,doc,docx,xls,xlsx,ppt,pptx,zip,csv,txt,md',
             ],
             'remove_attachments' => ['nullable', 'array'],
             'remove_attachments.*' => ['integer'],

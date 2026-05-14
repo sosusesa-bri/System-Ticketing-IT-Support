@@ -767,10 +767,33 @@ Based on the bundled project documentation, this application was prepared as an 
 
 ## License
 
-This repository does **not** currently include a standalone `LICENSE` file.
+This project is distributed under the MIT License.
 
-The Composer package metadata still reflects the default Laravel project skeleton license field (`MIT`), but the repository itself should include an explicit project-level license file if distribution terms are intended to be formalized.
+### Why MIT License
+The MIT License was chosen because it is simple, widely recognized, and repository-friendly. As a standard open-source license, it provides absolute clarity without imposing heavy legal burdens. This permissive structure makes it particularly appropriate for an academic, portfolio, and competition project, enabling reviewers, evaluators, and the broader development community to freely inspect and evaluate the codebase.
+
+### Permissions
+Under the terms of the MIT License, you are granted broad permissions to interact with this repository. You are allowed to:
+- **Reuse and Integrate:** Incorporate this software, in whole or in part, into other projects.
+- **Modify and Adapt:** Alter the source code to suit your specific operational or technical requirements.
+- **Distribute and Share:** Redistribute the original or modified source code to third parties.
+- **Private and Public Use:** Deploy the system in private institutional networks or public-facing environments without the obligation to publish your proprietary modifications.
+
+### Conditions
+While the license provides extensive freedom, it requires adherence to the following conditions to protect the original attribution:
+- **Copyright Preservation:** You must retain the original copyright notice in all copies or substantial portions of the software.
+- **License Inclusion:** Any redistribution of this codebase must include an unaltered copy of the MIT License text.
+
+### Warranty Disclaimer
+This software is provided "as is", without any warranty of any kind, whether express or implied. This includes, but is not limited to, implied warranties of merchantability, fitness for a particular purpose, or non-infringement. In no event shall the author or copyright holder be held liable for any claims, damages, or other operational liabilities arising from the use, deployment, or inability to use this software.
+
+### Project Context and Attribution
+This repository serves as a functional, competition-oriented academic project, architected to demonstrate enterprise-grade IT support capabilities. The application of the MIT License supports responsible reuse and open technical evaluation without overcomplicating the project with restrictive legal terms.
+
+If you choose to reuse, fork, or adapt this code for your own academic or professional work, proper attribution must be preserved. Acknowledging the original author and the Politeknik Mitra Industri context respects the extensive engineering effort invested in this platform.
+
+For the full legal text, please refer to the [LICENSE](LICENSE) file located in the root directory of this repository.
 
 ---
 
-Developed as an internal IT support system project for Politeknik Mitra Industri.
+*Architected and developed as a comprehensive IT Support Ticketing platform for Politeknik Mitra Industri by Muhammad Sabri Akbar.*

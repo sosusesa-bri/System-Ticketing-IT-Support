@@ -145,13 +145,14 @@ export default function TicketEdit({ ticket, categories }) {
     // Handle File Uploads
     const handleFiles = (files) => {
         const newFiles = Array.from(files);
-        // Validation: max 5 files, 10MB each
-        const validFiles = newFiles.filter(f => f.size <= 10 * 1024 * 1024);
-        
-        if (validFiles.length + data.attachments.length > 5) {
-            alert(t('tc_maxFiles'));
-            return;
-        }
+        // Validation: size up to 100MB
+        const validFiles = newFiles.filter(f => {
+            if (f.size > 100 * 1024 * 1024) {
+                alert(t('tc_maxFiles'));
+                return false;
+            }
+            return true;
+        });
 
         const updatedAttachments = [...data.attachments, ...validFiles];
         setData('attachments', updatedAttachments);

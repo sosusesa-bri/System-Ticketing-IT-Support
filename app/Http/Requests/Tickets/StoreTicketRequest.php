@@ -29,8 +29,6 @@ class StoreTicketRequest extends FormRequest
                 'nullable',
                 'file',
                 'max:102400',
-                'mimes:jpeg,jpg,png,gif,webp,pdf,doc,docx,xls,xlsx,ppt,pptx,zip,csv,txt,md',
-                'mimetypes:image/jpeg,image/png,image/gif,image/webp,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-powerpoint,application/vnd.openxmlformats-officedocument.presentationml.presentation,application/zip,application/x-zip-compressed,text/csv,text/plain,text/markdown,application/octet-stream',
             ],
         ];
     }

@@ -175,16 +175,18 @@ export default function Index() {
 
     const renderContent = () => {
         if (activeSection.startsWith('diagram_')) {
+            let DiagramComponent = null;
             switch(activeSection) {
-                case 'diagram_erd_core': return <ERDCore />;
-                case 'diagram_erd_notification': return <ERDNotification />;
-                case 'diagram_flow_auth': return <FlowchartAuth />;
-                case 'diagram_flow_ticket': return <FlowchartTicket />;
-                case 'diagram_flow_admin': return <FlowchartAdmin />;
-                case 'diagram_uc_user': return <UseCaseUser />;
-                case 'diagram_uc_admin': return <UseCaseAdmin />;
-                default: return <div className="p-8 text-neutral-500">{language === 'id' ? 'Komponen diagram tidak ditemukan.' : 'Diagram component not found.'}</div>;
+                case 'diagram_erd_core': DiagramComponent = <ERDCore />; break;
+                case 'diagram_erd_notification': DiagramComponent = <ERDNotification />; break;
+                case 'diagram_flow_auth': DiagramComponent = <FlowchartAuth />; break;
+                case 'diagram_flow_ticket': DiagramComponent = <FlowchartTicket />; break;
+                case 'diagram_flow_admin': DiagramComponent = <FlowchartAdmin />; break;
+                case 'diagram_uc_user': DiagramComponent = <UseCaseUser />; break;
+                case 'diagram_uc_admin': DiagramComponent = <UseCaseAdmin />; break;
+                default: DiagramComponent = <div className="p-8 text-neutral-500">{language === 'id' ? 'Komponen diagram tidak ditemukan.' : 'Diagram component not found.'}</div>;
             }
+            return <div className="h-full w-full force-light">{DiagramComponent}</div>;
         }
         return <DocumentationContent sectionId={activeSection} language={language} />;
     };

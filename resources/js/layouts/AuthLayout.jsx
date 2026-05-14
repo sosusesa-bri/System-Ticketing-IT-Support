@@ -2,6 +2,7 @@ import { Head } from '@inertiajs/react';
 import { motion } from 'framer-motion';
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu';
 import { useLanguage } from '../contexts/LanguageContext';
+import { Headset, ShieldCheck, Zap, BarChart3 } from 'lucide-react';
 
 export default function AuthLayout({ children, title }) {
     const { language, setLanguage } = useLanguage();
@@ -47,78 +48,131 @@ export default function AuthLayout({ children, title }) {
                 {/* ─────────────────────────────────────────────────── */}
                 {/*  LEFT PANEL - Premium Institutional Branding       */}
                 {/* ─────────────────────────────────────────────────── */}
-                <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden" style={{ backgroundColor: '#0F2A5F', fontFamily: "'Plus Jakarta Sans', 'Inter', sans-serif" }}>
+                <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden" style={{ backgroundColor: '#07183B', fontFamily: "'Plus Jakarta Sans', 'Inter', sans-serif" }}>
 
                     {/* Background Image — dominant, full-bleed */}
                     <motion.div
                         initial={{ scale: 1.04 }}
                         animate={{ scale: 1 }}
                         transition={{ duration: 2, ease: 'easeOut' }}
-                        className="absolute inset-0 opacity-60"
+                        className="absolute inset-0 opacity-100"
                     >
                         <div
                             className="absolute inset-0 bg-cover bg-center"
                             style={{ backgroundImage: "url('/images/background.png')" }}
                         />
+                        {/* Gradient overlay to make text pop based on the image, made lighter */}
+                        <div className="absolute inset-0 bg-gradient-to-r from-[#07183B]/85 via-[#07183B]/40 to-transparent" />
+                        <div className="absolute inset-0 bg-gradient-to-t from-[#07183B]/80 via-transparent to-transparent" />
                     </motion.div>
 
-                    {/* Text Composition — bottom-left, editorial rhythm */}
-                    <div className="relative z-10 flex flex-col justify-end h-full w-full px-10 pb-16">
-                        <motion.div
-                            initial={{ opacity: 0, y: 18 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ duration: 0.9, delay: 0.35, ease: 'easeOut' }}
-                            className="max-w-[460px]"
-                        >
-                            {/* Heading */}
+                    <div className="relative z-10 flex flex-col justify-end h-full w-full px-12 pt-14 pb-10">
+                        
+                        {/* Top Content Wrapper - Aligned to bottom */}
+                        <div className="flex flex-col mt-auto pb-8">
+                            <motion.div
+                                initial={{ opacity: 0, y: 18 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                transition={{ duration: 0.9, delay: 0.35, ease: 'easeOut' }}
+                                className="max-w-[460px]"
+                            >
+                            <div className="flex items-center gap-4 mb-6">
+                                <div className="h-10 w-10 rounded-xl bg-white/10 flex items-center justify-center border border-white/10 backdrop-blur-sm">
+                                    <Headset className="w-5 h-5 text-white" />
+                                </div>
+                                <span className="text-white text-xs tracking-[0.08em] font-medium uppercase opacity-90">
+                                    Internal Support Platform
+                                </span>
+                            </div>
+
                             <motion.h1
                                 initial={{ opacity: 0, y: 12 }}
                                 animate={{ opacity: 1, y: 0 }}
                                 transition={{ duration: 0.7, delay: 0.4, ease: 'easeOut' }}
-                                className="text-[30px] font-extrabold text-white leading-[1.1] tracking-[-0.02em]"
+                                className="text-[36px] sm:text-[42px] font-extrabold text-white leading-[1.15] tracking-[-0.02em] mb-5"
                                 style={{
-                                    textShadow: '0 2px 16px rgba(0, 0, 0, 0.4), 0 1px 4px rgba(0, 0, 0, 0.2)',
+                                    textShadow: '0 2px 10px rgba(0, 0, 0, 0.5)'
                                 }}
                             >
-                                IT Support System
+                                IT Support<br />Ticketing System
                             </motion.h1>
 
-                            {/* Institution name */}
-                            <motion.p
-                                initial={{ opacity: 0, y: 10 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                transition={{ duration: 0.7, delay: 0.55, ease: 'easeOut' }}
-                                className="text-[18px] font-bold text-white text-white leading-[1.1 tracking-[-0.01em]"
-                                style={{
-                                    textShadow: '0 2px 16px rgba(0, 0, 0, 0.4), 0 1px 4px rgba(0, 0, 0, 0.2)',
-                                }}
-                            >
-                                Politeknik Mitra Industri
-                            </motion.p>
-
-                            {/* Divider — refined thin line */}
+                            {/* Divider line */}
                             <motion.div
                                 initial={{ opacity: 0, scaleX: 0 }}
                                 animate={{ opacity: 1, scaleX: 1 }}
                                 transition={{ duration: 0.6, delay: 0.7, ease: 'easeOut' }}
-                                className="w-16 h-[2px] bg-white/40 mt-6 mb-5 origin-left"
+                                className="w-16 h-[3px] bg-[#3B82F6] mb-5 origin-left"
                             />
 
-                            {/* Subtitle */}
+                            <motion.h2
+                                initial={{ opacity: 0, y: 10 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                transition={{ duration: 0.7, delay: 0.55, ease: 'easeOut' }}
+                                className="text-[18px] font-bold text-[#60A5FA] tracking-[-0.01em] mb-3"
+                            >
+                                POLITEKNIK MITRA INDUSTRI
+                            </motion.h2>
+
                             <motion.p
                                 initial={{ opacity: 0, y: 10 }}
                                 animate={{ opacity: 1, y: 0 }}
                                 transition={{ duration: 0.7, delay: 0.75, ease: 'easeOut' }}
-                                className="text-white/80 text-[13.5px] font-medium leading-[1.7] max-w-[360px]"
+                                className="text-white/80 text-[14px] font-normal leading-[1.6] max-w-[420px] min-h-[68px]"
                                 style={{
-                                    textShadow: '0 1px 6px rgba(0, 0, 0, 0.12)',
+                                    textShadow: '0 1px 4px rgba(0, 0, 0, 0.5)'
                                 }}
                             >
                                 {language === 'id'
-                                    ? 'Sistem layanan dan pengelolaan tiket IT untuk mendukung kebutuhan operasional Politeknik Mitra Industri'
-                                    : 'An IT service and ticket management system to support the operational needs of Politeknik Mitra Industri'
+                                    ? 'Sistem layanan dan pengelolaan tiket IT untuk mendukung operasional kampus secara lebih terstruktur, efisien, dan responsif.'
+                                    : 'An IT service and ticket management system to support campus operations in a more structured, efficient, and responsive manner.'
                                 }
                             </motion.p>
+                        </motion.div>
+                        </div>
+
+                        {/* Bottom Feature Grid */}
+                        <motion.div 
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ duration: 0.8, delay: 0.9, ease: 'easeOut' }}
+                            className="grid grid-cols-1 sm:grid-cols-3 gap-6"
+                        >
+                            <div className="flex flex-row sm:flex-col gap-4 sm:gap-3 items-center sm:items-start">
+                                <div className="h-12 w-12 shrink-0 rounded-xl bg-[#1E3A8A]/40 flex items-center justify-center border border-[#3B82F6]/30 backdrop-blur-md">
+                                    <ShieldCheck className="w-5 h-5 text-white" />
+                                </div>
+                                <div>
+                                    <h4 className="text-white font-bold text-[13px] mb-1">Terstruktur</h4>
+                                    <p className="text-white/60 text-[12px] leading-relaxed min-h-[36px]">
+                                        {language === 'id' ? 'Alur kerja jelas dan terorganisasi' : 'Clear and organized workflow'}
+                                    </p>
+                                </div>
+                            </div>
+
+                            <div className="flex flex-row sm:flex-col gap-4 sm:gap-3 items-center sm:items-start">
+                                <div className="h-12 w-12 shrink-0 rounded-xl bg-[#1E3A8A]/40 flex items-center justify-center border border-[#3B82F6]/30 backdrop-blur-md">
+                                    <Zap className="w-5 h-5 text-white" />
+                                </div>
+                                <div>
+                                    <h4 className="text-white font-bold text-[13px] mb-1">Efisien</h4>
+                                    <p className="text-white/60 text-[12px] leading-relaxed min-h-[36px]">
+                                        {language === 'id' ? 'Penanganan cepat dan tepat sasaran' : 'Fast and accurate resolution'}
+                                    </p>
+                                </div>
+                            </div>
+
+                            <div className="flex flex-row sm:flex-col gap-4 sm:gap-3 items-center sm:items-start">
+                                <div className="h-12 w-12 shrink-0 rounded-xl bg-[#1E3A8A]/40 flex items-center justify-center border border-[#3B82F6]/30 backdrop-blur-md">
+                                    <BarChart3 className="w-5 h-5 text-white" />
+                                </div>
+                                <div>
+                                    <h4 className="text-white font-bold text-[13px] mb-1">Transparan</h4>
+                                    <p className="text-white/60 text-[12px] leading-relaxed min-h-[36px]">
+                                        {language === 'id' ? 'Informasi tiket dipantau real-time' : 'Ticket info monitored in real-time'}
+                                    </p>
+                                </div>
+                            </div>
                         </motion.div>
                     </div>
                 </div>
@@ -126,7 +180,7 @@ export default function AuthLayout({ children, title }) {
                 {/* ─────────────────────────────────────────────────── */}
                 {/*  RIGHT PANEL - Form                                */}
                 {/* ─────────────────────────────────────────────────── */}
-                <div className="w-full lg:w-1/2 flex flex-col justify-center bg-white px-6 sm:px-16 lg:px-24 py-12 relative overflow-hidden">
+                <div className="w-full lg:w-1/2 flex flex-col justify-center bg-white px-6 sm:px-12 lg:px-20 py-4 relative overflow-hidden">
 
                     {/* Ambient Animated Background */}
                     <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden">
@@ -161,17 +215,17 @@ export default function AuthLayout({ children, title }) {
                         initial={{ opacity: 0, x: 20 }}
                         animate={{ opacity: 1, x: 0 }}
                         transition={{ duration: 0.6, ease: "easeOut" }}
-                        className="w-full max-w-md mx-auto relative z-10"
+                        className="w-full max-w-[420px] mx-auto relative z-10"
                     >
                         {/* Mobile Logo Fallback */}
-                        <div className="lg:hidden mb-10 text-center flex flex-col items-center">
-                            <img src="/images/Logo_POLMIND.png" alt="POLMIND Logo" className="h-16 w-auto mb-4" />
-                            <h1 className="text-2xl font-bold text-primary-900 tracking-tight">
+                        <div className="lg:hidden mb-4 text-center flex flex-col items-center">
+                            <img src="/images/Logo_POLMIND.png" alt="POLMIND Logo" className="h-10 w-auto mb-2" />
+                            <h1 className="text-xl font-bold text-primary-900 tracking-tight">
                                 IT Support System
                             </h1>
                         </div>
 
-                        <div className="bg-white/80 backdrop-blur-xl border border-white/40 shadow-[0_8px_30px_rgb(0,0,0,0.04)] rounded-2xl p-8 sm:p-10 ring-1 ring-neutral-200/50">
+                        <div className="bg-white/80 backdrop-blur-xl border border-white/40 shadow-[0_8px_30px_rgb(0,0,0,0.04)] rounded-2xl p-6 sm:p-8 ring-1 ring-neutral-200/50">
                             {children}
                         </div>
 

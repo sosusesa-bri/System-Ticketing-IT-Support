@@ -21,25 +21,14 @@ export default function AdminKnowledgeBaseCreate() {
     const [isDragging, setIsDragging] = useState(false);
     const fileInputRef = useRef(null);
 
-    // Allowed MIME types & extensions
-    const ALLOWED_MIME_TYPES = [
-        'image/jpeg', 'image/png', 'image/gif', 'image/webp',
-        'application/pdf',
-        'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-        'application/vnd.ms-excel', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-        'application/vnd.ms-powerpoint', 'application/vnd.openxmlformats-officedocument.presentationml.presentation',
-        'application/zip', 'application/x-zip-compressed',
-        'text/csv', 'text/plain', 'text/markdown',
-    ];
-    const ALLOWED_EXTENSIONS = ['jpg','jpeg','png','gif','webp','pdf','doc','docx','xls','xlsx','ppt','pptx','zip','csv','txt','md'];
-    const FILE_ACCEPT = '.jpg,.jpeg,.png,.gif,.webp,.pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.zip,.csv,.txt,.md,image/*,application/pdf';
-
     const handleFiles = (files) => {
         const newFiles = Array.from(files);
         const validFiles = newFiles.filter(f => {
-            if (f.size > 100 * 1024 * 1024) return false;
-            const ext = f.name.split('.').pop()?.toLowerCase();
-            return ALLOWED_MIME_TYPES.includes(f.type) || ALLOWED_EXTENSIONS.includes(ext);
+            if (f.size > 100 * 1024 * 1024) {
+                alert(t('tc_maxFiles'));
+                return false;
+            }
+            return true;
         });
 
         const updatedAttachments = [...data.attachments, ...validFiles];
@@ -150,11 +139,10 @@ export default function AdminKnowledgeBaseCreate() {
                             onClick={() => fileInputRef.current?.click()}
                             className={`border-2 border-dashed rounded-xl p-8 text-center cursor-pointer transition-all duration-200 ${isDragging ? 'border-primary-500 bg-primary-50' : 'border-neutral-300 hover:border-primary-400 hover:bg-neutral-50'}`}
                         >
-                            <input
-                                type="file"
-                                multiple
-                                accept={FILE_ACCEPT}
-                                ref={fileInputRef}
+                                <input
+                                    type="file"
+                                    multiple
+                                    ref={fileInputRef}
                                 onChange={(e) => handleFiles(e.target.files)}
                                 className="hidden"
                             />
@@ -166,7 +154,7 @@ export default function AdminKnowledgeBaseCreate() {
                                 <span className="text-primary-600">{language === 'id' ? 'telusuri file' : 'browse files'}</span>
                             </p>
                             <p className="text-xs text-neutral-500">
-                                {language === 'id' ? 'Maks. 100MB per file. Mendukung gambar, PDF, Office, ZIP.' : 'Max 100MB per file. Supports images, PDF, Office, ZIP.'}
+                                {t('tc_maxFiles')}
                             </p>
                         </div>
                         {errors['attachments.0'] && <p className="text-sm text-danger-600 mt-2">{errors['attachments.0']}</p>}

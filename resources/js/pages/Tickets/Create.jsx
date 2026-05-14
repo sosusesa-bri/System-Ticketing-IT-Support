@@ -148,30 +148,17 @@ export default function TicketCreate({ categories }) {
         return () => clearTimeout(timer);
     }, [data.title, data.category_id]);
 
-    // Allowed MIME types & extensions
-    const ALLOWED_MIME_TYPES = [
-        'image/jpeg', 'image/png', 'image/gif', 'image/webp',
-        'application/pdf',
-        'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-        'application/vnd.ms-excel', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-        'application/vnd.ms-powerpoint', 'application/vnd.openxmlformats-officedocument.presentationml.presentation',
-        'application/zip', 'application/x-zip-compressed',
-        'text/csv', 'text/plain', 'text/markdown',
-    ];
-
-    const ALLOWED_EXTENSIONS = ['jpg','jpeg','png','gif','webp','pdf','doc','docx','xls','xlsx','ppt','pptx','zip','csv','txt','md'];
-
-    const FILE_ACCEPT = '.jpg,.jpeg,.png,.gif,.webp,.pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.zip,.csv,.txt,.md,image/*,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-powerpoint,application/vnd.openxmlformats-officedocument.presentationml.presentation';
-
     // Handle File Uploads
     const handleFiles = (files) => {
         const newFiles = Array.from(files);
 
-        // Validate each file: size + type/extension
+        // Validate each file: size
         const validFiles = newFiles.filter(f => {
-            if (f.size > 100 * 1024 * 1024) return false;
-            const ext = f.name.split('.').pop()?.toLowerCase();
-            return ALLOWED_MIME_TYPES.includes(f.type) || ALLOWED_EXTENSIONS.includes(ext);
+            if (f.size > 100 * 1024 * 1024) {
+                alert(t('tc_maxFiles'));
+                return false;
+            }
+            return true;
         });
 
         const updatedAttachments = [...data.attachments, ...validFiles];
@@ -482,7 +469,6 @@ export default function TicketCreate({ categories }) {
                                         <input
                                             type="file"
                                             multiple
-                                            accept={FILE_ACCEPT}
                                             ref={fileInputRef}
                                             onChange={(e) => handleFiles(e.target.files)}
                                             className="hidden"
