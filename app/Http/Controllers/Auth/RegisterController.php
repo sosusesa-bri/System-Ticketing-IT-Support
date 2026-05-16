@@ -37,7 +37,7 @@ class RegisterController extends Controller
 
         AuditService::log('register', 'New user registered', $user);
 
-        Auth::login($user);
+        Auth::login($user, $request->boolean('remember'));
 
         return redirect()->route('dashboard');
     }

@@ -12,6 +12,7 @@ export default function Register() {
         department: '',
         password: '',
         password_confirmation: '',
+        remember: false,
     });
 
     const handleSubmit = (e) => {
@@ -38,6 +39,7 @@ export default function Register() {
                     onChange={(e) => setData('name', e.target.value)}
                     error={errors.name}
                     placeholder={language === 'id' ? "Masukkan nama lengkap" : "Enter full name"}
+                    className="dark:bg-white dark:text-neutral-900 dark:border-neutral-200 dark:placeholder:text-neutral-400 dark:focus:ring-primary-600/30 dark:focus:border-primary-600"
                     autoFocus
                     required
                 />
@@ -50,6 +52,7 @@ export default function Register() {
                     onChange={(e) => setData('email', e.target.value)}
                     error={errors.email}
                     placeholder="you@politekmitra.ac.id"
+                    className="dark:bg-white dark:text-neutral-900 dark:border-neutral-200 dark:placeholder:text-neutral-400 dark:focus:ring-primary-600/30 dark:focus:border-primary-600"
                     required
                 />
 
@@ -61,7 +64,7 @@ export default function Register() {
                         id="department"
                         value={data.department}
                         onChange={(e) => setData('department', e.target.value)}
-                        className="h-10 w-full rounded-md border border-neutral-200 bg-white px-3 text-sm text-neutral-950 focus:outline-none focus:ring-2 focus:ring-primary-700"
+                        className="h-10 w-full rounded-md border border-neutral-200 bg-white px-3 text-sm text-neutral-950 focus:outline-none focus:ring-2 focus:ring-primary-700 dark:bg-white dark:text-neutral-900 dark:border-neutral-200"
                         required
                     >
                         <option value="">{language === 'id' ? 'Pilih departemen' : 'Select department'}</option>
@@ -87,6 +90,7 @@ export default function Register() {
                     error={errors.password}
                     helpText={language === 'id' ? "Minimal 8 karakter" : "Minimum 8 characters"}
                     placeholder={language === 'id' ? "Buat kata sandi" : "Create a password"}
+                    className="dark:bg-white dark:text-neutral-900 dark:border-neutral-200 dark:placeholder:text-neutral-400 dark:focus:ring-primary-600/30 dark:focus:border-primary-600"
                     required
                 />
 
@@ -97,8 +101,21 @@ export default function Register() {
                     value={data.password_confirmation}
                     onChange={(e) => setData('password_confirmation', e.target.value)}
                     placeholder={language === 'id' ? "Konfirmasi sandi" : "Confirm password"}
+                    className="dark:bg-white dark:text-neutral-900 dark:border-neutral-200 dark:placeholder:text-neutral-400 dark:focus:ring-primary-600/30 dark:focus:border-primary-600"
                     required
                 />
+
+                <div className="flex items-center">
+                    <label className="flex items-center gap-2 cursor-pointer">
+                        <input
+                            type="checkbox"
+                            checked={data.remember}
+                            onChange={(e) => setData('remember', e.target.checked)}
+                            className="h-4 w-4 rounded border-neutral-300 text-primary-700 focus:ring-primary-700"
+                        />
+                        <span className="text-sm text-neutral-500">{language === 'id' ? 'Ingat saya' : 'Remember me'}</span>
+                    </label>
+                </div>
 
                 <Button
                     type="submit"

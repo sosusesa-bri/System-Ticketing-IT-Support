@@ -1,29 +1,32 @@
-import { useForm, Link } from '@inertiajs/react';
+import { useForm } from '@inertiajs/react';
 import AuthLayout from '../../layouts/AuthLayout';
 import Input from '../../components/ui/Input';
 import Button from '../../components/ui/Button';
 import { useLanguage } from '../../contexts/LanguageContext';
 
-export default function Login() {
-    const { t } = useLanguage();
+export default function ResetPassword({ token, email }) {
+    const { t, language } = useLanguage();
     const { data, setData, post, processing, errors } = useForm({
-        email: '',
+        token: token,
+        email: email,
         password: '',
-        remember: false,
+        password_confirmation: '',
     });
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        post('/login');
+        post('/reset-password');
     };
 
     return (
-        <AuthLayout title={t('signIn')}>
+        <AuthLayout title={language === 'id' ? 'Reset Kata Sandi' : 'Reset Password'}>
             <div className="mb-8 flex flex-col items-center text-center">
                 <img src="/images/Logo_POLMIND.png" alt="POLMIND Logo" className="h-14 w-auto mb-6 hidden lg:block" />
-                <h2 className="text-2xl font-extrabold text-primary-950 mb-2 tracking-tight">{t('signIn')}</h2>
+                <h2 className="text-2xl font-extrabold text-primary-950 mb-2 tracking-tight">
+                    {language === 'id' ? 'Reset Kata Sandi' : 'Reset Password'}
+                </h2>
                 <p className="text-sm text-neutral-500 font-medium">
-                    {t('enterCredentials')}
+                    {language === 'id' ? 'Silakan masukkan kata sandi baru Anda.' : 'Please enter your new password.'}
                 </p>
             </div>
 
@@ -35,9 +38,8 @@ export default function Login() {
                     value={data.email}
                     onChange={(e) => setData('email', e.target.value)}
                     error={errors.email}
-                    placeholder="you@politekmitra.ac.id"
                     className="dark:bg-white dark:text-neutral-900 dark:border-neutral-200 dark:placeholder:text-neutral-400 dark:focus:ring-primary-600/30 dark:focus:border-primary-600"
-                    autoFocus
+                    readOnly
                     required
                 />
 
@@ -48,46 +50,33 @@ export default function Login() {
                     value={data.password}
                     onChange={(e) => setData('password', e.target.value)}
                     error={errors.password}
-                    placeholder="••••••••"
+                    placeholder={language === 'id' ? "Kata sandi baru" : "New password"}
                     className="dark:bg-white dark:text-neutral-900 dark:border-neutral-200 dark:placeholder:text-neutral-400 dark:focus:ring-primary-600/30 dark:focus:border-primary-600"
+                    autoFocus
                     required
                 />
 
-                <div className="flex items-center justify-between">
-                    <label className="flex items-center gap-2 cursor-pointer">
-                        <input
-                            type="checkbox"
-                            checked={data.remember}
-                            onChange={(e) => setData('remember', e.target.checked)}
-                            className="h-4 w-4 rounded border-neutral-300 text-primary-700 focus:ring-primary-700"
-                        />
-                        <span className="text-sm text-neutral-500">{t('rememberMe')}</span>
-                    </label>
-
-                    <Link
-                        href="/forgot-password"
-                        className="text-sm text-primary-700 hover:text-primary-900 font-medium"
-                    >
-                        {t('forgotPassword')}
-                    </Link>
-                </div>
+                <Input
+                    id="password_confirmation"
+                    label={t('confirmPassword')}
+                    type="password"
+                    value={data.password_confirmation}
+                    onChange={(e) => setData('password_confirmation', e.target.value)}
+                    error={errors.password_confirmation}
+                    placeholder={language === 'id' ? "Konfirmasi sandi baru" : "Confirm new password"}
+                    className="dark:bg-white dark:text-neutral-900 dark:border-neutral-200 dark:placeholder:text-neutral-400 dark:focus:ring-primary-600/30 dark:focus:border-primary-600"
+                    required
+                />
 
                 <Button
                     type="submit"
                     loading={processing}
                     disabled={processing}
-                    className="w-full"
+                    className="w-full justify-center py-2.5 text-sm font-semibold rounded-xl bg-primary-600 hover:bg-primary-700 text-white shadow-md hover:shadow-lg transition-all"
                 >
-                    {t('signIn')}
+                    {language === 'id' ? 'Simpan Kata Sandi' : 'Save Password'}
                 </Button>
             </form>
-
-            <p className="mt-6 text-center text-sm text-neutral-500">
-                {t('noAccount')}{' '}
-                <Link href="/register" className="text-primary-700 hover:text-primary-900 font-medium">
-                    {t('registerHere')}
-                </Link>
-            </p>
         </AuthLayout>
     );
 }

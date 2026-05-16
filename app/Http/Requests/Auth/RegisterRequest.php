@@ -22,6 +22,7 @@ class RegisterRequest extends FormRequest
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
             'department' => ['required', 'string', 'max:255'],
             'password' => ['required', 'string', 'confirmed', Password::min(8)],
+            'remember' => ['boolean'],
         ];
     }
 }

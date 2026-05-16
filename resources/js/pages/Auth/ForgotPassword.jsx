@@ -35,6 +35,7 @@ export default function ForgotPassword() {
                     onChange={(e) => setData('email', e.target.value)}
                     error={errors.email}
                     placeholder="you@politekmitra.ac.id"
+                    className="dark:bg-white dark:text-neutral-900 dark:border-neutral-200 dark:placeholder:text-neutral-400 dark:focus:ring-primary-600/30 dark:focus:border-primary-600"
                     autoFocus
                     required
                 />
